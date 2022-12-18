@@ -6,19 +6,19 @@
 </head>
 <body>
 
-<form id="loginForm" action="/user/login" method="post">
-    <p>
-        <label>{{ Localize "username" }}:</label>
-        <input type="text" name="name">
-    </p>
-
-    <p>
-        <label>{{ Localize "password" }}:</label>
-        <input type="text" name="passwd">
-    </p>
-    <p>
+<form action="/user/login" method="post">
+    <p>{{ .message }}</p>
+    <div>
+        <label for="name">{{ Localize "username" }}:</label>
+        <input id="name" name="name" type="text" value="{{ .username }}">
+    </div>
+    <div>
+        <label for="passwd">{{ Localize "password" }}:</label>
+        <input id="passwd" name="passwd" type="password">
+    </div>
+    <div>
         <input type="submit" value='{{ Localize "login" }}'>
-    </p>
+    </div>
 </form>
 
 </body>

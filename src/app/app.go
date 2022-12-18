@@ -81,7 +81,7 @@ func route(pEngine *gin.Engine) {
 
 		// isLogin
 		isLogin := false
-		username := session.Get("username")
+		username := session.Get("_username")
 		if v, r := username.(string); r && v != "" {
 			isLogin = true
 		}
