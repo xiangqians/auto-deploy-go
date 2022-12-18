@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ Localize "login" }}</title>
+</head>
+<body>
+
+<form id="loginForm" action="/user/login" method="post">
+    <p>
+        <label>{{ Localize "username" }}:</label>
+        <input type="text" name="name">
+    </p>
+
+    <p>
+        <label>{{ Localize "password" }}:</label>
+        <input type="text" name="passwd">
+    </p>
+    <p>
+        <input type="submit" value='{{ Localize "login" }}'>
+    </p>
+</form>
+
+</body>
+</html>
+
+<script>
+</script>

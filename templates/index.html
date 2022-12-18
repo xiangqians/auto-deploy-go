@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="shortcut icon" rel="external nofollow" href="/favicon.ico">
+    <title>Index</title>
+    <style>
+        body {
+            padding: 8px;
+        }
+
+        span {
+            display: block;
+            padding-top: 8px;
+        }
+
+        td {
+            padding-left: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<H2>Index</H2>
+
+<div>
+    <table>
+        <tr>
+            <td>method</td>
+            <td>{{ .method }}</td>
+        </tr>
+        <tr>
+            <td>goVersion</td>
+            <td>{{ .goVersion }}</td>
+        </tr>
+        <tr>
+            <td>ginVersion</td>
+            <td>{{ .ginVersion }}</td>
+        </tr>
+        <tr>
+            <td>time</td>
+            <td>{{ .time }}</td>
+        </tr>
+    </table>
+</div>
+
+<div>
+    <a href="/user/logout">{{ Localize "logout" }}</a>
+</div>
+
+</body>
+</html>
