@@ -6,8 +6,8 @@
   "i18n.reg": "Register",
   "i18n.usernameAlreadyExists": "Username already exists.",
   "i18n.usernameCannotEmpty": "Username cannot be empty.",
-  "i18n.loginTitle": "Login",
-  "i18n.login": "Login",
+  "i18n.loginTitle": "Sign in to AutoDeploy",
+  "i18n.login": "Sign in",
   "i18n.logout": "Logout",
   "i18n.usernameOrPasswordIncorrect": "The username or password is incorrect.",
   "i18n.index": "Index"
