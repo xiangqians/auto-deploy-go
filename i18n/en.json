@@ -2,13 +2,17 @@
   "i18n.username": "Username",
   "i18n.password": "Password",
   "i18n.nickname": "Nickname",
-  "i18n.regTitle": "Register",
-  "i18n.reg": "Register",
+  "i18n.regTitle": "Join AutoDeploy",
+  "i18n.reg": "Sign up",
+  "i18n.newToAutoDeploy": "New to AutoDeploy?",
+  "i18n.createAnAccount": "Create an account.",
   "i18n.usernameAlreadyExists": "Username already exists.",
   "i18n.usernameCannotEmpty": "Username cannot be empty.",
   "i18n.loginTitle": "Sign in to AutoDeploy",
   "i18n.login": "Sign in",
   "i18n.logout": "Logout",
   "i18n.usernameOrPasswordIncorrect": "The username or password is incorrect.",
-  "i18n.index": "Index"
+  "i18n.index": "Index",
+  "i18n.personalSettings": "Personal Settings",
+  "i18n.about": "About"
 }

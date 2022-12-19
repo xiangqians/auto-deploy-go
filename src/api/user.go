@@ -54,7 +54,7 @@ func UserRegHtml(pContext *gin.Context) {
 	session.Delete("message")
 	session.Save()
 
-	pContext.HTML(http.StatusOK, "reg.html", gin.H{
+	pContext.HTML(http.StatusOK, "user/reg.html", gin.H{
 		"username": username,
 		"nickname": nickname,
 		"message":  message,
@@ -128,7 +128,7 @@ func UserLoginHtml(pContext *gin.Context) {
 	session.Delete("message")
 	session.Save()
 
-	pContext.HTML(http.StatusOK, "login.html", gin.H{
+	pContext.HTML(http.StatusOK, "user/login.html", gin.H{
 		"username": username,
 		"message":  message,
 	})
@@ -180,6 +180,13 @@ func UserLogout(pContext *gin.Context) {
 
 	// 重定向
 	pContext.Redirect(http.StatusMovedPermanently, "/user/login")
+}
+
+func UserStgHtml(pContext *gin.Context) {
+
+}
+func UserStg(pContext *gin.Context) {
+
 }
 
 func GetUser(pContext *gin.Context) *User {

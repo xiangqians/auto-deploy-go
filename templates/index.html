@@ -7,9 +7,12 @@
 </head>
 <body>
 
-<p>
-    {{ .username }}, {{ .nickname }}
-</p>
+<div>
+    <a>{{ .username }}, {{ .nickname }}</a>
+</div>
+<div>
+    <a href="/user/logout">{{ Localize "i18n.logout" }}</a>
+</div>
 
 <div>
     <table>
@@ -28,9 +31,7 @@
     </table>
 </div>
 
-<div>
-    <a href="/user/logout">{{ Localize "i18n.logout" }}</a>
-</div>
-
+<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+<div><a href="https://github.com/xiangqians/auto-deploy-go" target="_blank">{{ Localize "i18n.about" }}</a></div>
 </body>
 </html>

@@ -10,6 +10,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/gin-contrib/i18n"
+	"github.com/gin-contrib/multitemplate"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-contrib/static"
@@ -18,6 +19,8 @@ import (
 	"golang.org/x/text/language"
 	"html/template"
 	"net/http"
+	"os"
+	"path/filepath"
 	"runtime"
 	"strconv"
 	"strings"
@@ -56,7 +59,49 @@ func route(pEngine *gin.Engine) {
 	})
 
 	// HTML模板
-	pEngine.LoadHTMLGlob("templates/*")
+	//pEngine.LoadHTMLGlob("templates/*")
+	//pEngine.LoadHTMLGlob("templates/**/*")
+	// https://github.com/gin-contrib/multitemplate
+	pEngine.HTMLRender = func(templatesDir string) multitemplate.Renderer {
+		pRenderer := multitemplate.NewRenderer()
+
+		matches, err := filepath.Glob(templatesDir)
+		if err != nil {
+			panic(err)
+		}
+
+		// Generate our templates map from our layouts/ and includes/ directories
+		for _, matche := range matches {
+			pFile, ferr := os.Open(matche)
+			if ferr != nil {
+				continue
+			}
+
+			fileInfo, fierr := pFile.Stat()
+			if fierr == nil {
+				name := filepath.Base(matche)
+				// /**/*
+				if fileInfo.IsDir() {
+					fname := fileInfo.Name()
+					subFileInfos, sfierr := pFile.Readdir(-1)
+					if sfierr == nil {
+						for _, subFileInfo := range subFileInfos {
+							subfname := subFileInfo.Name()
+							pRenderer.AddFromFilesFuncs(fmt.Sprintf("%s/%s", fname, subfname), pEngine.FuncMap, fmt.Sprintf("%s/%s", matche, subfname))
+						}
+					}
+
+				} else
+				// /*
+				{
+					pRenderer.AddFromFilesFuncs(name, pEngine.FuncMap, matche)
+				}
+			}
+			pFile.Close()
+		}
+
+		return pRenderer
+	}("./templates/*")
 
 	// 创建基于cookie的存储引擎
 	keyPairs := []byte("123456") // 密钥
@@ -150,6 +195,8 @@ func route(pEngine *gin.Engine) {
 		userRouterGroup.POST("/login", api.UserLogin)
 		userRouterGroup.GET("/logout", api.UserLogout)
 		userRouterGroup.POST("/logout", api.UserLogout)
+		userRouterGroup.GET("/stg", api.UserStgHtml)
+		userRouterGroup.POST("/stg", api.UserStg)
 	}
 
 	// index
