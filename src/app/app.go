@@ -6,7 +6,6 @@ package app
 import (
 	"auto-deploy-go/src/api"
 	"auto-deploy-go/src/logger"
-	"encoding/gob"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -64,13 +63,14 @@ func route(pEngine *gin.Engine) {
 	store := cookie.NewStore(keyPairs)
 	// 设置session中间件
 	// session中间件基于内存（其他存储引擎支持：redis、mysql等）实现时，其实就是一个 map[interface]interface 对象
-	pEngine.Use(sessions.Sessions("auto-deploy-session", // session & cookie名字
+	pEngine.Use(sessions.Sessions("autoDeploySessionId", // session & cookie名字
 		store))
-	gob.Register(api.User{})
 
 	// 未授权拦截
 	pEngine.Use(func(pContext *gin.Context) {
 		reqPath := pContext.Request.URL.Path
+
+		// 静态资源放行
 		if strings.HasPrefix(reqPath, "/static") {
 			pContext.Next()
 			return
@@ -81,32 +81,24 @@ func route(pEngine *gin.Engine) {
 
 		// isLogin
 		isLogin := false
-		username := session.Get("_username")
+		username := session.Get(api.SessionKeyUsername)
 		if v, r := username.(string); r && v != "" {
 			isLogin = true
 		}
 
-		if isLogin && (reqPath == "/user/reg" || reqPath == "/user/login") {
-			pContext.Redirect(http.StatusFound, "/")
-			return
-		}
-
-		if isLogin {
-			if reqPath == "/user/reg" || reqPath == "/user/login" {
-				pContext.Redirect(http.StatusFound, "/")
+		if reqPath == "/user/reg" || reqPath == "/user/login" {
+			if isLogin {
+				pContext.Redirect(http.StatusMovedPermanently, "/")
 			} else {
 				pContext.Next()
 			}
 			return
 		}
 
-		if reqPath == "/user/reg" || reqPath == "/user/login" {
-			pContext.Next()
-			return
+		if !isLogin {
+			// 重定向
+			pContext.Redirect(http.StatusMovedPermanently, "/user/login")
 		}
-
-		// 重定向
-		pContext.Redirect(http.StatusFound, "/user/login")
 	})
 
 	// apply i18n middleware
@@ -119,10 +111,18 @@ func route(pEngine *gin.Engine) {
 		FormatBundleFile: "json",
 	}), i18n.WithGetLngHandle(
 		func(pContext *gin.Context, defaultLang string) string {
-			lang := pContext.Query("lang")
+			//session := sessions.Default(pContext)
+			lang := strings.TrimSpace(pContext.Query("lang"))
 			if lang == "" {
+				//l := session.Get("lang")
+				//if v, r := l.(string); r && v != "" {
+				//	return v
+				//}
 				return defaultLang
 			}
+
+			//session.Set("lang", lang)
+			//session.Save()
 			return lang
 		},
 	)))
@@ -144,6 +144,7 @@ func route(pEngine *gin.Engine) {
 	// user
 	userRouterGroup := pEngine.Group("/user")
 	{
+		userRouterGroup.GET("/reg", api.UserRegHtml)
 		userRouterGroup.POST("/reg", api.UserReg)
 		userRouterGroup.GET("/login", api.UserLoginHtml)
 		userRouterGroup.POST("/login", api.UserLogin)

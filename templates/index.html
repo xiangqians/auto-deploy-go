@@ -4,24 +4,12 @@
     <meta charset="UTF-8">
     <link rel="shortcut icon" rel="external nofollow" href="/favicon.ico">
     <title>Index</title>
-    <style>
-        body {
-            padding: 8px;
-        }
-
-        span {
-            display: block;
-            padding-top: 8px;
-        }
-
-        td {
-            padding-left: 10px;
-        }
-    </style>
 </head>
 <body>
 
-<H2>Index</H2>
+<p>
+    {{ .username }}, {{ .nickname }}
+</p>
 
 <div>
     <table>
@@ -37,15 +25,11 @@
             <td>ginVersion</td>
             <td>{{ .ginVersion }}</td>
         </tr>
-        <tr>
-            <td>time</td>
-            <td>{{ .time }}</td>
-        </tr>
     </table>
 </div>
 
 <div>
-    <a href="/user/logout">{{ Localize "logout" }}</a>
+    <a href="/user/logout">{{ Localize "i18n.logout" }}</a>
 </div>
 
 </body>

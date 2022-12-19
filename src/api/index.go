@@ -4,15 +4,14 @@
 package api
 
 import (
-	"github.com/gin-contrib/i18n"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
 
 func Index(pContext *gin.Context) {
+	pUser := GetUser(pContext)
 	pContext.HTML(http.StatusOK, "index.html", gin.H{
-		"username": i18n.MustGetMessage("username"),
-		"password": i18n.MustGetMessage("password"),
-		"submit":   i18n.MustGetMessage("submit"),
+		"username": pUser.Name,
+		"nickname": pUser.Nickname,
 	})
 }

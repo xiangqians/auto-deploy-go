@@ -1,6 +1,13 @@
 {
-  "username": "username",
-  "password": "password",
-  "login": "login",
-  "logout": "logout"
+  "i18n.username": "Username",
+  "i18n.password": "Password",
+  "i18n.nickname": "Nickname",
+  "i18n.regTitle": "Register",
+  "i18n.reg": "Register",
+  "i18n.usernameAlreadyExists": "Username already exists.",
+  "i18n.usernameCannotEmpty": "Username cannot be empty.",
+  "i18n.loginTitle": "Login",
+  "i18n.login": "Login",
+  "i18n.logout": "Logout",
+  "i18n.usernameOrPasswordIncorrect": "The username or password is incorrect."
 }

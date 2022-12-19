@@ -2,22 +2,26 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>{{ Localize "i18n.loginTitle" }}</title>
+    <title>{{ Localize "i18n.regTitle" }}</title>
 </head>
 <body>
 
-<form action="/user/login" method="post">
+<form action="/user/reg" method="post">
     <p>{{ .message }}</p>
     <div>
         <label for="name">{{ Localize "i18n.username" }}:</label>
         <input id="name" name="name" type="text" value="{{ .username }}">
     </div>
     <div>
+        <label for="nickname">{{ Localize "i18n.nickname" }}:</label>
+        <input id="nickname" name="nickname" type="text" value="{{ .nickname }}">
+    </div>
+    <div>
         <label for="passwd">{{ Localize "i18n.password" }}:</label>
         <input id="passwd" name="passwd" type="password">
     </div>
     <div>
-        <input type="submit" value='{{ Localize "i18n.login" }}'> <a href="/user/reg">{{ Localize "i18n.reg" }}</a>
+        <input type="submit" value='{{ Localize "i18n.reg" }}'>
     </div>
 </form>
 
