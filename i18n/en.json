@@ -9,5 +9,6 @@
   "i18n.loginTitle": "Login",
   "i18n.login": "Login",
   "i18n.logout": "Logout",
-  "i18n.usernameOrPasswordIncorrect": "The username or password is incorrect."
+  "i18n.usernameOrPasswordIncorrect": "The username or password is incorrect.",
+  "i18n.index": "Index"
 }

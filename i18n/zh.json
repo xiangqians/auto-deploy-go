@@ -9,5 +9,6 @@
   "i18n.loginTitle": "登录",
   "i18n.login": "登录",
   "i18n.logout": "登出",
-  "i18n.usernameOrPasswordIncorrect": "用户名或密码不正确"
+  "i18n.usernameOrPasswordIncorrect": "用户名或密码不正确",
+  "i18n.index": "首页"
 }

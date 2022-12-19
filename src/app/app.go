@@ -71,7 +71,7 @@ func route(pEngine *gin.Engine) {
 		reqPath := pContext.Request.URL.Path
 
 		// 静态资源放行
-		if strings.HasPrefix(reqPath, "/static") {
+		if strings.HasPrefix(reqPath, "/static") || reqPath == "/favicon.ico" {
 			pContext.Next()
 			return
 		}
@@ -111,18 +111,18 @@ func route(pEngine *gin.Engine) {
 		FormatBundleFile: "json",
 	}), i18n.WithGetLngHandle(
 		func(pContext *gin.Context, defaultLang string) string {
-			//session := sessions.Default(pContext)
 			lang := strings.TrimSpace(pContext.Query("lang"))
 			if lang == "" {
-				//l := session.Get("lang")
-				//if v, r := l.(string); r && v != "" {
-				//	return v
-				//}
+				// 从请求头获取 Accept-Language
+				acceptLanguage := pContext.GetHeader("Accept-Language")
+				// en,zh-CN;q=0.9,zh;q=0.8
+				if strings.HasPrefix(acceptLanguage, "zh") {
+					return "zh"
+				} else if strings.HasPrefix(acceptLanguage, "en") {
+					return "en"
+				}
 				return defaultLang
 			}
-
-			//session.Set("lang", lang)
-			//session.Save()
 			return lang
 		},
 	)))
