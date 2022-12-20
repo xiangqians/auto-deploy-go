@@ -14,6 +14,7 @@
   "i18n.usernameOrPasswordIncorrect": "用户名或密码不正确",
   "i18n.index": "首页",
   "i18n.personalSettings": "个人设置",
+  "i18n.save": "保存",
   "i18n.item": "项目",
   "i18n.stageView": "阶段视图",
   "i18n.lastDeployTime": "最近部署时间",

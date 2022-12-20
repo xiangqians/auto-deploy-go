@@ -12,7 +12,7 @@
 <body>
 
 <div>
-    <a>{{ .username }}, {{ .nickname }}</a>
+    <a href="/user/stg">{{ .username }}, {{ .nickname }}</a>
 </div>
 <div>
     <a href="/user/logout">{{ Localize "i18n.logout" }}</a>
@@ -21,9 +21,12 @@
 <div>
     <table>
         <tr>
+            <!-- 鼠标悬停在此标签上时，title = itemDesc -->
             <td>itemName</td>
-            <td>itemDesc</td>
+
             <td>stageView</td>
+
+            <!-- 鼠标悬停在此标签上时，title = lastRevMessage -->
             <td>lastDeployTime</td>
         </tr>
         <tr>

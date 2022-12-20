@@ -14,5 +14,6 @@
   "i18n.usernameOrPasswordIncorrect": "The username or password is incorrect.",
   "i18n.index": "Index",
   "i18n.personalSettings": "Personal Settings",
+  "i18n.save": "Save",
   "i18n.about": "About"
 }

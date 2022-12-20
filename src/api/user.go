@@ -5,6 +5,7 @@ package api
 
 import (
 	"encoding/json"
+	"errors"
 	"github.com/gin-contrib/i18n"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
@@ -16,7 +17,7 @@ import (
 
 const SessionKeyUsername = "_username_"
 
-const userJsonFileName = "./data/user.json"
+const userJsonFname = "./data/user.json"
 
 type User struct {
 	Name     string `json:"name"`     // 用户名
@@ -28,7 +29,7 @@ var users []User
 
 func init() {
 	// 读取json文件
-	pFile, err := os.Open(userJsonFileName)
+	pFile, err := os.Open(userJsonFname)
 	if err != nil {
 		panic(err)
 	}
@@ -65,39 +66,18 @@ func UserRegHtml(pContext *gin.Context) {
 func UserReg(pContext *gin.Context) {
 	name := strings.TrimSpace(pContext.PostForm("name"))
 	nickname := strings.TrimSpace(pContext.PostForm("nickname"))
-	i18nKey := ""
-	verify := true
-	if name == "" {
-		verify = false
-		i18nKey = "i18n.usernameCannotEmpty"
-	} else {
-		for _, user := range users {
-			if user.Name == name {
-				verify = false
-				i18nKey = "i18n.usernameAlreadyExists"
-				break
-			}
-		}
-	}
-
-	if !verify {
+	err := VerifyUserName(name)
+	if err != nil {
 		session := sessions.Default(pContext)
 		session.Set("username", name)
 		session.Set("nickname", nickname)
-		if i18nKey != "" {
-			session.Set("message", i18n.MustGetMessage(i18nKey))
-		}
+		session.Set("message", err.Error())
 		session.Save()
 		pContext.Redirect(http.StatusMovedPermanently, "/user/reg")
 		return
 	}
 
 	passwd := strings.TrimSpace(pContext.PostForm("passwd"))
-
-	if nickname == "" {
-		nickname = name
-	}
-
 	users = append(users, User{
 		Name:     name,
 		Nickname: nickname,
@@ -105,15 +85,7 @@ func UserReg(pContext *gin.Context) {
 	})
 
 	// 将用户信息序列化到本地
-	pFile, err := os.Create(userJsonFileName)
-	if err != nil {
-		log.Fatal(err)
-	}
-	pEncoder := json.NewEncoder(pFile)
-	err = pEncoder.Encode(users)
-	if err != nil {
-		log.Fatal(err)
-	}
+	FlushUsers()
 
 	// 用户注册成功后，重定向到登录页
 	pContext.Redirect(http.StatusMovedPermanently, "/user/login")
@@ -183,10 +155,52 @@ func UserLogout(pContext *gin.Context) {
 }
 
 func UserStgHtml(pContext *gin.Context) {
-
+	pUser := GetUser(pContext)
+	username := pUser.Name
+	nickname := pUser.Nickname
+	pContext.HTML(http.StatusOK, "user/stg.html", gin.H{
+		"username": username,
+		"nickname": nickname,
+	})
 }
-func UserStg(pContext *gin.Context) {
 
+func UserStg(pContext *gin.Context) {
+	nickname := strings.TrimSpace(pContext.PostForm("nickname"))
+	passwd := strings.TrimSpace(pContext.PostForm("passwd"))
+	pUser := GetUser(pContext)
+	pUser.Nickname = nickname
+	pUser.Passwd = passwd
+	FlushUsers()
+
+	// 个人信息修改成功后重定向到当前页面
+	pContext.Redirect(http.StatusMovedPermanently, "/user/stg")
+}
+
+func VerifyUserName(name string) error {
+	if name == "" {
+		return errors.New(i18n.MustGetMessage("i18n.usernameCannotEmpty"))
+	}
+
+	for _, user := range users {
+		if user.Name == name {
+			return errors.New(i18n.MustGetMessage("i18n.usernameAlreadyExists"))
+		}
+	}
+	return nil
+}
+
+func FlushUsers() {
+	// 将用户信息序列化到本地
+	pFile, err := os.Create(userJsonFname)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	pEncoder := json.NewEncoder(pFile)
+	err = pEncoder.Encode(users)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
 func GetUser(pContext *gin.Context) *User {
@@ -196,13 +210,14 @@ func GetUser(pContext *gin.Context) *User {
 		username = v
 	}
 
-	var user *User = nil
-	for _, u := range users {
-		if u.Name == username {
-			user = &u
-			break
+	for i, l := 0, len(users); i < l; i++ {
+		user := users[i]
+		if user.Name == username {
+			// 注意两者区别，否则无法修改 user 信息
+			//return &user
+			return &users[i]
 		}
 	}
 
-	return user
+	return nil
 }
