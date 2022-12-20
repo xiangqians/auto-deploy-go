@@ -14,11 +14,11 @@
 <form action="/user/login" method="post">
     <p>{{ .message }}</p>
     <div>
-        <label for="name">{{ Localize "i18n.username" }}</label>
+        <label for="name">{{ Localize "i18n.user" }}</label>
         <input id="name" name="name" type="text" value="{{ .username }}">
     </div>
     <div>
-        <label for="passwd">{{ Localize "i18n.password" }}</label>
+        <label for="passwd">{{ Localize "i18n.passwd" }}</label>
         <input id="passwd" name="passwd" type="password">
     </div>
     <div>

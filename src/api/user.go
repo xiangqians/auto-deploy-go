@@ -12,6 +12,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 )
 
@@ -143,7 +144,7 @@ func UserLogin(pContext *gin.Context) {
 
 	if !verify {
 		session.Set("username", name)
-		session.Set("message", i18n.MustGetMessage("i18n.usernameOrPasswordIncorrect"))
+		session.Set("message", i18n.MustGetMessage("i18n.userOrPasswdIncorrect"))
 		session.Save()
 		pContext.Redirect(http.StatusMovedPermanently, "/user/loginpage")
 		return
@@ -221,13 +222,6 @@ func UserGitPage(pContext *gin.Context) {
 }
 
 func UserGitAdd(pContext *gin.Context) {
-	//type Git struct {
-	//	Name   string `json:"name"`   // 名称，唯一
-	//	Desc   string `json:"desc"`   // 服Git描述
-	//	User   string `json:"user"`   // 用户名
-	//	Passwd string `json:"passwd"` // 密码
-	//}
-	//
 	name := strings.TrimSpace(pContext.PostForm("name"))
 	desc := strings.TrimSpace(pContext.PostForm("desc"))
 	user := strings.TrimSpace(pContext.PostForm("user"))
@@ -237,9 +231,9 @@ func UserGitAdd(pContext *gin.Context) {
 	if name == "" {
 		errI18nKey = "i18n.nameCannotEmpty"
 	} else if user == "" {
-		errI18nKey = "i18n.usernameCannotEmpty"
+		errI18nKey = "i18n.userCannotEmpty"
 	} else if passwd == "" {
-		errI18nKey = "i18n.passwordCannotEmpty"
+		errI18nKey = "i18n.passwdCannotEmpty"
 	}
 
 	pUser := GetUser(pContext)
@@ -272,26 +266,124 @@ func UserGitAdd(pContext *gin.Context) {
 	})
 	FlushUser()
 
-	// 个人信息修改成功后重定向到当前页面
 	pContext.Redirect(http.StatusMovedPermanently, "/user/gitpage")
 }
 
 func UserGitUpd(pContext *gin.Context) {
-
 }
 
 func UserGitDel(pContext *gin.Context) {
 
 }
 
+func UserServerPage(pContext *gin.Context) {
+	session := sessions.Default(pContext)
+	name := session.Get("name")
+	desc := session.Get("desc")
+	host := session.Get("host")
+	port := session.Get("port")
+	user := session.Get("user")
+	message := session.Get("message")
+	session.Delete("name")
+	session.Delete("desc")
+	session.Delete("host")
+	session.Delete("port")
+	session.Delete("user")
+	session.Delete("message")
+	session.Save()
+
+	pUser := GetUser(pContext)
+	pContext.HTML(http.StatusOK, "user/settings.html", gin.H{
+		"servers": pUser.Servers,
+		"name":    name,
+		"desc":    desc,
+		"host":    host,
+		"port":    port,
+		"user":    user,
+		"message": message,
+		"type":    "server",
+	})
+}
+
+func UserServerAdd(pContext *gin.Context) {
+	name := strings.TrimSpace(pContext.PostForm("name"))
+	desc := strings.TrimSpace(pContext.PostForm("desc"))
+	host := strings.TrimSpace(pContext.PostForm("host"))
+	port := strings.TrimSpace(pContext.PostForm("port"))
+	user := strings.TrimSpace(pContext.PostForm("user"))
+	passwd := strings.TrimSpace(pContext.PostForm("passwd"))
+
+	errI18nKey := ""
+	if name == "" {
+		errI18nKey = "i18n.nameCannotEmpty"
+	} else if host == "" {
+		errI18nKey = "i18n.hostCannotEmpty"
+	} else if port == "" {
+		errI18nKey = "i18n.portCannotEmpty"
+	} else if user == "" {
+		errI18nKey = "i18n.userCannotEmpty"
+	} else if passwd == "" {
+		errI18nKey = "i18n.passwdCannotEmpty"
+	}
+
+	pUser := GetUser(pContext)
+	if errI18nKey == "" && pUser.Servers != nil {
+		for _, v := range pUser.Servers {
+			if v.Name == name {
+				errI18nKey = "i18n.nameAlreadyExists"
+				break
+			}
+		}
+	}
+
+	if errI18nKey != "" {
+		session := sessions.Default(pContext)
+		session.Set("name", name)
+		session.Set("desc", desc)
+		session.Set("host", host)
+		session.Set("port", port)
+		session.Set("user", user)
+		session.Set("message", i18n.MustGetMessage(errI18nKey))
+		session.Save()
+		pContext.Redirect(http.StatusMovedPermanently, "/user/serverpage")
+		return
+	}
+
+	iPort, err := strconv.Atoi(port)
+	if err != nil {
+		panic(err)
+	}
+
+	// save
+	pUser.Servers = append(pUser.Servers, Server{
+		Name:   name,
+		Desc:   desc,
+		Host:   host,
+		Port:   iPort,
+		User:   user,
+		Passwd: passwd,
+	})
+	FlushUser()
+
+	pContext.Redirect(http.StatusMovedPermanently, "/user/serverpage")
+}
+
+func UserServerUpd(pContext *gin.Context) {
+
+}
+
+func UserServerDel(pContext *gin.Context) {
+
+}
+
 func VerifyUserName(name string) error {
 	if name == "" {
-		return errors.New(i18n.MustGetMessage("i18n.usernameCannotEmpty"))
+		return errors.New(i18n.MustGetMessage("i18n.userCannotEmpty"))
 	}
 
 	for _, user := range users {
 		if user.Name == name {
-			return errors.New(i18n.MustGetMessage("i18n.usernameAlreadyExists"))
+			return errors.New(i18n.MustGetMessage("i18n.userAlreadyExists"))
 		}
 	}
 

@@ -212,8 +212,10 @@ func route(pEngine *gin.Engine) {
 		userRouterGroup.DELETE("/git", api.UserGitDel)
 
 		// server
-		userRouterGroup.GET("/server", api.UserAccountPage)
-		userRouterGroup.POST("/server", api.UserAccountUpd)
+		userRouterGroup.GET("/serverpage", api.UserServerPage)
+		userRouterGroup.POST("/server", api.UserServerAdd)
+		userRouterGroup.PUT("/server", api.UserServerUpd)
+		userRouterGroup.DELETE("/server", api.UserServerDel)
 	}
 
 	// index

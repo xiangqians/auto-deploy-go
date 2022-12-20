@@ -34,21 +34,81 @@
 
 <div class="wrap">
     <div id="left">
-        <p>{{ Localize "i18n.git" }}</p>
         <p>{{ Localize "i18n.server" }}</p>
+        <p>{{ Localize "i18n.git" }}</p>
         <p>{{ Localize "i18n.account" }}</p>
     </div>
 
     <div id="right">
-        <!-- Git -->
-        {{ if eq .type "git" }}
 
+        <!-- Server -->
+        {{ if eq .type "server" }}
         <table>
             <tr>
                 <td>{{ Localize "i18n.name" }}</td>
                 <td>{{ Localize "i18n.desc" }}</td>
-                <td>{{ Localize "i18n.username" }}</td>
-                <td>{{ Localize "i18n.password" }}</td>
+                <td>{{ Localize "i18n.host" }}</td>
+                <td>{{ Localize "i18n.port" }}</td>
+                <td>{{ Localize "i18n.user" }}</td>
+                <td>{{ Localize "i18n.passwd" }}</td>
+            </tr>
+            {{ range $index,$value := .servers }}
+            <tr>
+                <td>{{ $value.Name }}</td>
+                <td>{{ $value.Desc }}</td>
+                <td>{{ $value.Host }}</td>
+                <td>{{ $value.Port }}</td>
+                <td>{{ $value.User }}</td>
+                <td>******</td>
+            </tr>
+            {{end}}
+        </table>
+        <hr>
+
+        <form action="/user/server" method="post">
+            <p>{{ .message }}</p>
+            <div>
+                <label>{{ Localize "i18n.name" }}:</label>
+                <input name="name" type="text" value="{{ .name }}">
+            </div>
+            <div>
+                <label>{{ Localize "i18n.desc" }}:</label>
+                <input name="desc" type="text" value="{{ .desc }}">
+            </div>
+            <div>
+                <label>{{ Localize "i18n.host" }}:</label>
+                <input name="host" type="text" value="{{ .host }}">
+            </div>
+            <div>
+                <label>{{ Localize "i18n.port" }}:</label>
+                <input name="port" type="number" value="{{ .port }}">
+            </div>
+            <div>
+                <label>{{ Localize "i18n.user" }}:</label>
+                <input name="user" type="text" value="{{ .user }}">
+            </div>
+            <div>
+                <label>{{ Localize "i18n.passwd" }}:</label>
+                <input name="passwd" type="password">
+            </div>
+            <div>
+                <input type="submit" value='{{ Localize "i18n.save" }}'>
+            </div>
+            <div>
+                <a href="/">{{ Localize "i18n.index" }}</a>
+            </div>
+        </form>
+        {{ end }}
+
+
+        <!-- Git -->
+        {{ if eq .type "git" }}
+        <table>
+            <tr>
+                <td>{{ Localize "i18n.name" }}</td>
+                <td>{{ Localize "i18n.desc" }}</td>
+                <td>{{ Localize "i18n.user" }}</td>
+                <td>{{ Localize "i18n.passwd" }}</td>
             </tr>
             {{ range $index,$value := .gits }}
             <tr>
@@ -72,11 +132,11 @@
                 <input name="desc" type="text" value="{{ .desc }}">
             </div>
             <div>
-                <label>{{ Localize "i18n.username" }}:</label>
+                <label>{{ Localize "i18n.user" }}:</label>
                 <input name="user" type="text" value="{{ .user }}">
             </div>
             <div>
-                <label>{{ Localize "i18n.password" }}:</label>
+                <label>{{ Localize "i18n.passwd" }}:</label>
                 <input name="passwd" type="password">
             </div>
             <div>
@@ -88,12 +148,13 @@
         </form>
         {{ end }}
 
+
         <!-- 账户 -->
         {{ if eq .type "account" }}
         <form action="/user/account" method="post">
             <input type="hidden" name="_method" value="PUT">
             <div>
-                <label>{{ Localize "i18n.username" }}:</label>
+                <label>{{ Localize "i18n.user" }}:</label>
                 <input name="name" type="text" value="{{ .username }}" readonly="readonly">
             </div>
             <div>
@@ -101,7 +162,7 @@
                 <input name="nickname" type="text" value="{{ .nickname }}">
             </div>
             <div>
-                <label>{{ Localize "i18n.password" }}:</label>
+                <label>{{ Localize "i18n.passwd" }}:</label>
                 <input name="passwd" type="password">
             </div>
             <div>
