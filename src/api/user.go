@@ -18,7 +18,7 @@ import (
 
 const SessionKeyUsername = "_username_"
 
-const userJsonFname = "./data/user/user.json"
+const userJsonFilePath = dataDir + "/user/user.json"
 
 type Server struct {
 	Name   string `json:"name"`   // 名称，唯一
@@ -44,13 +44,11 @@ type User struct {
 	Gits     []Git    `json:"gits"`     // 用户所拥有的Git列表
 }
 
-// configuration
-
 var users []User
 
 func init() {
 	// 读取json文件
-	pFile, err := os.Open(userJsonFname)
+	pFile, err := os.Open(userJsonFilePath)
 	if err != nil {
 		panic(err)
 	}
@@ -392,7 +390,7 @@ func VerifyUserName(name string) error {
 
 func FlushUser() {
 	// 将用户信息序列化到本地
-	pFile, err := os.Create(userJsonFname)
+	pFile, err := os.Create(userJsonFilePath)
 	if err != nil {
 		log.Fatal(err)
 	}
