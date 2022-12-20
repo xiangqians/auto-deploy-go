@@ -2,7 +2,7 @@
   {
     "name": "admin",
     "nickname": "admin",
-    "passwd": "admin"
+    "passwd": ""
   },
   {
     "name": "dev",
