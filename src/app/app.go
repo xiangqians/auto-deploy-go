@@ -108,7 +108,7 @@ func route(pEngine *gin.Engine) {
 	store := cookie.NewStore(keyPairs)
 	// 设置session中间件
 	// session中间件基于内存（其他存储引擎支持：redis、mysql等）实现时，其实就是一个 map[interface]interface 对象
-	pEngine.Use(sessions.Sessions("autoDeploySessionId", // session & cookie名字
+	pEngine.Use(sessions.Sessions("autoDeploySessionId", // session & cookie 名称
 		store))
 
 	// 未授权拦截
@@ -116,7 +116,7 @@ func route(pEngine *gin.Engine) {
 		reqPath := pContext.Request.URL.Path
 
 		// 静态资源放行
-		if strings.HasPrefix(reqPath, "/static") || reqPath == "/favicon.ico" {
+		if strings.HasPrefix(reqPath, "/static") {
 			pContext.Next()
 			return
 		}
