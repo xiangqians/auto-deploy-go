@@ -26,17 +26,25 @@ func Ws(pContext *gin.Context) {
 	defer pConn.Close()
 
 	for {
-		mt, buf, err := pConn.ReadMessage()
-		// TextMessage or BinaryMessage.
+		messageType, buf, err := pConn.ReadMessage()
 		if err != nil {
 			log.Printf("%v\n", err)
 			return
 		}
-		log.Printf("recv: %s", string(buf))
 
-		if err = pConn.WriteMessage(mt, buf); err != nil {
-			log.Printf("%v\n", err)
-			break
+		switch messageType {
+		case websocket.TextMessage:
+			log.Printf("recv: %s", string(buf))
+			if err = pConn.WriteMessage(websocket.TextMessage, buf); err != nil {
+				log.Printf("%v \n", err)
+				break
+			}
+
+		case websocket.BinaryMessage:
+			log.Printf("Binary messages are not supported.\n")
+
+		default:
+			log.Printf("%v messages are not supported.\n", messageType)
 		}
 	}
 }
