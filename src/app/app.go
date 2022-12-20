@@ -202,6 +202,9 @@ func route(pEngine *gin.Engine) {
 	// index
 	pEngine.GET("/", api.Index)
 
+	// ws
+	pEngine.GET("/ws", api.Ws)
+
 }
 
 func Uuid() string {

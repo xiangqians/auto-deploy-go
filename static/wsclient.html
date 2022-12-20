@@ -1,0 +1,145 @@
+<!--
+ | @author xiangqian
+ | @date 10:10 2021/10/15
+ |-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="shortcut icon" rel="external nofollow" href="/static/favicon.ico">
+    <title>WebSocket Client</title>
+</head>
+<body>
+</body>
+</html>
+
+<!-- WebSocket Client -->
+<script type="text/javascript">
+
+    function WebSocketClient(url) {
+        this.url = url
+        this.webSocket = null
+    }
+
+    /**
+     * connect
+     * @param callback {onopen: function, onmessage: function, onclose: function, onerror: function}
+     */
+    WebSocketClient.prototype.connect = function (callback) {
+        if (this.webSocket != null) {
+            console.warn("WebSocket connected.")
+            return false
+        }
+
+        if (!window.WebSocket) {
+            window.WebSocket = window.MozWebSocket
+        }
+
+        // 判断当前浏览器是否支持WebSocket
+        // let flag  = 'WebSocket' in window
+        let flag = window.WebSocket
+        if (!flag) {
+            console.error("Your browser does not support Web Socket.")
+            return false
+        }
+
+        this.webSocket = new WebSocket(this.url)
+
+        // open，连接成功建立的回调方法
+        this.webSocket.onopen = function (event) {
+            if (callback && typeof callback.onopen == 'function') {
+                callback.onopen(event)
+            } else {
+                console.log("WebSocket opened.")
+            }
+        }
+
+        // message，接收到消息的回调方法
+        this.webSocket.onmessage = function (event) {
+            if (callback && typeof callback.onmessage == 'function') {
+                callback.onmessage(event)
+            } else {
+                console.log("WebSocket received message.")
+            }
+        }
+
+        const self = this
+
+        // close，连接关闭的回调方法
+        this.webSocket.onclose = function () {
+            if (callback && typeof callback.onclose == 'function') {
+                callback.onclose()
+            } else {
+                console.log("WebSocket closed.")
+            }
+            self.webSocket = null
+        }
+
+        // error，连接发生错误的回调方法
+        this.webSocket.onerror = function (event) {
+            if (callback && typeof callback.onerror == 'function') {
+                callback.onerror(event)
+            } else {
+                console.error("WebSocket error.", event)
+            }
+            self.webSocket = null
+        }
+
+        return true
+    }
+
+    WebSocketClient.prototype.isConnected = function () {
+        if (this.webSocket == null) {
+            console.warn("No connection established")
+            return false
+        }
+        return true
+    }
+
+    WebSocketClient.prototype.send = function (data) {
+        if (this.isConnected()) {
+            // data = JSON.stringify(data)
+            this.webSocket.send(data)
+            return true
+        }
+        return false
+    }
+
+    WebSocketClient.prototype.close = function () {
+        if (this.isConnected()) {
+            this.webSocket.close()
+        }
+        this.webSocket = null
+        return true
+    }
+
+</script>
+
+<!-- test -->
+<script type="text/javascript">
+
+    let url = "ws://localhost:8080/ws"
+
+    // let cookies = document.cookie.split(';');
+    // cookies.forEach(cookie=>{
+    //     console.log(cookie)
+    // })
+
+    let wsClient = new WebSocketClient(url)
+    wsClient.connect({
+        // 接收到响应数据
+        onmessage: function (event) {
+            let data = event.data
+            // let data = JSON.parse(event.data)
+            console.log("recv:", data)
+        }
+    })
+
+    // 监听窗口关闭事件，当窗口关闭时，主动去关闭websocket连接，防止连接还没断开就关闭窗口，server端会抛异常。
+    window.onbeforeunload = function () {
+        if (wsClient != null) {
+            wsClient.close()
+        }
+    }
+
+</script>
