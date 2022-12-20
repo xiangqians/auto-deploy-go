@@ -62,6 +62,7 @@
         <hr>
 
         <form action="/user/git" method="post">
+            <p>{{ .message }}</p>
             <div>
                 <label>{{ Localize "i18n.name" }}:</label>
                 <input name="name" type="text" value="{{ .name }}">

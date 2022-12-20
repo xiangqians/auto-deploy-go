@@ -105,7 +105,7 @@ func UserReg(pContext *gin.Context) {
 	})
 
 	// 将用户信息序列化到本地
-	FlushUsers()
+	FlushUser()
 
 	// 用户注册成功后，重定向到登录页
 	pContext.Redirect(http.StatusMovedPermanently, "/user/loginpage")
@@ -191,17 +191,32 @@ func UserAccountUpd(pContext *gin.Context) {
 	pUser := GetUser(pContext)
 	pUser.Nickname = nickname
 	pUser.Passwd = passwd
-	FlushUsers()
+	FlushUser()
 
 	// 个人信息修改成功后重定向到当前页面
 	pContext.Redirect(http.StatusMovedPermanently, "/user/accountpage")
 }
 
 func UserGitPage(pContext *gin.Context) {
+	session := sessions.Default(pContext)
+	name := session.Get("name")
+	desc := session.Get("desc")
+	user := session.Get("user")
+	message := session.Get("message")
+	session.Delete("name")
+	session.Delete("desc")
+	session.Delete("user")
+	session.Delete("message")
+	session.Save()
+
 	pUser := GetUser(pContext)
 	pContext.HTML(http.StatusOK, "user/settings.html", gin.H{
-		"gits": pUser.Gits,
-		"type": "git",
+		"gits":    pUser.Gits,
+		"name":    name,
+		"desc":    desc,
+		"user":    user,
+		"message": message,
+		"type":    "git",
 	})
 }
 
@@ -213,17 +228,52 @@ func UserGitAdd(pContext *gin.Context) {
 	//	Passwd string `json:"passwd"` // 密码
 	//}
 	//
-	//name := strings.TrimSpace(pContext.PostForm("name"))
-	//desc := strings.TrimSpace(pContext.PostForm("desc"))
-	//user := strings.TrimSpace(pContext.PostForm("user"))
-	//passwd := strings.TrimSpace(pContext.PostForm("passwd"))
-	//pUser := GetUser(pContext)
-	//pUser.Nickname = nickname
-	//pUser.Passwd = passwd
-	//FlushUsers()
+	name := strings.TrimSpace(pContext.PostForm("name"))
+	desc := strings.TrimSpace(pContext.PostForm("desc"))
+	user := strings.TrimSpace(pContext.PostForm("user"))
+	passwd := strings.TrimSpace(pContext.PostForm("passwd"))
+
+	errI18nKey := ""
+	if name == "" {
+		errI18nKey = "i18n.nameCannotEmpty"
+	} else if user == "" {
+		errI18nKey = "i18n.usernameCannotEmpty"
+	} else if passwd == "" {
+		errI18nKey = "i18n.passwordCannotEmpty"
+	}
+
+	pUser := GetUser(pContext)
+	if errI18nKey == "" && pUser.Gits != nil {
+		for _, v := range pUser.Gits {
+			if v.Name == name {
+				errI18nKey = "i18n.nameAlreadyExists"
+				break
+			}
+		}
+	}
+
+	if errI18nKey != "" {
+		session := sessions.Default(pContext)
+		session.Set("name", name)
+		session.Set("desc", desc)
+		session.Set("user", user)
+		session.Set("message", i18n.MustGetMessage(errI18nKey))
+		session.Save()
+		pContext.Redirect(http.StatusMovedPermanently, "/user/gitpage")
+		return
+	}
+
+	// save
+	pUser.Gits = append(pUser.Gits, Git{
+		Name:   name,
+		Desc:   desc,
+		User:   user,
+		Passwd: passwd,
+	})
+	FlushUser()
 
 	// 个人信息修改成功后重定向到当前页面
-	pContext.Redirect(http.StatusMovedPermanently, "/user/git")
+	pContext.Redirect(http.StatusMovedPermanently, "/user/gitpage")
 }
 
 func UserGitUpd(pContext *gin.Context) {
@@ -248,7 +298,7 @@ func VerifyUserName(name string) error {
 	return nil
 }
 
-func FlushUsers() {
+func FlushUser() {
 	// 将用户信息序列化到本地
 	pFile, err := os.Create(userJsonFname)
 	if err != nil {
