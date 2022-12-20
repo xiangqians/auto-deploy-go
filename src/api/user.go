@@ -17,13 +17,33 @@ import (
 
 const SessionKeyUsername = "_username_"
 
-const userJsonFname = "./data/user.json"
+const userJsonFname = "./data/user/user.json"
+
+type Server struct {
+	Name   string `json:"name"`   // 名称，唯一
+	Desc   string `json:"desc"`   // 服务描述
+	Host   string `json:"host"`   // host
+	Port   int    `json:"port"`   // 端口，默认22
+	User   string `json:"user"`   // 用户名
+	Passwd string `json:"passwd"` // 密码
+}
+
+type Git struct {
+	Name   string `json:"name"`   // 名称，唯一
+	Desc   string `json:"desc"`   // 服Git描述
+	User   string `json:"user"`   // 用户名
+	Passwd string `json:"passwd"` // 密码
+}
 
 type User struct {
-	Name     string `json:"name"`     // 用户名
-	Nickname string `json:"nickname"` // 昵称
-	Passwd   string `json:"passwd"`   // 密码
+	Name     string   `json:"name"`     // 用户名
+	Nickname string   `json:"nickname"` // 昵称
+	Passwd   string   `json:"passwd"`   // 密码
+	Servers  []Server `json:"servers"`  // 用户所拥有的服务列表
+	Gits     []Git    `json:"gits"`     // 用户所拥有的Git列表
 }
+
+// configuration
 
 var users []User
 
@@ -45,7 +65,7 @@ func init() {
 }
 
 // 用户注册html
-func UserRegHtml(pContext *gin.Context) {
+func UserRegPage(pContext *gin.Context) {
 	session := sessions.Default(pContext)
 	username := session.Get("username")
 	nickname := session.Get("nickname")
@@ -88,11 +108,11 @@ func UserReg(pContext *gin.Context) {
 	FlushUsers()
 
 	// 用户注册成功后，重定向到登录页
-	pContext.Redirect(http.StatusMovedPermanently, "/user/login")
+	pContext.Redirect(http.StatusMovedPermanently, "/user/loginpage")
 }
 
 // 用户登录html
-func UserLoginHtml(pContext *gin.Context) {
+func UserLoginPage(pContext *gin.Context) {
 	session := sessions.Default(pContext)
 	username := session.Get("username")
 	message := session.Get("message")
@@ -125,7 +145,7 @@ func UserLogin(pContext *gin.Context) {
 		session.Set("username", name)
 		session.Set("message", i18n.MustGetMessage("i18n.usernameOrPasswordIncorrect"))
 		session.Save()
-		pContext.Redirect(http.StatusMovedPermanently, "/user/login")
+		pContext.Redirect(http.StatusMovedPermanently, "/user/loginpage")
 		return
 	}
 
@@ -151,20 +171,21 @@ func UserLogout(pContext *gin.Context) {
 	session.Save()
 
 	// 重定向
-	pContext.Redirect(http.StatusMovedPermanently, "/user/login")
+	pContext.Redirect(http.StatusMovedPermanently, "/user/loginpage")
 }
 
-func UserStgHtml(pContext *gin.Context) {
+func UserAccountPage(pContext *gin.Context) {
 	pUser := GetUser(pContext)
 	username := pUser.Name
 	nickname := pUser.Nickname
-	pContext.HTML(http.StatusOK, "user/stg.html", gin.H{
+	pContext.HTML(http.StatusOK, "user/settings.html", gin.H{
 		"username": username,
 		"nickname": nickname,
+		"type":     "account",
 	})
 }
 
-func UserStg(pContext *gin.Context) {
+func UserAccountUpd(pContext *gin.Context) {
 	nickname := strings.TrimSpace(pContext.PostForm("nickname"))
 	passwd := strings.TrimSpace(pContext.PostForm("passwd"))
 	pUser := GetUser(pContext)
@@ -173,7 +194,44 @@ func UserStg(pContext *gin.Context) {
 	FlushUsers()
 
 	// 个人信息修改成功后重定向到当前页面
-	pContext.Redirect(http.StatusMovedPermanently, "/user/stg")
+	pContext.Redirect(http.StatusMovedPermanently, "/user/accountpage")
+}
+
+func UserGitPage(pContext *gin.Context) {
+	pUser := GetUser(pContext)
+	pContext.HTML(http.StatusOK, "user/settings.html", gin.H{
+		"gits": pUser.Gits,
+		"type": "git",
+	})
+}
+
+func UserGitAdd(pContext *gin.Context) {
+	//type Git struct {
+	//	Name   string `json:"name"`   // 名称，唯一
+	//	Desc   string `json:"desc"`   // 服Git描述
+	//	User   string `json:"user"`   // 用户名
+	//	Passwd string `json:"passwd"` // 密码
+	//}
+	//
+	//name := strings.TrimSpace(pContext.PostForm("name"))
+	//desc := strings.TrimSpace(pContext.PostForm("desc"))
+	//user := strings.TrimSpace(pContext.PostForm("user"))
+	//passwd := strings.TrimSpace(pContext.PostForm("passwd"))
+	//pUser := GetUser(pContext)
+	//pUser.Nickname = nickname
+	//pUser.Passwd = passwd
+	//FlushUsers()
+
+	// 个人信息修改成功后重定向到当前页面
+	pContext.Redirect(http.StatusMovedPermanently, "/user/git")
+}
+
+func UserGitUpd(pContext *gin.Context) {
+
+}
+
+func UserGitDel(pContext *gin.Context) {
+
 }
 
 func VerifyUserName(name string) error {
@@ -186,6 +244,7 @@ func VerifyUserName(name string) error {
 			return errors.New(i18n.MustGetMessage("i18n.usernameAlreadyExists"))
 		}
 	}
+
 	return nil
 }
 

@@ -131,7 +131,7 @@ func route(pEngine *gin.Engine) {
 			isLogin = true
 		}
 
-		if reqPath == "/user/reg" || reqPath == "/user/login" {
+		if reqPath == "/user/regpage" || reqPath == "/user/loginpage" {
 			if isLogin {
 				pContext.Redirect(http.StatusMovedPermanently, "/")
 			} else {
@@ -142,7 +142,7 @@ func route(pEngine *gin.Engine) {
 
 		if !isLogin {
 			// 重定向
-			pContext.Redirect(http.StatusMovedPermanently, "/user/login")
+			pContext.Redirect(http.StatusMovedPermanently, "/user/loginpage")
 		}
 	})
 
@@ -189,18 +189,40 @@ func route(pEngine *gin.Engine) {
 	// user
 	userRouterGroup := pEngine.Group("/user")
 	{
-		userRouterGroup.GET("/reg", api.UserRegHtml)
+		// reg
+		userRouterGroup.GET("/regpage", api.UserRegPage)
 		userRouterGroup.POST("/reg", api.UserReg)
-		userRouterGroup.GET("/login", api.UserLoginHtml)
+
+		// login
+		userRouterGroup.GET("/loginpage", api.UserLoginPage)
 		userRouterGroup.POST("/login", api.UserLogin)
-		userRouterGroup.GET("/logout", api.UserLogout)
-		userRouterGroup.POST("/logout", api.UserLogout)
-		userRouterGroup.GET("/stg", api.UserStgHtml)
-		userRouterGroup.POST("/stg", api.UserStg)
+
+		// logout
+		userRouterGroup.Any("/logout", api.UserLogout)
+
+		// account
+		userRouterGroup.GET("/accountpage", api.UserAccountPage)
+		userRouterGroup.PUT("/account", api.UserAccountUpd)
+
+		// git
+		userRouterGroup.GET("/gitpage", api.UserGitPage)
+		//userRouterGroup.GET("/git", api.UserGitQry)
+		userRouterGroup.POST("/git", api.UserGitAdd)
+		userRouterGroup.PUT("/git", api.UserGitUpd)
+		userRouterGroup.DELETE("/git", api.UserGitDel)
+
+		// server
+		userRouterGroup.GET("/server", api.UserAccountPage)
+		userRouterGroup.POST("/server", api.UserAccountUpd)
 	}
 
 	// index
-	pEngine.GET("/", api.Index)
+	pEngine.GET("/", api.IndexPage)
+
+	// item
+	//itemRouterGroup := pEngine.Group("/item")
+	//{
+	//}
 
 	// ws
 	pEngine.GET("/ws", api.Ws)

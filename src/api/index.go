@@ -8,7 +8,7 @@ import (
 	"net/http"
 )
 
-func Index(pContext *gin.Context) {
+func IndexPage(pContext *gin.Context) {
 	pUser := GetUser(pContext)
 	if pUser == nil {
 		return

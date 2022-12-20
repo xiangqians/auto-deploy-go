@@ -13,7 +13,12 @@
   "i18n.logout": "Logout",
   "i18n.usernameOrPasswordIncorrect": "The username or password is incorrect.",
   "i18n.index": "Index",
-  "i18n.personalSettings": "Personal Settings",
+  "i18n.settings": "Settings",
   "i18n.save": "Save",
+  "i18n.account": "Account",
+  "i18n.git": "Git",
+  "i18n.server": "Server",
+  "i18n.name": "Name",
+  "i18n.desc": "Desc",
   "i18n.about": "About"
 }

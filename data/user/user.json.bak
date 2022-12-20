@@ -1,10 +1,5 @@
 [
   {
-    "name": "admin",
-    "nickname": "admin",
-    "passwd": ""
-  },
-  {
     "name": "dev",
     "nickname": "dev",
     "passwd": ""

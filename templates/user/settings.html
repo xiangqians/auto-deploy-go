@@ -1,0 +1,121 @@
+<!--
+ | @author xiangqian
+ | @date 15:22 2022/12/19
+ |-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="shortcut icon" rel="external nofollow" href="/static/favicon.ico">
+    <title>{{ Localize "i18n.settings" }}</title>
+
+    <style>
+        .wrap {
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        #left {
+            width: 200px;
+            height: 100%;
+            background: lightgrey;
+            float: left;
+        }
+
+        #right {
+            height: 100%;
+            background: white;
+            margin-left: 200px;
+        }
+    </style>
+</head>
+<body>
+
+
+<div class="wrap">
+    <div id="left">
+        <p>{{ Localize "i18n.git" }}</p>
+        <p>{{ Localize "i18n.server" }}</p>
+        <p>{{ Localize "i18n.account" }}</p>
+    </div>
+
+    <div id="right">
+        <!-- Git -->
+        {{ if eq .type "git" }}
+
+        <table>
+            <tr>
+                <td>{{ Localize "i18n.name" }}</td>
+                <td>{{ Localize "i18n.desc" }}</td>
+                <td>{{ Localize "i18n.username" }}</td>
+                <td>{{ Localize "i18n.password" }}</td>
+            </tr>
+            {{ range $index,$value := .gits }}
+            <tr>
+                <td>{{ $value.Name }}</td>
+                <td>{{ $value.Desc }}</td>
+                <td>{{ $value.User }}</td>
+                <td>******</td>
+            </tr>
+            {{end}}
+        </table>
+        <hr>
+
+        <form action="/user/git" method="post">
+            <div>
+                <label>{{ Localize "i18n.name" }}:</label>
+                <input name="name" type="text" value="{{ .name }}">
+            </div>
+            <div>
+                <label>{{ Localize "i18n.desc" }}:</label>
+                <input name="desc" type="text" value="{{ .desc }}">
+            </div>
+            <div>
+                <label>{{ Localize "i18n.username" }}:</label>
+                <input name="user" type="text" value="{{ .user }}">
+            </div>
+            <div>
+                <label>{{ Localize "i18n.password" }}:</label>
+                <input name="passwd" type="password">
+            </div>
+            <div>
+                <input type="submit" value='{{ Localize "i18n.save" }}'>
+            </div>
+            <div>
+                <a href="/">{{ Localize "i18n.index" }}</a>
+            </div>
+        </form>
+        {{ end }}
+
+        <!-- 账户 -->
+        {{ if eq .type "account" }}
+        <form action="/user/account" method="post">
+            <input type="hidden" name="_method" value="PUT">
+            <div>
+                <label>{{ Localize "i18n.username" }}:</label>
+                <input name="name" type="text" value="{{ .username }}" readonly="readonly">
+            </div>
+            <div>
+                <label>{{ Localize "i18n.nickname" }}:</label>
+                <input name="nickname" type="text" value="{{ .nickname }}">
+            </div>
+            <div>
+                <label>{{ Localize "i18n.password" }}:</label>
+                <input name="passwd" type="password">
+            </div>
+            <div>
+                <input type="button" value='{{ Localize "i18n.save" }}'>
+            </div>
+            <div>
+                <a href="/">{{ Localize "i18n.index" }}</a>
+            </div>
+        </form>
+        {{ end }}
+
+    </div>
+</div>
+
+</body>
+</html>
+<script type="text/javascript" src="/static/js/jquery-3.6.2.min.js"></script>
+<script type="text/javascript" src="/static/js/form.js"></script>
