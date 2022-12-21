@@ -7,18 +7,17 @@ package db
 import (
 	"auto-deploy-go/src/com"
 	"database/sql"
-	"errors"
 	"reflect"
 )
 
 const dataSourceName = com.DataDir + "/autodeploy.db"
 
-func Db() (*sql.DB, error) {
+func db() (*sql.DB, error) {
 	return sql.Open("sqlite3", dataSourceName)
 }
 
 func Qry(i any, sql string, args ...any) error {
-	pDb, err := Db()
+	pDb, err := db()
 	if err != nil {
 		return err
 	}
@@ -52,7 +51,7 @@ func Del(sql string, args ...any) (int64, error) {
 
 // return affect
 func exec(sql string, args ...any) (int64, error) {
-	pDb, err := Db()
+	pDb, err := db()
 	if err != nil {
 		return 0, err
 	}
@@ -69,9 +68,9 @@ func exec(sql string, args ...any) (int64, error) {
 
 // 字段集映射
 // 支持 1）一个或多个属性映射；2）结构体映射；3）结构体切片映射
-func rowsMapper(pRows *sql.Rows, i any) error {
+func RowsMapper(pRows *sql.Rows, i any) error {
 	cols, err := pRows.Columns()
-	com.CheckErr(err)
+	checkErr(err)
 
 	getDest := func(rflType reflect.Type, rflVal reflect.Value) []any {
 		dest := make([]any, len(cols))
@@ -79,7 +78,7 @@ func rowsMapper(pRows *sql.Rows, i any) error {
 			typeField := rflType.Field(fi)
 			name := typeField.Tag.Get("sql")
 			if name == "" {
-				name = com.NameHumpToUnderline(typeField.Name)
+				name = NameHumpToUnderline(typeField.Name)
 			}
 			for ci, col := range cols {
 				if col == name {
@@ -97,15 +96,18 @@ func rowsMapper(pRows *sql.Rows, i any) error {
 	rflType := reflect.TypeOf(i).Elem()
 	rflVal := reflect.ValueOf(i).Elem()
 	switch rflType.Kind() {
+	// 结构体
 	case reflect.Struct:
 		if pRows.Next() {
 			err = pRows.Scan(getDest(rflType, rflVal)...)
 		}
 
+	// 切片
 	case reflect.Slice:
 		eVal := rflVal.Index(0)
 		l := rflVal.Len()
 		switch eVal.Kind() {
+		// 结构体切片
 		case reflect.Struct:
 			e := eVal.Interface()
 			eRflType := reflect.TypeOf(e)
@@ -133,6 +135,7 @@ func rowsMapper(pRows *sql.Rows, i any) error {
 				idx++
 			}
 
+		// 普通指针类型数组
 		default:
 			if pRows.Next() {
 				dest := make([]any, l)
@@ -144,8 +147,11 @@ func rowsMapper(pRows *sql.Rows, i any) error {
 			}
 		}
 
+	// 普通指针类型
 	default:
-		return errors.New("mapping is not supported")
+		if pRows.Next() {
+			err = pRows.Scan(i)
+		}
 	}
 
 	return err
