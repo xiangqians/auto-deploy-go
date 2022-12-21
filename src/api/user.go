@@ -4,6 +4,7 @@
 package api
 
 import (
+	"auto-deploy-go/src/com"
 	"encoding/json"
 	"errors"
 	"github.com/gin-contrib/i18n"
@@ -18,7 +19,7 @@ import (
 
 const SessionKeyUsername = "_username_"
 
-const userJsonFilePath = dataDir + "/user/user.json"
+const userJsonFilePath = com.DataDir + "/user/user.json"
 
 type Server struct {
 	Name   string `json:"name"`   // 名称，唯一
