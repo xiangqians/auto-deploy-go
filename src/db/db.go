@@ -12,15 +12,73 @@ import (
 	"strings"
 )
 
+const dataSourceName = com.DataDir + "/autodeploy.db"
+
+func Db() (*sql.DB, error) {
+	return sql.Open("sqlite3", dataSourceName)
+}
+
+func Qry(t any, sql string, args ...any) error {
+	pDb, err := Db()
+	if err != nil {
+		return err
+	}
+	defer pDb.Close()
+
+	pRows, err := pDb.Query(sql, args)
+	if err != nil {
+		return err
+	}
+	defer pRows.Close()
+
+	for pRows.Next() {
+		err = RowsMapper(pRows, t)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func Add(sql string, args ...any) (int64, error) {
+	return exec(sql, args)
+}
+
+func Upd(sql string, args ...any) (int64, error) {
+	return exec(sql, args)
+}
+
+func Del(sql string, args ...any) (int64, error) {
+	return exec(sql, args)
+}
+
+// return affect
+func exec(sql string, args ...any) (int64, error) {
+	pDb, err := Db()
+	if err != nil {
+		return 0, err
+	}
+	defer pDb.Close()
+
+	res, err := pDb.Exec(sql, args)
+	if err != nil {
+		return 0, err
+	}
+	res.LastInsertId()
+
+	return res.RowsAffected()
+}
+
 // 字段集映射
-func RowsMapper(pRows *sql.Rows, i any) error {
-	rflType := reflect.TypeOf(i).Elem()
+func RowsMapper(pRows *sql.Rows, t any) error {
+	rflType := reflect.TypeOf(t).Elem()
 	switch rflType.Kind() {
 	case reflect.Struct:
-		return RowsMapperToStruct(pRows, i, rflType)
+		return RowsMapperToStruct(pRows, t, rflType)
 
 	case reflect.Map:
-		pMap := i.(*map[string]any)
+		pMap := t.(*map[string]any)
 		return RowsMapperToMap(pRows, pMap)
 
 	default:
@@ -38,24 +96,25 @@ func RowsMapperToMap(pRows *sql.Rows, pMap *map[string]any) error {
 		var v any
 		dest[ci] = &v
 	}
+
 	err = pRows.Scan(dest...)
-
-	for ci, col := range cols {
-		v := dest[ci]
-		(*pMap)[NameUnderlineToHump(col)] = *(v.(*any))
+	if err == nil {
+		for ci, col := range cols {
+			v := dest[ci]
+			(*pMap)[NameUnderlineToHump(col)] = *(v.(*any))
+		}
 	}
-
 	return err
 }
 
 // 字段集映射为 Struct
-func RowsMapperToStruct(pRows *sql.Rows, i any, rflType reflect.Type) error {
+func RowsMapperToStruct(pRows *sql.Rows, t any, rflType reflect.Type) error {
 	cols, err := pRows.Columns()
 	com.CheckErr(err)
 
 	dest := make([]any, len(cols))
-	//rflType := reflect.TypeOf(i).Elem()
-	rflVal := reflect.ValueOf(i).Elem()
+	//rflType := reflect.TypeOf(t).Elem()
+	rflVal := reflect.ValueOf(t).Elem()
 	for fi, fl := 0, rflType.NumField(); fi < fl; fi++ {
 		typeField := rflType.Field(fi)
 		name := typeField.Tag.Get("sql")
