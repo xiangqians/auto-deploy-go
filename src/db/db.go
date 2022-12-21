@@ -7,6 +7,7 @@ package db
 import (
 	"auto-deploy-go/src/com"
 	"database/sql"
+	_ "github.com/mattn/go-sqlite3"
 	"reflect"
 )
 
@@ -68,9 +69,9 @@ func exec(sql string, args ...any) (int64, error) {
 
 // 字段集映射
 // 支持 1）一个或多个属性映射；2）结构体映射；3）结构体切片映射
-func RowsMapper(pRows *sql.Rows, i any) error {
+func rowsMapper(pRows *sql.Rows, i any) error {
 	cols, err := pRows.Columns()
-	checkErr(err)
+	com.CheckErr(err)
 
 	getDest := func(rflType reflect.Type, rflVal reflect.Value) []any {
 		dest := make([]any, len(cols))
@@ -78,7 +79,7 @@ func RowsMapper(pRows *sql.Rows, i any) error {
 			typeField := rflType.Field(fi)
 			name := typeField.Tag.Get("sql")
 			if name == "" {
-				name = NameHumpToUnderline(typeField.Name)
+				name = com.NameHumpToUnderline(typeField.Name)
 			}
 			for ci, col := range cols {
 				if col == name {
