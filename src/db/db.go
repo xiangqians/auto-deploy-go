@@ -1,4 +1,5 @@
 // DB
+// https://pkg.go.dev/github.com/mattn/go-sqlite3
 // @author xiangqian
 // @date 20:10 2022/12/21
 package db
@@ -8,8 +9,6 @@ import (
 	"database/sql"
 	"errors"
 	"reflect"
-	"regexp"
-	"strings"
 )
 
 const dataSourceName = com.DataDir + "/autodeploy.db"
@@ -31,7 +30,7 @@ func Qry(i any, sql string, args ...any) error {
 	}
 	defer pRows.Close()
 
-	err = RowsMapper(pRows, i)
+	err = rowsMapper(pRows, i)
 	if err != nil {
 		return err
 	}
@@ -70,7 +69,7 @@ func exec(sql string, args ...any) (int64, error) {
 
 // 字段集映射
 // 支持 1）一个或多个属性映射；2）结构体映射；3）结构体切片映射
-func RowsMapper(pRows *sql.Rows, i any) error {
+func rowsMapper(pRows *sql.Rows, i any) error {
 	cols, err := pRows.Columns()
 	com.CheckErr(err)
 
@@ -80,7 +79,7 @@ func RowsMapper(pRows *sql.Rows, i any) error {
 			typeField := rflType.Field(fi)
 			name := typeField.Tag.Get("sql")
 			if name == "" {
-				name = NameHumpToUnderline(typeField.Name)
+				name = com.NameHumpToUnderline(typeField.Name)
 			}
 			for ci, col := range cols {
 				if col == name {
@@ -150,34 +149,4 @@ func RowsMapper(pRows *sql.Rows, i any) error {
 	}
 
 	return err
-}
-
-// 驼峰转下划线
-func NameHumpToUnderline(name string) string {
-	pRegexp := regexp.MustCompile("([A-Z])")
-	r := pRegexp.FindAllIndex([]byte(name), -1)
-	l := len(r)
-	if l == 0 {
-		return strings.ToLower(name)
-	}
-
-	var res = make([]string, l+1)
-	resIdx := 0
-	index := 0
-	for _, v := range r {
-		s := name[index:v[0]]
-		if s != "" {
-			res[resIdx] = s
-			resIdx++
-		}
-		index = v[0]
-	}
-	res[resIdx] = name[index:]
-	for i, s := range res {
-		if s == "" {
-			res = res[0:i]
-			break
-		}
-	}
-	return strings.ToLower(strings.Join(res, "_"))
 }
