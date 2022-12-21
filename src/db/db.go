@@ -18,7 +18,7 @@ func Db() (*sql.DB, error) {
 	return sql.Open("sqlite3", dataSourceName)
 }
 
-func Qry(t any, sql string, args ...any) error {
+func Qry(i any, sql string, args ...any) error {
 	pDb, err := Db()
 	if err != nil {
 		return err
@@ -31,11 +31,9 @@ func Qry(t any, sql string, args ...any) error {
 	}
 	defer pRows.Close()
 
-	for pRows.Next() {
-		err = RowsMapper(pRows, t)
-		if err != nil {
-			return err
-		}
+	err = RowsMapper(pRows, i)
+	if err != nil {
+		return err
 	}
 
 	return nil
@@ -71,106 +69,87 @@ func exec(sql string, args ...any) (int64, error) {
 }
 
 // 字段集映射
-func RowsMapper(pRows *sql.Rows, t any) error {
-	rflType := reflect.TypeOf(t).Elem()
+// 支持 1）一个或多个属性映射；2）结构体映射；3）结构体切片映射
+func RowsMapper(pRows *sql.Rows, i any) error {
+	cols, err := pRows.Columns()
+	com.CheckErr(err)
+
+	getDest := func(rflType reflect.Type, rflVal reflect.Value) []any {
+		dest := make([]any, len(cols))
+		for fi, fl := 0, rflType.NumField(); fi < fl; fi++ {
+			typeField := rflType.Field(fi)
+			name := typeField.Tag.Get("sql")
+			if name == "" {
+				name = NameHumpToUnderline(typeField.Name)
+			}
+			for ci, col := range cols {
+				if col == name {
+					valField := rflVal.Field(fi)
+					if valField.CanAddr() {
+						dest[ci] = valField.Addr().Interface()
+					}
+					break
+				}
+			}
+		}
+		return dest
+	}
+
+	rflType := reflect.TypeOf(i).Elem()
+	rflVal := reflect.ValueOf(i).Elem()
 	switch rflType.Kind() {
 	case reflect.Struct:
-		return RowsMapperToStruct(pRows, t, rflType)
+		if pRows.Next() {
+			err = pRows.Scan(getDest(rflType, rflVal)...)
+		}
 
-	case reflect.Map:
-		pMap := t.(*map[string]any)
-		return RowsMapperToMap(pRows, pMap)
+	case reflect.Slice:
+		eVal := rflVal.Index(0)
+		l := rflVal.Len()
+		switch eVal.Kind() {
+		case reflect.Struct:
+			e := eVal.Interface()
+			eRflType := reflect.TypeOf(e)
+			var eRflVal reflect.Value
+			idx := 0
+			for pRows.Next() {
+				if idx < l {
+					eRflVal = rflVal.Index(idx).Addr().Elem()
+				} else {
+					pE := reflect.New(eRflType).Interface()
+					eRflVal = reflect.ValueOf(pE).Elem()
+				}
+				err = pRows.Scan(getDest(eRflType, eRflVal)...)
+				if err != nil {
+					return err
+				}
+
+				// 扩大切片（slice）长度
+				if idx >= l {
+					rflVal0 := rflVal
+					rflVal = reflect.Append(rflVal, eRflVal)
+					rflVal0.Set(rflVal)
+					rflVal = rflVal0
+				}
+				idx++
+			}
+
+		default:
+			if pRows.Next() {
+				dest := make([]any, l)
+				for ei := 0; ei < l; ei++ {
+					e := rflVal.Index(ei).Interface()
+					dest[ei] = e
+				}
+				err = pRows.Scan(dest...)
+			}
+		}
 
 	default:
 		return errors.New("mapping is not supported")
 	}
-}
 
-// 字段集映射为 Map
-func RowsMapperToMap(pRows *sql.Rows, pMap *map[string]any) error {
-	cols, err := pRows.Columns()
-	com.CheckErr(err)
-
-	dest := make([]any, len(cols))
-	for ci, _ := range cols {
-		var v any
-		dest[ci] = &v
-	}
-
-	err = pRows.Scan(dest...)
-	if err == nil {
-		for ci, col := range cols {
-			v := dest[ci]
-			(*pMap)[NameUnderlineToHump(col)] = *(v.(*any))
-		}
-	}
 	return err
-}
-
-// 字段集映射为 Struct
-func RowsMapperToStruct(pRows *sql.Rows, t any, rflType reflect.Type) error {
-	cols, err := pRows.Columns()
-	com.CheckErr(err)
-
-	dest := make([]any, len(cols))
-	//rflType := reflect.TypeOf(t).Elem()
-	rflVal := reflect.ValueOf(t).Elem()
-	for fi, fl := 0, rflType.NumField(); fi < fl; fi++ {
-		typeField := rflType.Field(fi)
-		name := typeField.Tag.Get("sql")
-		if name == "" {
-			name = NameHumpToUnderline(typeField.Name)
-		}
-		for ci, col := range cols {
-			if col == name {
-				valField := rflVal.Field(fi)
-				if valField.CanAddr() {
-					dest[ci] = valField.Addr().Interface()
-				}
-				break
-			}
-		}
-	}
-	return pRows.Scan(dest...)
-}
-
-// 下划线转驼峰
-func NameUnderlineToHump(name string) string {
-	pRegexp := regexp.MustCompile("_")
-	r := pRegexp.FindAllIndex([]byte(name), -1)
-	l := len(r)
-
-	toUpper := func(s string) string {
-		if s == "" {
-			return s
-		}
-		return strings.ToUpper(s[0:1]) + s[1:]
-	}
-
-	if l == 0 {
-		return toUpper(name)
-	}
-
-	var res = make([]string, l+1)
-	resIdx := 0
-	index := 0
-	for _, v := range r {
-		s := name[index:v[0]]
-		if s != "" {
-			res[resIdx] = toUpper(s)
-			resIdx++
-		}
-		index = v[0] + 1
-	}
-	res[resIdx] = toUpper(name[index:])
-
-	for i, s := range res {
-		if s == "" {
-			res = res[0:i]
-			break
-		}
-	}
-	return strings.Join(res, "")
 }
 
 // 驼峰转下划线
