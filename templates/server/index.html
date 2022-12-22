@@ -1,13 +1,13 @@
 <!--
  | @author xiangqian
- | @date 14:47 2022/12/22
+ | @date 15:47 2022/12/22
  |-->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <link rel="shortcut icon" rel="external nofollow" href="/static/favicon.ico">
-    <title>{{ Localize "i18n.git" }}</title>
+    <title>{{ Localize "i18n.server" }}</title>
 </head>
 <body>
 
@@ -15,16 +15,20 @@
     <tr>
         <td>{{ Localize "i18n.id" }}</td>
         <td>{{ Localize "i18n.name" }}</td>
+        <td>{{ Localize "i18n.host" }}</td>
+        <td>{{ Localize "i18n.port" }}</td>
         <td>{{ Localize "i18n.user" }}</td>
         <td>{{ Localize "i18n.passwd" }}</td>
         <td>{{ Localize "i18n.rem" }}</td>
         <td>{{ Localize "i18n.createTime" }}</td>
         <td>{{ Localize "i18n.updateTime" }}</td>
     </tr>
-    {{ range $index,$value := .gits }}
+    {{ range $index,$value := .servers }}
     <tr>
         <td>{{ $value.Id }}</td>
         <td>{{ $value.Name }}</td>
+        <td>{{ $value.Host }}</td>
+        <td>{{ $value.Port }}</td>
         <td>{{ $value.User }}</td>
         <td>******</td>
         <td>{{ $value.Rem }}</td>
@@ -35,7 +39,7 @@
 </table>
 <br>
 <div>
-    <a href="/git/addpage">{{ Localize "i18n.add" }}</a>
+    <a href="/server/addpage">{{ Localize "i18n.add" }}</a>
 </div>
 
 <br>

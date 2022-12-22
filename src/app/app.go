@@ -189,6 +189,9 @@ func route(pEngine *gin.Engine) {
 		})
 	})
 
+	// index
+	pEngine.GET("/", api.IndexPage)
+
 	// user
 	userRouterGroup := pEngine.Group("/user")
 	{
@@ -211,21 +214,15 @@ func route(pEngine *gin.Engine) {
 	pEngine.PUT("/git", api.GitUpd)
 	pEngine.DELETE("/git", api.GitDel)
 
-	//// git
-	//userRouterGroup.GET("/gitpage", api.UserGitPage)
-	////userRouterGroup.GET("/git", api.UserGitQry)
-	//userRouterGroup.POST("/git", api.UserGitAdd)
-	//userRouterGroup.PUT("/git", api.UserGitUpd)
-	//userRouterGroup.DELETE("/git", api.UserGitDel)
-	//
-	//// server
-	//userRouterGroup.GET("/serverpage", api.UserServerPage)
-	//userRouterGroup.POST("/server", api.UserServerAdd)
-	//userRouterGroup.PUT("/server", api.UserServerUpd)
-	//userRouterGroup.DELETE("/server", api.UserServerDel)
-
-	// index
-	pEngine.GET("/", api.IndexPage)
+	// server
+	serverRouterGroup := pEngine.Group("/server")
+	{
+		serverRouterGroup.GET("/index", api.ServerIndex)
+		serverRouterGroup.GET("/addpage", api.ServerAddPage)
+	}
+	pEngine.POST("/server", api.ServerAdd)
+	pEngine.PUT("/server", api.ServerUpd)
+	pEngine.DELETE("/server", api.ServerDel)
 
 	// item
 	//itemRouterGroup := pEngine.Group("/item")

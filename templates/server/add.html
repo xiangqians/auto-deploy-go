@@ -1,21 +1,24 @@
-<!--
- | @author xiangqian
- | @date 15:11 2022/12/22
- |-->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <link rel="shortcut icon" rel="external nofollow" href="/static/favicon.ico">
-    <title>{{ Localize "i18n.add" }} {{ Localize "i18n.git" }}</title>
-</head>
+    <title>{{ Localize "i18n.add" }} {{ Localize "i18n.server" }}</title></head>
 <body>
 
-<form action="/git" method="post">
+<form action="/server" method="post">
     <p>{{ .message }}</p>
     <div>
         <label>{{ Localize "i18n.name" }}:</label>
         <input name="name" type="text" value="{{ .name }}">
+    </div>
+    <div>
+        <label>{{ Localize "i18n.host" }}:</label>
+        <input name="host" type="text" value="{{ .host }}">
+    </div>
+    <div>
+        <label>{{ Localize "i18n.port" }}:</label>
+        <input name="port" type="number" value="{{ .port }}">
     </div>
     <div>
         <label>{{ Localize "i18n.user" }}:</label>
