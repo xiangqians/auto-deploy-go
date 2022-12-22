@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="shortcut icon" rel="external nofollow" href="/static/favicon.ico">
+    <title>{{ Localize "i18n.git" }}</title>
+</head>
+<body>
+
+<table>
+    <tr>
+        <td>{{ Localize "i18n.id" }}</td>
+        <td>{{ Localize "i18n.name" }}</td>
+        <td>{{ Localize "i18n.user" }}</td>
+        <td>{{ Localize "i18n.passwd" }}</td>
+        <td>{{ Localize "i18n.rem" }}</td>
+        <td>{{ Localize "i18n.createTime" }}</td>
+        <td>{{ Localize "i18n.updateTime" }}</td>
+    </tr>
+    {{ range $index,$value := .gits }}
+    <tr>
+        <td>{{ $value.Id }}</td>
+        <td>{{ $value.Name }}</td>
+        <td>{{ $value.User }}</td>
+        <td>******</td>
+        <td>{{ $value.Rem }}</td>
+        <td>{{ $value.CreateTime }}</td>
+        <td>{{ $value.UpdateTime }}</td>
+    </tr>
+    {{end}}
+</table>
+<br>
+<div>
+    <a href="/git/addpage">{{ Localize "i18n.add" }}</a>
+</div>
+
+<br>
+<br>
+<div>
+    <a href="/">{{ Localize "i18n.index" }}</a>
+</div>
+
+</body>
+</html>

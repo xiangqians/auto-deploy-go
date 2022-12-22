@@ -22,11 +22,16 @@
   "i18n.account": "Account",
   "i18n.git": "Git",
   "i18n.server": "Server",
+  "i18n.id": "Id",
   "i18n.name": "Name",
-  "i18n.desc": "Desc",
   "i18n.host": "Host",
   "i18n.hostCannotEmpty": "Host cannot be empty.",
   "i18n.port": "Port",
   "i18n.portCannotEmpty": "Port cannot be empty.",
+  "i18n.createTime": "Creation time",
+  "i18n.updateTime": "Update time",
+  "i18n.add": "Add",
+  "i18n.upd": "Update",
+  "i18n.del": "Delete",
   "i18n.about": "About"
 }

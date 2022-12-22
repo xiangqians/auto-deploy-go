@@ -26,7 +26,9 @@ DROP TABLE IF EXISTS `git`;
 CREATE TABLE `git` -- Git信息表
 (
     `id`          INTEGER PRIMARY KEY AUTOINCREMENT, -- id
-    `name`        VARCHAR(64)  NOT NULL,             -- 用户名
+    `user_id`     INTEGER      NOT NULL,             -- Git所属用户id
+    `name`        VARCHAR(64)  NOT NULL,             -- 名称
+    `user`        VARCHAR(64)  NOT NULL,             -- 用户
     `passwd`      VARCHAR(256) NOT NULL,             -- 密码
     `rem`         VARCHAR(256) DEFAULT '',           -- 备注
     `del_flag`    TINYINT      DEFAULT 0,            -- 删除标识，0-正常，1-删除

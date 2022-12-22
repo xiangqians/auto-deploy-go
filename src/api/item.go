@@ -6,7 +6,7 @@ package api
 // 项目
 type Item struct {
 	Name           string `json:"name"`           // 项目名称
-	Desc           string `json:"desc"`           // 项目描述
+	Rem            string `json:"Rem"`            // 项目描述
 	LastDeployTime int64  `json:"lastDeployTime"` // 最近一次部署时间戳
 	LastRevMessage string `json:"lastRevMessage"` // 最近一次修改信息
 }

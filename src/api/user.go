@@ -52,7 +52,7 @@ func UserRegPage(pContext *gin.Context) {
 }
 
 // 用户注册
-func UserReg(pContext *gin.Context) {
+func UserAdd(pContext *gin.Context) {
 	name := strings.TrimSpace(pContext.PostForm("name"))
 	nickname := strings.TrimSpace(pContext.PostForm("nickname"))
 	rem := strings.TrimSpace(pContext.PostForm("rem"))
@@ -148,7 +148,7 @@ func UserStgPage(pContext *gin.Context) {
 	})
 }
 
-func UserStgUpd(pContext *gin.Context) {
+func UserUpd(pContext *gin.Context) {
 	name := strings.TrimSpace(pContext.PostForm("name"))
 	nickname := strings.TrimSpace(pContext.PostForm("nickname"))
 	rem := strings.TrimSpace(pContext.PostForm("rem"))

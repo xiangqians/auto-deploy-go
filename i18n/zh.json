@@ -22,14 +22,16 @@
   "i18n.account": "账号",
   "i18n.git": "Git",
   "i18n.server": "服务",
+  "i18n.id": "Id",
   "i18n.name": "名称",
-  "i18n.desc": "描述",
   "i18n.host": "Host",
   "i18n.hostCannotEmpty": "Host不能为空",
   "i18n.port": "端口",
   "i18n.portCannotEmpty": "端口不能为空",
-  "i18n.about": "关于",
-  "i18n.item": "项目",
-  "i18n.stageView": "阶段视图",
-  "i18n.lastDeployTime": "最近部署时间"
+  "i18n.createTime": "创建时间",
+  "i18n.updateTime": "更新时间",
+  "i18n.add": "新增",
+  "i18n.upd": "更新",
+  "i18n.del": "删除",
+  "i18n.about": "关于"
 }

@@ -192,21 +192,24 @@ func route(pEngine *gin.Engine) {
 	// user
 	userRouterGroup := pEngine.Group("/user")
 	{
-		// reg
 		userRouterGroup.GET("/regpage", api.UserRegPage)
-		userRouterGroup.POST("/reg", api.UserReg)
-
-		// login
 		userRouterGroup.GET("/loginpage", api.UserLoginPage)
 		userRouterGroup.POST("/login", api.UserLogin)
-
-		// logout
 		userRouterGroup.Any("/logout", api.UserLogout)
-
-		// settings
 		userRouterGroup.GET("/stgpage", api.UserStgPage)
-		userRouterGroup.PUT("/stg", api.UserStgUpd)
 	}
+	pEngine.POST("/user", api.UserAdd)
+	pEngine.PUT("/user", api.UserUpd)
+
+	// git
+	gitRouterGroup := pEngine.Group("/git")
+	{
+		gitRouterGroup.GET("/index", api.GitIndex)
+		gitRouterGroup.GET("/addpage", api.GitAddPage)
+	}
+	pEngine.POST("/git", api.GitAdd)
+	pEngine.PUT("/git", api.GitUpd)
+	pEngine.DELETE("/git", api.GitDel)
 
 	//// git
 	//userRouterGroup.GET("/gitpage", api.UserGitPage)
