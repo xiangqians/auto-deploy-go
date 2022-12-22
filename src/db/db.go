@@ -11,7 +11,7 @@ import (
 	"reflect"
 )
 
-const dataSourceName = com.DataDir + "/autodeploy.db"
+const dataSourceName = com.DataDir + "/database.db"
 
 func db() (*sql.DB, error) {
 	return sql.Open("sqlite3", dataSourceName)
