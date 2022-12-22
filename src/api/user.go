@@ -4,36 +4,19 @@
 package api
 
 import (
-	"auto-deploy-go/src/com"
 	"auto-deploy-go/src/db"
+	"encoding/gob"
 	"errors"
 	"github.com/gin-contrib/i18n"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
+	"log"
 	"net/http"
 	"strings"
 	"time"
 )
 
 const SessionKeyUser = "_user_"
-
-const userJsonFilePath = com.DataDir + "/user/user.json"
-
-type Server struct {
-	Name   string `json:"name"`   // 名称，唯一
-	Desc   string `json:"desc"`   // 服务描述
-	Host   string `json:"host"`   // host
-	Port   int    `json:"port"`   // 端口，默认22
-	User   string `json:"user"`   // 用户名
-	Passwd string `json:"passwd"` // 密码
-}
-
-type Git struct {
-	Name   string `json:"name"`   // 名称，唯一
-	Desc   string `json:"desc"`   // 服Git描述
-	User   string `json:"user"`   // 用户名
-	Passwd string `json:"passwd"` // 密码
-}
 
 type User struct {
 	Id         int64  // 主键id
@@ -44,6 +27,11 @@ type User struct {
 	DelFlag    byte   // 删除标识，0-正常，1-删除
 	CreateTime int64  // 创建时间（时间戳，s）
 	UpdateTime int64  // 修改时间（时间戳，s）
+}
+
+func init() {
+	// 注册 User 模型
+	gob.Register(User{})
 }
 
 // 用户注册html
@@ -80,7 +68,7 @@ func UserReg(pContext *gin.Context) {
 		session.Set("rem", rem)
 		session.Set("message", err.Error())
 		session.Save()
-		pContext.Redirect(http.StatusMovedPermanently, "/user/reg")
+		pContext.Redirect(http.StatusMovedPermanently, "/user/regpage")
 		return
 	}
 
@@ -116,7 +104,11 @@ func UserLogin(pContext *gin.Context) {
 	session := sessions.Default(pContext)
 
 	var user User
-	db.Qry(&user, "SELECT u.id, u.`name`, u.nickname, u.rem FROM `user` u WHERE u.del_flag = 0 AND u.`name` = ? AND u.passwd = ? LIMIT 1", name, passwd)
+	err := db.Qry(&user, "SELECT u.id, u.`name`, u.nickname, u.rem, u.create_time, u.update_time FROM `user` u WHERE u.del_flag = 0 AND u.`name` = ? AND u.passwd = ? LIMIT 1", name, passwd)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
 	if user.Id == 0 {
 		session.Set("username", name)
 		session.Set("message", i18n.MustGetMessage("i18n.userOrPasswdIncorrect"))
@@ -125,9 +117,9 @@ func UserLogin(pContext *gin.Context) {
 		return
 	}
 
+	// session
 	// 设置session数据
-	session.Set(SessionKeyUser, name)
-
+	session.Set(SessionKeyUser, user)
 	// 保存session数据
 	session.Save()
 
@@ -150,205 +142,49 @@ func UserLogout(pContext *gin.Context) {
 	pContext.Redirect(http.StatusMovedPermanently, "/user/loginpage")
 }
 
-func UserAccountPage(pContext *gin.Context) {
-	pUser := GetUser(pContext)
-	username := pUser.Name
-	nickname := pUser.Nickname
-	pContext.HTML(http.StatusOK, "user/settings.html", gin.H{
-		"username": username,
-		"nickname": nickname,
-		"type":     "account",
+func UserStgPage(pContext *gin.Context) {
+	user := GetUser(pContext)
+	pContext.HTML(http.StatusOK, "user/stg.html", gin.H{
+		"username": user.Name,
+		"nickname": user.Nickname,
+		"rem":      user.Rem,
 	})
 }
 
-func UserAccountUpd(pContext *gin.Context) {
-	//nickname := strings.TrimSpace(pContext.PostForm("nickname"))
-	//passwd := strings.TrimSpace(pContext.PostForm("passwd"))
-	//pUser := GetUser(pContext)
-	//pUser.Nickname = nickname
-	//pUser.Passwd = passwd
-	//FlushUser()
-	//
-	//// 个人信息修改成功后重定向到当前页面
-	//pContext.Redirect(http.StatusMovedPermanently, "/user/accountpage")
-}
+func UserStgUpd(pContext *gin.Context) {
+	name := strings.TrimSpace(pContext.PostForm("name"))
+	nickname := strings.TrimSpace(pContext.PostForm("nickname"))
+	rem := strings.TrimSpace(pContext.PostForm("rem"))
+	user := GetUser(pContext)
 
-func UserGitPage(pContext *gin.Context) {
-	//session := sessions.Default(pContext)
-	//name := session.Get("name")
-	//desc := session.Get("desc")
-	//user := session.Get("user")
-	//message := session.Get("message")
-	//session.Delete("name")
-	//session.Delete("desc")
-	//session.Delete("user")
-	//session.Delete("message")
-	//session.Save()
-	//
-	//pUser := GetUser(pContext)
-	//pContext.HTML(http.StatusOK, "user/settings.html", gin.H{
-	//	"gits":    pUser.Gits,
-	//	"name":    name,
-	//	"desc":    desc,
-	//	"user":    user,
-	//	"message": message,
-	//	"type":    "git",
-	//})
-}
+	var err error = nil
+	if user.Name != name {
+		err = VerifyUserName(name)
+	}
+	if err != nil {
+		session := sessions.Default(pContext)
+		session.Set("username", name)
+		session.Set("nickname", nickname)
+		session.Set("rem", rem)
+		session.Set("message", err.Error())
+		session.Save()
+		pContext.Redirect(http.StatusMovedPermanently, "/user/regpage")
+		return
+	}
 
-func UserGitAdd(pContext *gin.Context) {
-	//name := strings.TrimSpace(pContext.PostForm("name"))
-	//desc := strings.TrimSpace(pContext.PostForm("desc"))
-	//user := strings.TrimSpace(pContext.PostForm("user"))
-	//passwd := strings.TrimSpace(pContext.PostForm("passwd"))
-	//
-	//errI18nKey := ""
-	//if name == "" {
-	//	errI18nKey = "i18n.nameCannotEmpty"
-	//} else if user == "" {
-	//	errI18nKey = "i18n.userCannotEmpty"
-	//} else if passwd == "" {
-	//	errI18nKey = "i18n.passwdCannotEmpty"
-	//}
-	//
-	//pUser := GetUser(pContext)
-	//if errI18nKey == "" && pUser.Gits != nil {
-	//	for _, v := range pUser.Gits {
-	//		if v.Name == name {
-	//			errI18nKey = "i18n.nameAlreadyExists"
-	//			break
-	//		}
-	//	}
-	//}
-	//
-	//if errI18nKey != "" {
-	//	session := sessions.Default(pContext)
-	//	session.Set("name", name)
-	//	session.Set("desc", desc)
-	//	session.Set("user", user)
-	//	session.Set("message", i18n.MustGetMessage(errI18nKey))
-	//	session.Save()
-	//	pContext.Redirect(http.StatusMovedPermanently, "/user/gitpage")
-	//	return
-	//}
-	//
-	//// save
-	//pUser.Gits = append(pUser.Gits, Git{
-	//	Name:   name,
-	//	Desc:   desc,
-	//	User:   user,
-	//	Passwd: passwd,
-	//})
-	//FlushUser()
+	passwd := strings.TrimSpace(pContext.PostForm("passwd"))
+	db.Add("UPDATE `user` SET `name` = ?, nickname = ?, `passwd` = ?, rem = ?, update_time = ? WHERE id = ?",
+		name, nickname, passwd, rem, time.Now().Unix(), user.Id)
 
-	pContext.Redirect(http.StatusMovedPermanently, "/user/gitpage")
-}
+	// 更新session中User信息
+	session := sessions.Default(pContext)
+	user.Name = name
+	user.Nickname = nickname
+	user.Rem = rem
+	session.Set(SessionKeyUser, user)
+	session.Save()
 
-func UserGitUpd(pContext *gin.Context) {
-}
-
-func UserGitDel(pContext *gin.Context) {
-
-}
-
-func UserServerPage(pContext *gin.Context) {
-	//session := sessions.Default(pContext)
-	//name := session.Get("name")
-	//desc := session.Get("desc")
-	//host := session.Get("host")
-	//port := session.Get("port")
-	//user := session.Get("user")
-	//message := session.Get("message")
-	//session.Delete("name")
-	//session.Delete("desc")
-	//session.Delete("host")
-	//session.Delete("port")
-	//session.Delete("user")
-	//session.Delete("message")
-	//session.Save()
-	//
-	//pUser := GetUser(pContext)
-	//pContext.HTML(http.StatusOK, "user/settings.html", gin.H{
-	//	"servers": pUser.Servers,
-	//	"name":    name,
-	//	"desc":    desc,
-	//	"host":    host,
-	//	"port":    port,
-	//	"user":    user,
-	//	"message": message,
-	//	"type":    "server",
-	//})
-}
-
-func UserServerAdd(pContext *gin.Context) {
-	//name := strings.TrimSpace(pContext.PostForm("name"))
-	//desc := strings.TrimSpace(pContext.PostForm("desc"))
-	//host := strings.TrimSpace(pContext.PostForm("host"))
-	//port := strings.TrimSpace(pContext.PostForm("port"))
-	//user := strings.TrimSpace(pContext.PostForm("user"))
-	//passwd := strings.TrimSpace(pContext.PostForm("passwd"))
-
-	//errI18nKey := ""
-	//if name == "" {
-	//	errI18nKey = "i18n.nameCannotEmpty"
-	//} else if host == "" {
-	//	errI18nKey = "i18n.hostCannotEmpty"
-	//} else if port == "" {
-	//	errI18nKey = "i18n.portCannotEmpty"
-	//} else if user == "" {
-	//	errI18nKey = "i18n.userCannotEmpty"
-	//} else if passwd == "" {
-	//	errI18nKey = "i18n.passwdCannotEmpty"
-	//}
-
-	//pUser := GetUser(pContext)
-	//if errI18nKey == "" && pUser.Servers != nil {
-	//	for _, v := range pUser.Servers {
-	//		if v.Name == name {
-	//			errI18nKey = "i18n.nameAlreadyExists"
-	//			break
-	//		}
-	//	}
-	//}
-	//
-	//if errI18nKey != "" {
-	//	session := sessions.Default(pContext)
-	//	session.Set("name", name)
-	//	session.Set("desc", desc)
-	//	session.Set("host", host)
-	//	session.Set("port", port)
-	//	session.Set("user", user)
-	//	session.Set("message", i18n.MustGetMessage(errI18nKey))
-	//	session.Save()
-	//	pContext.Redirect(http.StatusMovedPermanently, "/user/serverpage")
-	//	return
-	//}
-	//
-	//iPort, err := strconv.Atoi(port)
-	//if err != nil {
-	//	panic(err)
-	//}
-	//
-	//// save
-	//pUser.Servers = append(pUser.Servers, Server{
-	//	Name:   name,
-	//	Desc:   desc,
-	//	Host:   host,
-	//	Port:   iPort,
-	//	User:   user,
-	//	Passwd: passwd,
-	//})
-	//FlushUser()
-
-	pContext.Redirect(http.StatusMovedPermanently, "/user/serverpage")
-}
-
-func UserServerUpd(pContext *gin.Context) {
-
-}
-
-func UserServerDel(pContext *gin.Context) {
-
+	pContext.Redirect(http.StatusMovedPermanently, "/user/stgpage")
 }
 
 func VerifyUserName(name string) error {
@@ -357,7 +193,11 @@ func VerifyUserName(name string) error {
 	}
 
 	var id int64
-	db.Qry(&id, "SELECT u.id FROM `user` u WHERE u.`name` = ? LIMIT 1", name)
+	err := db.Qry(&id, "SELECT u.id FROM `user` u WHERE u.`name` = ? LIMIT 1", name)
+	if err != nil {
+		return err
+	}
+
 	if id != 0 {
 		return errors.New(i18n.MustGetMessage("i18n.userAlreadyExists"))
 	}
@@ -365,14 +205,15 @@ func VerifyUserName(name string) error {
 	return nil
 }
 
-func GetUser(pContext *gin.Context) *User {
+func GetUser(pContext *gin.Context) User {
 	session := sessions.Default(pContext)
-	username := ""
-	if v, r := session.Get(SessionKeyUser).(string); r && v != "" {
-		username = v
+	var user User
+	if v, r := session.Get(SessionKeyUser).(User); r {
+		user = v
 	}
 
-	var user User
-	db.Qry(&user, "SELECT u.* FROM `user` u WHERE u.`name` = ?", username)
-	return &user
+	// 如果返回指针值，有可能会发生逃逸
+	//return &user
+
+	return user
 }

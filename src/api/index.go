@@ -9,12 +9,9 @@ import (
 )
 
 func IndexPage(pContext *gin.Context) {
-	pUser := GetUser(pContext)
-	if pUser == nil {
-		return
-	}
+	user := GetUser(pContext)
 	pContext.HTML(http.StatusOK, "index.html", gin.H{
-		"username": pUser.Name,
-		"nickname": pUser.Nickname,
+		"username": user.Name,
+		"nickname": user.Nickname,
 	})
 }

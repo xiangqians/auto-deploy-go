@@ -4,6 +4,7 @@
 package com
 
 import (
+	"github.com/google/uuid"
 	"log"
 	"regexp"
 	"strings"
@@ -11,6 +12,11 @@ import (
 
 // const DataDir = "./data"
 const DataDir = "C:\\Users\\xiangqian\\Desktop\\tmp\\auto-deploy\\data"
+
+// https://github.com/google/uuid
+func Uuid() string {
+	return uuid.New().String()
+}
 
 func CheckErr(err error) {
 	if err != nil {

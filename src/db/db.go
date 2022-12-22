@@ -24,7 +24,7 @@ func Qry(i any, sql string, args ...any) error {
 	}
 	defer pDb.Close()
 
-	pRows, err := pDb.Query(sql, args)
+	pRows, err := pDb.Query(sql, args...)
 	if err != nil {
 		return err
 	}
@@ -39,15 +39,15 @@ func Qry(i any, sql string, args ...any) error {
 }
 
 func Add(sql string, args ...any) (int64, error) {
-	return exec(sql, args)
+	return exec(sql, args...)
 }
 
 func Upd(sql string, args ...any) (int64, error) {
-	return exec(sql, args)
+	return exec(sql, args...)
 }
 
 func Del(sql string, args ...any) (int64, error) {
-	return exec(sql, args)
+	return exec(sql, args...)
 }
 
 // return affect
@@ -58,7 +58,7 @@ func exec(sql string, args ...any) (int64, error) {
 	}
 	defer pDb.Close()
 
-	res, err := pDb.Exec(sql, args)
+	res, err := pDb.Exec(sql, args...)
 	if err != nil {
 		return 0, err
 	}
@@ -71,7 +71,9 @@ func exec(sql string, args ...any) (int64, error) {
 // 支持 1）一个或多个属性映射；2）结构体映射；3）结构体切片映射
 func rowsMapper(pRows *sql.Rows, i any) error {
 	cols, err := pRows.Columns()
-	com.CheckErr(err)
+	if err != nil {
+		return err
+	}
 
 	getDest := func(rflType reflect.Type, rflVal reflect.Value) []any {
 		dest := make([]any, len(cols))
@@ -126,7 +128,7 @@ func rowsMapper(pRows *sql.Rows, i any) error {
 					return err
 				}
 
-				// 扩大切片（slice）长度
+				// 切片（slice）扩容
 				if idx >= l {
 					rflVal0 := rflVal
 					rflVal = reflect.Append(rflVal, eRflVal)

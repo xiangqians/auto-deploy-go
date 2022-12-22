@@ -1,4 +1,5 @@
 // App
+// https://github.com/gin-gonic/gin
 // @author xiangqian
 // @date 18:00 2022/12/18
 package app
@@ -12,10 +13,9 @@ import (
 	"github.com/gin-contrib/i18n"
 	"github.com/gin-contrib/multitemplate"
 	"github.com/gin-contrib/sessions"
-	"github.com/gin-contrib/sessions/cookie"
+	"github.com/gin-contrib/sessions/memstore"
 	"github.com/gin-contrib/static"
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 	"golang.org/x/text/language"
 	"html/template"
 	"net/http"
@@ -103,11 +103,15 @@ func route(pEngine *gin.Engine) {
 		return pRenderer
 	}("./templates/*")
 
+	// 密钥
+	keyPairs := []byte("123456")
 	// 创建基于cookie的存储引擎
-	keyPairs := []byte("123456") // 密钥
-	store := cookie.NewStore(keyPairs)
+	//store := cookie.NewStore(keyPairs)
+	// 创建基于mem（内存）的存储引擎，其实就是一个 map[interface]interface 对象
+	store := memstore.NewStore(keyPairs)
+
 	// 设置session中间件
-	// session中间件基于内存（其他存储引擎支持：redis、mysql等）实现时，其实就是一个 map[interface]interface 对象
+	// session中间件基于内存（其他存储引擎支持：redis、mysql等）实现
 	pEngine.Use(sessions.Sessions("autoDeploySessionId", // session & cookie 名称
 		store))
 
@@ -126,8 +130,7 @@ func route(pEngine *gin.Engine) {
 
 		// isLogin
 		isLogin := false
-		username := session.Get(api.SessionKeyUsername)
-		if v, r := username.(string); r && v != "" {
+		if user, r := session.Get(api.SessionKeyUser).(api.User); r && user.Id != 0 {
 			isLogin = true
 		}
 
@@ -200,23 +203,23 @@ func route(pEngine *gin.Engine) {
 		// logout
 		userRouterGroup.Any("/logout", api.UserLogout)
 
-		// account
-		userRouterGroup.GET("/accountpage", api.UserAccountPage)
-		userRouterGroup.PUT("/account", api.UserAccountUpd)
-
-		// git
-		userRouterGroup.GET("/gitpage", api.UserGitPage)
-		//userRouterGroup.GET("/git", api.UserGitQry)
-		userRouterGroup.POST("/git", api.UserGitAdd)
-		userRouterGroup.PUT("/git", api.UserGitUpd)
-		userRouterGroup.DELETE("/git", api.UserGitDel)
-
-		// server
-		userRouterGroup.GET("/serverpage", api.UserServerPage)
-		userRouterGroup.POST("/server", api.UserServerAdd)
-		userRouterGroup.PUT("/server", api.UserServerUpd)
-		userRouterGroup.DELETE("/server", api.UserServerDel)
+		// settings
+		userRouterGroup.GET("/stgpage", api.UserStgPage)
+		userRouterGroup.PUT("/stg", api.UserStgUpd)
 	}
+
+	//// git
+	//userRouterGroup.GET("/gitpage", api.UserGitPage)
+	////userRouterGroup.GET("/git", api.UserGitQry)
+	//userRouterGroup.POST("/git", api.UserGitAdd)
+	//userRouterGroup.PUT("/git", api.UserGitUpd)
+	//userRouterGroup.DELETE("/git", api.UserGitDel)
+	//
+	//// server
+	//userRouterGroup.GET("/serverpage", api.UserServerPage)
+	//userRouterGroup.POST("/server", api.UserServerAdd)
+	//userRouterGroup.PUT("/server", api.UserServerUpd)
+	//userRouterGroup.DELETE("/server", api.UserServerDel)
 
 	// index
 	pEngine.GET("/", api.IndexPage)
@@ -229,8 +232,4 @@ func route(pEngine *gin.Engine) {
 	// ws
 	pEngine.GET("/ws", api.Ws)
 
-}
-
-func Uuid() string {
-	return uuid.New().String()
 }
