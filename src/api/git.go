@@ -18,10 +18,9 @@ type Server struct {
 }
 
 type Git struct {
-	Name   string `json:"name"`   // 名称，唯一
-	Desc   string `json:"desc"`   // 服Git描述
-	User   string `json:"user"`   // 用户名
-	Passwd string `json:"passwd"` // 密码
+	Abs
+	Name   string // 用户名
+	Passwd string // 密码
 }
 
 func UserGitPage(pContext *gin.Context) {

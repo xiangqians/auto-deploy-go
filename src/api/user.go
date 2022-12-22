@@ -19,14 +19,10 @@ import (
 const SessionKeyUser = "_user_"
 
 type User struct {
-	Id         int64  // 主键id
-	Name       string // 用户名
-	Nickname   string // 昵称
-	Passwd     string // 密码
-	Rem        string // 备注
-	DelFlag    byte   // 删除标识，0-正常，1-删除
-	CreateTime int64  // 创建时间（时间戳，s）
-	UpdateTime int64  // 修改时间（时间戳，s）
+	Abs
+	Name     string // 用户名
+	Nickname string // 昵称
+	Passwd   string // 密码
 }
 
 func init() {
@@ -106,7 +102,8 @@ func UserLogin(pContext *gin.Context) {
 	var user User
 	err := db.Qry(&user, "SELECT u.id, u.`name`, u.nickname, u.rem, u.create_time, u.update_time FROM `user` u WHERE u.del_flag = 0 AND u.`name` = ? AND u.passwd = ? LIMIT 1", name, passwd)
 	if err != nil {
-		log.Fatalln(err)
+		log.Println(err)
+		return
 	}
 
 	if user.Id == 0 {

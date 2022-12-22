@@ -5,7 +5,6 @@ package com
 
 import (
 	"github.com/google/uuid"
-	"log"
 	"regexp"
 	"strings"
 )
@@ -16,12 +15,6 @@ const DataDir = "C:\\Users\\xiangqian\\Desktop\\tmp\\auto-deploy\\data"
 // https://github.com/google/uuid
 func Uuid() string {
 	return uuid.New().String()
-}
-
-func CheckErr(err error) {
-	if err != nil {
-		log.Fatalln(err)
-	}
 }
 
 // 驼峰转下划线

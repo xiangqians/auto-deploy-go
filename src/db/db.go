@@ -69,31 +69,11 @@ func exec(sql string, args ...any) (int64, error) {
 
 // 字段集映射
 // 支持 1）一个或多个属性映射；2）结构体映射；3）结构体切片映射
+// _Deprecated: ...
 func rowsMapper(pRows *sql.Rows, i any) error {
 	cols, err := pRows.Columns()
 	if err != nil {
 		return err
-	}
-
-	getDest := func(rflType reflect.Type, rflVal reflect.Value) []any {
-		dest := make([]any, len(cols))
-		for fi, fl := 0, rflType.NumField(); fi < fl; fi++ {
-			typeField := rflType.Field(fi)
-			name := typeField.Tag.Get("sql")
-			if name == "" {
-				name = com.NameHumpToUnderline(typeField.Name)
-			}
-			for ci, col := range cols {
-				if col == name {
-					valField := rflVal.Field(fi)
-					if valField.CanAddr() {
-						dest[ci] = valField.Addr().Interface()
-					}
-					break
-				}
-			}
-		}
-		return dest
 	}
 
 	rflType := reflect.TypeOf(i).Elem()
@@ -102,7 +82,8 @@ func rowsMapper(pRows *sql.Rows, i any) error {
 	// 结构体
 	case reflect.Struct:
 		if pRows.Next() {
-			err = pRows.Scan(getDest(rflType, rflVal)...)
+			dest := getDest(cols, rflType, rflVal)
+			err = pRows.Scan(dest...)
 		}
 
 	// 切片
@@ -123,7 +104,8 @@ func rowsMapper(pRows *sql.Rows, i any) error {
 					pE := reflect.New(eRflType).Interface()
 					eRflVal = reflect.ValueOf(pE).Elem()
 				}
-				err = pRows.Scan(getDest(eRflType, eRflVal)...)
+				dest := getDest(cols, eRflType, eRflVal)
+				err = pRows.Scan(dest...)
 				if err != nil {
 					return err
 				}
@@ -158,4 +140,38 @@ func rowsMapper(pRows *sql.Rows, i any) error {
 	}
 
 	return err
+}
+
+func getDest(cols []string, rflType reflect.Type, rflVal reflect.Value) []any {
+	dest := make([]any, len(cols))
+	for fi, fl := 0, rflType.NumField(); fi < fl; fi++ {
+		typeField := rflType.Field(fi)
+
+		// 兼容 FieldAlign() int （如果是struct字段，对齐后占用的字节数）
+		if typeField.Type.Kind() == reflect.Struct {
+			for sfi, sfl := 0, typeField.Type.NumField(); sfi < sfl; sfi++ {
+				setDest(cols, &dest, typeField.Type.Field(sfi), rflVal)
+			}
+		} else {
+			setDest(cols, &dest, typeField, rflVal)
+		}
+	}
+
+	return dest
+}
+
+func setDest(cols []string, dest *[]any, typeField reflect.StructField, rflVal reflect.Value) {
+	name := typeField.Tag.Get("sql")
+	if name == "" {
+		name = com.NameHumpToUnderline(typeField.Name)
+	}
+	for ci, col := range cols {
+		if col == name {
+			valField := rflVal.FieldByName(typeField.Name)
+			if valField.CanAddr() {
+				(*dest)[ci] = valField.Addr().Interface()
+			}
+			break
+		}
+	}
 }
