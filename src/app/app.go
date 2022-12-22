@@ -225,9 +225,11 @@ func route(pEngine *gin.Engine) {
 	pEngine.DELETE("/server", api.ServerDel)
 
 	// item
-	//itemRouterGroup := pEngine.Group("/item")
-	//{
-	//}
+	itemRouterGroup := pEngine.Group("/item")
+	{
+		itemRouterGroup.GET("/addpage", api.ItemAddPage)
+	}
+	pEngine.POST("/item", api.ItemAdd)
 
 	// ws
 	pEngine.GET("/ws", api.Ws)

@@ -4,6 +4,7 @@
 package api
 
 import (
+	"auto-deploy-go/src/com"
 	"auto-deploy-go/src/db"
 	"encoding/gob"
 	"errors"
@@ -55,8 +56,15 @@ func UserRegPage(pContext *gin.Context) {
 func UserAdd(pContext *gin.Context) {
 	name := strings.TrimSpace(pContext.PostForm("name"))
 	nickname := strings.TrimSpace(pContext.PostForm("nickname"))
+	passwd := strings.TrimSpace(pContext.PostForm("passwd"))
 	rem := strings.TrimSpace(pContext.PostForm("rem"))
 	err := VerifyUserName(name)
+	if err == nil {
+		err = com.VerifyUsername(name)
+	}
+	if err == nil {
+		err = com.VerifyPasswd(passwd)
+	}
 	if err != nil {
 		session := sessions.Default(pContext)
 		session.Set("username", name)
@@ -68,7 +76,6 @@ func UserAdd(pContext *gin.Context) {
 		return
 	}
 
-	passwd := strings.TrimSpace(pContext.PostForm("passwd"))
 	db.Add("INSERT INTO `user` (`name`, `nickname`, `passwd`, `rem`, `create_time`) VALUES (?, ?, ?, ?, ?)",
 		name, nickname, passwd, rem, time.Now().Unix())
 

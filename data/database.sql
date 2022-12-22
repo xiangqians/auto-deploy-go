@@ -76,3 +76,33 @@ CREATE TABLE `item` -- 项目信息表
     `create_time` INTEGER      DEFAULT 0,            -- 创建时间（时间戳，s）
     `update_time` INTEGER      DEFAULT 0             -- 修改时间（时间戳，s）
 );
+
+
+-- ------------------------
+-- Table structure for item
+-- ------------------------
+DROP TABLE IF EXISTS `record`;
+CREATE TABLE `record` -- 项目部署记录信息表
+(
+    `id`           INTEGER PRIMARY KEY AUTOINCREMENT, -- id
+    `item_id`      INTEGER NOT NULL,                  -- 所属项目id
+    `stage1_stime` INTEGER      DEFAULT 0,            -- 阶段1开始时间（时间戳，s）
+    `stage1_etime` INTEGER      DEFAULT 0,            -- 阶段1结束时间（时间戳，s）
+    `stage1_rem`   VARCHAR(256) DEFAULT '',           -- 阶段1备注信息
+    `stage2_stime` INTEGER      DEFAULT 0,            -- 阶段2开始时间（时间戳，s）
+    `stage2_etime` INTEGER      DEFAULT 0,            -- 阶段2结束时间（时间戳，s）
+    `stage2_rem`   VARCHAR(256) DEFAULT '',           -- 阶段2备注信息
+    `stage3_stime` INTEGER      DEFAULT 0,            -- 阶段3开始时间（时间戳，s）
+    `stage3_etime` INTEGER      DEFAULT 0,            -- 阶段3结束时间（时间戳，s）
+    `stage3_rem`   VARCHAR(256) DEFAULT '',           -- 阶段3备注信息
+    `stage4_stime` INTEGER      DEFAULT 0,            -- 阶段4开始时间（时间戳，s）
+    `stage4_etime` INTEGER      DEFAULT 0,            -- 阶段4结束时间（时间戳，s）
+    `stage4_rem`   VARCHAR(256) DEFAULT '',           -- 阶段4备注信息
+    `stage5_stime` INTEGER      DEFAULT 0,            -- 阶段5开始时间（时间戳，s）
+    `stage5_etime` INTEGER      DEFAULT 0,            -- 阶段5结束时间（时间戳，s）
+    `stage5_rem`   VARCHAR(256) DEFAULT '',           -- 阶段5备注信息
+    `rem`          VARCHAR(512) DEFAULT '',           -- 备注信息
+    `del_flag`     TINYINT      DEFAULT 0,            -- 删除标识，0-正常，1-删除
+    `create_time`  INTEGER      DEFAULT 0,            -- 创建时间（时间戳，s）
+    `update_time`  INTEGER      DEFAULT 0             -- 修改时间（时间戳，s）
+);

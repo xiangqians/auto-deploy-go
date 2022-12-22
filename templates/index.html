@@ -12,7 +12,7 @@
 <body>
 
 <div>
-    <a href="/user/stgpage">{{ .username }}, {{ .nickname }}</a>
+    <a href="/user/stgpage">{{ .user.Name }}, {{ .user.Nickname }}</a>
     <br>
     <a href="/user/logout">{{ Localize "i18n.logout" }}</a>
 </div>
@@ -29,29 +29,34 @@
 <br>
 <br>
 
+<table>
+    <tr>
+        <td>{{ Localize "i18n.id" }}</td>
+        <!-- 鼠标悬停在此标签上时，title = item rem -->
+        <td>{{ Localize "i18n.name" }}</td>
+        <td>{{ Localize "i18n.stageView" }}</td>
+        <!-- 鼠标悬停在此标签上时，title = lastRevMessage -->
+        <td>{{ Localize "i18n.lastDeployTime" }}</td>
+        <td>{{ Localize "i18n.rem" }}</td>
+        <td>{{ Localize "i18n.createTime" }}</td>
+        <td>{{ Localize "i18n.updateTime" }}</td>
+    </tr>
+    {{ range $index,$value := .items }}
+    <tr>
+        <td>{{ $value.Id }}</td>
+        <td>{{ $value.Name }}</td>
+        <td>-</td>
+        <td>-</td>
+        <td>{{ $value.Rem }}</td>
+        <td>{{ $value.CreateTime }}</td>
+        <td>{{ $value.UpdateTime }}</td>
+    </tr>
+    {{end}}
+</table>
+<br>
 <div>
-    <table>
-        <tr>
-            <!-- 鼠标悬停在此标签上时，title = itemrem -->
-            <td>itemName</td>
-
-            <td>stageView</td>
-
-            <!-- 鼠标悬停在此标签上时，title = lastRevMessage -->
-            <td>lastDeployTime</td>
-        </tr>
-        <tr>
-            <td><a href="">Proj</a></td>
-            <td></td>
-            <td></td>
-        </tr>
-    </table>
+    <a href="/item/addpage">{{ Localize "i18n.add" }}</a>
 </div>
-
-<!--
-1、选中 item 时，右划出左侧栏：配置、部署、日志
-2、选中日志时，
--->
 
 <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
 <div><a href="https://github.com/xiangqians/auto-deploy-go" target="_blank">{{ Localize "i18n.about" }}</a></div>

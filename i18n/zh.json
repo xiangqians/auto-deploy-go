@@ -33,5 +33,12 @@
   "i18n.add": "新增",
   "i18n.upd": "更新",
   "i18n.del": "删除",
-  "i18n.about": "关于"
+  "i18n.about": "关于",
+  "i18n.item": "项目",
+  "i18n.stageView": "阶段视图",
+  "i18n.lastDeployTime": "最近部署时间",
+  "i18n.repoUrl": "仓库地址",
+  "i18n.branch": "分支名",
+  "i18n.cmd": "命令",
+  "i18n.script": "脚本"
 }
