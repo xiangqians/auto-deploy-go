@@ -39,9 +39,8 @@
   "i18n.lastDeployTime": "Last Deploy Time",
   "i18n.repoUrl": "Repo Url",
   "i18n.branch": "Branch",
-  "i18n.cmd": "Cmd",
   "i18n.ini": "Ini",
+  "i18n.op": "Operate",
   "i18n.anyCannotEmpty": "%v cannot be empty",
-  "i18n.anyAlreadyExists": "%v already exists",
-  "i18n.anyGtNChar": "%v cannot be greater than %v characters"
+  "i18n.anyAlreadyExists": "%v already exists"
 }

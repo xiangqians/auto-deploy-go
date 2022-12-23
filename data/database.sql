@@ -67,7 +67,7 @@ CREATE TABLE `item` -- 项目信息表
     `name`        VARCHAR(64)  NOT NULL,             -- 名称
     `git_id`      INTEGER      DEFAULT 0,            -- 项目所属Git id
     `repo_url`    VARCHAR(512) NOT NULL,             -- Git仓库地址
-    `branch`      VARCHAR(64)  DEFAULT 'master',     -- 分支名
+    `branch`      VARCHAR(64)  NOT NULL,             -- 分支名
     `server_id`   INTEGER      NOT NULL,             -- 项目所属Server id
     `ini`         TEXT         DEFAULT NULL,         -- 配置
     `rem`         VARCHAR(256) DEFAULT '',           -- 备注

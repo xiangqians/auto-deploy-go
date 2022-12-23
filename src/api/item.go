@@ -10,21 +10,22 @@ import (
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
+	"strconv"
 	"time"
 )
 
 // Item 项目
 type Item struct {
 	Abs
-	UserId     int64  `form:"userId"`                                    // 项目所属用户id
-	Name       string `form:"name" binding:"required,trim,min=3,max=10"` // 名称
-	GitId      int64  `form:"gitId"`                                     // 项目所属Git id
-	GitName    string `form:"gitName"`                                   // 项目所属Git Name
-	RepoUrl    string `form:"repoUrl"`                                   // Git仓库地址
-	Branch     string `form:"branch"`                                    // 分支名
-	ServerId   int64  `form:"serverId"`                                  // 项目所属Server id
-	ServerName string `form:"serverName"`                                // 项目所属Server Name
-	Ini        string `form:"ini"`                                       // 脚本
+	UserId     int64  `form:"userId"`                                              // 项目所属用户id
+	Name       string `form:"name" binding:"required,excludes= ,min=1,max=60"`     // 名称
+	GitId      int64  `form:"gitId" binding:"gte=0"`                               // 项目所属Git id
+	GitName    string `form:"gitName"`                                             // 项目所属Git Name
+	RepoUrl    string `form:"repoUrl" binding:"required,excludes= ,min=1,max=500"` // Git仓库地址
+	Branch     string `form:"branch" binding:"required,excludes= ,min=1,max=60"`   // 分支名
+	ServerId   int64  `form:"serverId" binding:"required,gt=0"`                    // 项目所属Server id
+	ServerName string `form:"serverName"`                                          // 项目所属Server Name
+	Ini        string `form:"ini" binding:"required,min=1,max=1000"`               // 脚本
 }
 
 func init() {
@@ -72,23 +73,10 @@ func ItemAddPage(pContext *gin.Context) {
 func ItemAdd(pContext *gin.Context) {
 	item := Item{}
 	err := ShouldBind(pContext, &item)
-
-	message := ""
-	//if err == nil {
-	//	err = com.VerifyText(item.Name, 60)
-	//	if err != nil {
-	//		message = fmt.Sprintf(err.Error(), i18n.MustGetMessage("i18n.name"))
-	//	}
-	//}
-
 	if err != nil {
 		session := sessions.Default(pContext)
 		session.Set("item", item)
-		if message != "" {
-			session.Set("message", message)
-		} else {
-			session.Set("message", err.Error())
-		}
+		session.Set("message", err.Error())
 		session.Save()
 		pContext.Redirect(http.StatusMovedPermanently, "/item/addpage")
 		return
@@ -105,6 +93,12 @@ func ItemUpd(pContext *gin.Context) {
 }
 
 func ItemDel(pContext *gin.Context) {
+	idStr := pContext.Param("id")
+	id, err := strconv.ParseInt(idStr, 10, 64)
+	if err == nil {
+		user := GetUser(pContext)
+		db.Del("UPDATE item SET del_flag = 1, update_time = ? WHERE user_id = ? AND id = ?", time.Now().Unix(), user.Id, id)
+	}
 	pContext.Redirect(http.StatusMovedPermanently, "/item/index")
 }
 

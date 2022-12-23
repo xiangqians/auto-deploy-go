@@ -22,11 +22,11 @@ import (
 
 // 抽象实体定义
 type Abs struct {
-	Id         int64  `form:"id"`         // 主键id
-	Rem        string `form:"rem"`        // 备注
-	DelFlag    byte   `form:"delFlag"`    // 删除标识，0-正常，1-删除
-	CreateTime int64  `form:"createTime"` // 创建时间（时间戳，s）
-	UpdateTime int64  `form:"updateTime"` // 修改时间（时间戳，s）
+	Id         int64  `form:"id"`                    // 主键id
+	Rem        string `form:"rem" binding:"max=200"` // 备注
+	DelFlag    byte   `form:"delFlag"`               // 删除标识，0-正常，1-删除
+	CreateTime int64  `form:"createTime"`            // 创建时间（时间戳，s）
+	UpdateTime int64  `form:"updateTime"`            // 修改时间（时间戳，s）
 }
 
 var (
@@ -60,8 +60,8 @@ func TransErr(pContext *gin.Context, err error) error {
 		}
 		var validationErrTrans validator.ValidationErrorsTranslations
 		switch lang {
-		case com.LocaleZh:
-			validationErrTrans = errs.Translate(zhTrans)
+		//case com.LocaleZh:
+		//	validationErrTrans = errs.Translate(zhTrans)
 		case com.LocaleEn:
 			validationErrTrans = errs.Translate(enTrans)
 		default:
@@ -74,6 +74,14 @@ func TransErr(pContext *gin.Context, err error) error {
 			msg, ierr := i18n.GetMessage(fmt.Sprintf("i18n.%s", strings.ToLower(name)))
 			if ierr == nil {
 				value = strings.Replace(value, name, msg, 1)
+			}
+			if errMsg != "" {
+				switch lang {
+				case com.LocaleEn:
+					errMsg += ", "
+				default:
+					errMsg += "、"
+				}
 			}
 			errMsg += value
 		}
