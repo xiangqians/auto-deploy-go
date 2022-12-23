@@ -50,7 +50,12 @@ func intHtmlTemplate(pEngine *gin.Engine) {
 		// if gin.DebugMode -> NewDynamic()
 		renderer := multitemplate.NewRenderer()
 
-		matches, err := filepath.Glob(templatesDir)
+		matches, err := filepath.Glob(templatesDir + "/*")
+		if err != nil {
+			panic(err)
+		}
+
+		coms, err := filepath.Glob(templatesDir + "/com/*")
 		if err != nil {
 			panic(err)
 		}
@@ -68,23 +73,41 @@ func intHtmlTemplate(pEngine *gin.Engine) {
 				// /**/*
 				if fileInfo.IsDir() {
 					fname := fileInfo.Name()
-					subFileInfos, sfierr := pFile.Readdir(-1)
-					if sfierr == nil {
-						for _, subFileInfo := range subFileInfos {
-							subfname := subFileInfo.Name()
-							renderer.AddFromFilesFuncs(fmt.Sprintf("%s/%s", fname, subfname), pEngine.FuncMap, fmt.Sprintf("%s/%s", matche, subfname))
+					if fname != "com" {
+						subFileInfos, sfierr := pFile.Readdir(-1)
+						if sfierr == nil {
+							for _, subFileInfo := range subFileInfos {
+								subfname := subFileInfo.Name()
+								files := make([]string, len(coms)+1)
+								i := 0
+								files[i] = fmt.Sprintf("%s/%s", matche, subfname)
+								i++
+								for _, com := range coms {
+									files[i] = com
+									i++
+								}
+
+								renderer.AddFromFilesFuncs(fmt.Sprintf("%s/%s", fname, subfname), pEngine.FuncMap, files...)
+							}
 						}
 					}
-
 				} else
 				// /*
 				{
-					renderer.AddFromFilesFuncs(name, pEngine.FuncMap, matche)
+					files := make([]string, len(coms)+1)
+					i := 0
+					files[i] = matche
+					i++
+					for _, com := range coms {
+						files[i] = com
+						i++
+					}
+					renderer.AddFromFilesFuncs(name, pEngine.FuncMap, files...)
 				}
 			}
 			pFile.Close()
 		}
 
 		return renderer
-	}("./templates/*")
+	}("./templates")
 }
