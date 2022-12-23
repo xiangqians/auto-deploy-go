@@ -16,15 +16,15 @@ import (
 // Item 项目
 type Item struct {
 	Abs
-	UserId     int64  `form:"userId"`                               // 项目所属用户id
-	Name       string `form:"name" binding:"required,min=3,max=10"` // 名称
-	GitId      int64  `form:"gitId"`                                // 项目所属Git id
-	GitName    string `form:"gitName"`                              // 项目所属Git Name
-	RepoUrl    string `form:"repoUrl"`                              // Git仓库地址
-	Branch     string `form:"branch"`                               // 分支名
-	ServerId   int64  `form:"serverId"`                             // 项目所属Server id
-	ServerName string `form:"serverName"`                           // 项目所属Server Name
-	Ini        string `form:"ini"`                                  // 脚本
+	UserId     int64  `form:"userId"`                                    // 项目所属用户id
+	Name       string `form:"name" binding:"required,trim,min=3,max=10"` // 名称
+	GitId      int64  `form:"gitId"`                                     // 项目所属Git id
+	GitName    string `form:"gitName"`                                   // 项目所属Git Name
+	RepoUrl    string `form:"repoUrl"`                                   // Git仓库地址
+	Branch     string `form:"branch"`                                    // 分支名
+	ServerId   int64  `form:"serverId"`                                  // 项目所属Server id
+	ServerName string `form:"serverName"`                                // 项目所属Server Name
+	Ini        string `form:"ini"`                                       // 脚本
 }
 
 func init() {

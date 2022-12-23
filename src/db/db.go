@@ -69,7 +69,6 @@ func exec(sql string, args ...any) (int64, error) {
 
 // 字段集映射
 // 支持 1）一个或多个属性映射；2）结构体映射；3）结构体切片映射
-// _Deprecated: ...
 func rowsMapper(pRows *sql.Rows, i any) error {
 	cols, err := pRows.Columns()
 	if err != nil {

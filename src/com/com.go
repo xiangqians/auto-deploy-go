@@ -12,6 +12,11 @@ import (
 	"strings"
 )
 
+const (
+	LocaleZh = "zh"
+	LocaleEn = "en"
+)
+
 // DataDir
 // const DataDir = "./data"
 const DataDir = "C:\\Users\\xiangqian\\Desktop\\tmp\\auto-deploy\\data"
