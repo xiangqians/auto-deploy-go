@@ -24,6 +24,8 @@
     <a href="/git/index">{{ Localize "i18n.git" }}</a>
     <br>
     <a href="/server/index">{{ Localize "i18n.server" }}</a>
+    <br>
+    <a href="/item/index">{{ Localize "i18n.item" }}</a>
 </div>
 
 <br>
@@ -41,7 +43,7 @@
         <td>{{ Localize "i18n.createTime" }}</td>
         <td>{{ Localize "i18n.updateTime" }}</td>
     </tr>
-    {{ range $index,$value := .items }}
+    {{ range $index,$value := .items1 }}
     <tr>
         <td>{{ $value.Id }}</td>
         <td>{{ $value.Name }}</td>
@@ -51,12 +53,8 @@
         <td>{{ $value.CreateTime }}</td>
         <td>{{ $value.UpdateTime }}</td>
     </tr>
-    {{end}}
+    {{ end }}
 </table>
-<br>
-<div>
-    <a href="/item/addpage">{{ Localize "i18n.add" }}</a>
-</div>
 
 <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
 <div><a href="https://github.com/xiangqians/auto-deploy-go" target="_blank">{{ Localize "i18n.about" }}</a></div>

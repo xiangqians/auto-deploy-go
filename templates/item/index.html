@@ -1,36 +1,35 @@
 <!--
  | @author xiangqian
- | @date 15:47 2022/12/22
+ | @date 13:48 2022/12/23
  |-->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <link rel="shortcut icon" rel="external nofollow" href="/static/favicon.ico">
-    <title>{{ Localize "i18n.server" }}</title>
-</head>
+    <title>{{ Localize "i18n.item" }}</title></head>
 <body>
 
 <table>
     <tr>
         <td>{{ Localize "i18n.id" }}</td>
         <td>{{ Localize "i18n.name" }}</td>
-        <td>{{ Localize "i18n.host" }}</td>
-        <td>{{ Localize "i18n.port" }}</td>
-        <td>{{ Localize "i18n.user" }}</td>
-        <td>{{ Localize "i18n.passwd" }}</td>
+        <td>{{ Localize "i18n.git" }}</td>
+        <td>{{ Localize "i18n.repoUrl" }}</td>
+        <td>{{ Localize "i18n.branch" }}</td>
+        <td>{{ Localize "i18n.server" }}</td>
         <td>{{ Localize "i18n.rem" }}</td>
         <td>{{ Localize "i18n.createTime" }}</td>
         <td>{{ Localize "i18n.updateTime" }}</td>
     </tr>
-    {{ range $index,$value := .servers }}
+    {{ range $index,$value := .items }}
     <tr>
         <td>{{ $value.Id }}</td>
         <td>{{ $value.Name }}</td>
-        <td>{{ $value.Host }}</td>
-        <td>{{ $value.Port }}</td>
-        <td>{{ $value.User }}</td>
-        <td>******</td>
+        <td>{{ $value.GitName }}</td>
+        <td>{{ $value.RepoUrl }}</td>
+        <td>{{ $value.Branch }}</td>
+        <td>{{ $value.ServerName }}</td>
         <td>{{ $value.Rem }}</td>
         <td>{{ $value.CreateTime }}</td>
         <td>{{ $value.UpdateTime }}</td>
@@ -39,7 +38,7 @@
 </table>
 <br>
 <div>
-    <a href="/server/addpage">{{ Localize "i18n.add" }}</a>
+    <a href="/item/addpage">{{ Localize "i18n.add" }}</a>
 </div>
 
 <br>

@@ -32,7 +32,8 @@ func Run() {
 	logger.Init()
 
 	// Gin ReleaseMode
-	gin.SetMode(gin.ReleaseMode)
+	//gin.SetMode(gin.ReleaseMode)
+	gin.SetMode(gin.DebugMode)
 
 	// default Engine
 	pEngine := gin.Default()
@@ -63,6 +64,7 @@ func route(pEngine *gin.Engine) {
 	//pEngine.LoadHTMLGlob("templates/**/*")
 	// https://github.com/gin-contrib/multitemplate
 	pEngine.HTMLRender = func(templatesDir string) multitemplate.Renderer {
+		// if gin.DebugMode -> NewDynamic()
 		pRenderer := multitemplate.NewRenderer()
 
 		matches, err := filepath.Glob(templatesDir)
@@ -227,9 +229,12 @@ func route(pEngine *gin.Engine) {
 	// item
 	itemRouterGroup := pEngine.Group("/item")
 	{
+		itemRouterGroup.GET("/index", api.ItemIndex)
 		itemRouterGroup.GET("/addpage", api.ItemAddPage)
 	}
 	pEngine.POST("/item", api.ItemAdd)
+	pEngine.PUT("/item", api.ItemUpd)
+	pEngine.DELETE("/item", api.ItemDel)
 
 	// ws
 	pEngine.GET("/ws", api.Ws)
