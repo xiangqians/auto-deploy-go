@@ -24,20 +24,8 @@ type Server struct {
 }
 
 func ServerIndex(pContext *gin.Context) {
-	user := GetUser(pContext)
-	servers := make([]Server, 1)
-	err := db.Qry(&servers, "SELECT s.id, s.`name`, s.`host`, s.`port`, s.`user`, s.rem, s.create_time, s.update_time FROM server s WHERE s.user_id = ?", user.Id)
-	if err != nil {
-		log.Println(err)
-		return
-	}
-
-	if servers[0].Id == 0 {
-		servers = nil
-	}
-
 	pContext.HTML(http.StatusOK, "server/index.html", gin.H{
-		"servers": servers,
+		"servers": Servers(pContext),
 	})
 }
 
@@ -86,4 +74,19 @@ func ServerUpd(pContext *gin.Context) {
 
 func ServerDel(pContext *gin.Context) {
 	pContext.Redirect(http.StatusMovedPermanently, "/server/index")
+}
+
+func Servers(pContext *gin.Context) []Server {
+	user := GetUser(pContext)
+	servers := make([]Server, 1)
+	err := db.Qry(&servers, "SELECT s.id, s.`name`, s.`host`, s.`port`, s.`user`, s.rem, s.create_time, s.update_time FROM server s WHERE s.del_flag = 0 AND s.user_id = ?", user.Id)
+	if err != nil {
+		log.Println(err)
+		return nil
+	}
+
+	if servers[0].Id == 0 {
+		servers = nil
+	}
+	return servers
 }

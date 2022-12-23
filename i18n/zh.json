@@ -40,5 +40,8 @@
   "i18n.repoUrl": "仓库地址",
   "i18n.branch": "分支名",
   "i18n.cmd": "命令",
-  "i18n.ini": "配置"
+  "i18n.ini": "配置",
+  "i18n.anyCannotEmpty": "%v 不能为空",
+  "i18n.anyAlreadyExists": "%v 已存在",
+  "i18n.anyGtNChar": "%v 不能大于 %v 个字符"
 }

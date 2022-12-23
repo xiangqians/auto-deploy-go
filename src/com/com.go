@@ -5,6 +5,8 @@ package com
 
 import (
 	"errors"
+	"fmt"
+	"github.com/gin-contrib/i18n"
 	"github.com/google/uuid"
 	"regexp"
 	"strings"
@@ -13,6 +15,18 @@ import (
 // DataDir
 // const DataDir = "./data"
 const DataDir = "C:\\Users\\xiangqian\\Desktop\\tmp\\auto-deploy\\data"
+
+func VerifyText(t string, maxLen int) error {
+	if t == "" {
+		return errors.New(i18n.MustGetMessage("i18n.anyCannotEmpty"))
+	}
+
+	if len(t) > maxLen {
+		return errors.New(fmt.Sprintf(i18n.MustGetMessage("i18n.anyGtNChar"), "%v", maxLen))
+	}
+
+	return nil
+}
 
 // VerifyUsername 校验用户名
 // 1-16位长度（字母，数字，下划线，减号）

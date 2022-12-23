@@ -14,15 +14,21 @@
 <form action="/item" method="post">
     <p>{{ .message }}</p>
     <div>
-        <label>{{ Localize "i18n.name" }}:</label>
+        *<label>{{ Localize "i18n.name" }}:</label>
         <input name="name" type="text" value="{{ .item.Name }}">
     </div>
     <div>
         <label>{{ Localize "i18n.git" }}:</label>
-        <input name="gitId" type="text" value="{{ .item.GitId }}">
+        <select name="gitId">
+            <option value="0"></option>
+            {{ range $index,$value := .gits }}
+            <option value="{{ $value.Id }}" {{ if eq $.item.GitId $value.Id }} selected {{ end }}>{{ $value.Name }}
+            </option>
+            {{ end }}
+        </select>
     </div>
     <div>
-        <label>{{ Localize "i18n.repoUrl" }}:</label>
+        *<label>{{ Localize "i18n.repoUrl" }}:</label>
         <input name="repoUrl" type="text" value="{{ .item.RepoUrl }}">
     </div>
     <div>
@@ -30,16 +36,18 @@
         <input name="branch" type="text" value="{{ .item.Branch }}">
     </div>
     <div>
-        <label>{{ Localize "i18n.server" }}:</label>
-        <input name="serverId" type="text" value="{{ .item.ServerId }}">
+        *<label>{{ Localize "i18n.server" }}:</label>
+        <select name="serverId">
+            <option value="0"></option>
+            {{ range $index,$value := .servers }}
+            <option value="{{ $value.Id }}" {{ if eq $.item.ServerId $value.Id }} selected {{ end }}>{{ $value.Name }}
+            </option>
+            {{ end }}
+        </select>
     </div>
     <div>
-        <label>{{ Localize "i18n.cmd" }}:</label>
-        <input name="cmd" type="text" value="{{ .item.Cmd }}">
-    </div>
-    <div>
-        <label>{{ Localize "i18n.ini" }}:</label>
-        <input name="ini" type="text" value="{{ .item.ini }}">
+        *<label>{{ Localize "i18n.ini" }}:</label>
+        <textarea name="ini" type="text">{{ .item.Ini }}</textarea>
     </div>
     <div>
         <label>{{ Localize "i18n.rem" }}:</label>

@@ -197,7 +197,7 @@ func VerifyUserName(name string) error {
 	}
 
 	var id int64
-	err := db.Qry(&id, "SELECT u.id FROM `user` u WHERE u.`name` = ? LIMIT 1", name)
+	err := db.Qry(&id, "SELECT u.id FROM `user` u WHERE u.del_flag = 0 AND u.`name` = ? LIMIT 1", name)
 	if err != nil {
 		return err
 	}

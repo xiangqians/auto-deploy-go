@@ -22,20 +22,8 @@ type Git struct {
 }
 
 func GitIndex(pContext *gin.Context) {
-	user := GetUser(pContext)
-	gits := make([]Git, 1)
-	err := db.Qry(&gits, "SELECT g.id, g.`name`, g.`user`, g.rem, g.create_time, g.update_time FROM git g WHERE g.user_id = ?", user.Id)
-	if err != nil {
-		log.Println(err)
-		return
-	}
-
-	if gits[0].Id == 0 {
-		gits = nil
-	}
-
 	pContext.HTML(http.StatusOK, "git/index.html", gin.H{
-		"gits": gits,
+		"gits": Gits(pContext),
 	})
 }
 
@@ -75,4 +63,20 @@ func GitUpd(pContext *gin.Context) {
 
 func GitDel(pContext *gin.Context) {
 	pContext.Redirect(http.StatusMovedPermanently, "/git/index")
+}
+
+func Gits(pContext *gin.Context) []Git {
+	user := GetUser(pContext)
+	gits := make([]Git, 1)
+	err := db.Qry(&gits, "SELECT g.id, g.`name`, g.`user`, g.rem, g.create_time, g.update_time FROM git g WHERE g.del_flag = 0 AND g.user_id = ?", user.Id)
+	if err != nil {
+		log.Println(err)
+		return nil
+	}
+
+	if gits[0].Id == 0 {
+		gits = nil
+	}
+
+	return gits
 }

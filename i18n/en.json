@@ -25,9 +25,9 @@
   "i18n.id": "Id",
   "i18n.name": "Name",
   "i18n.host": "Host",
-  "i18n.hostCannotEmpty": "Host cannot be empty.",
+  "i18n.hostCannotEmpty": "Host cannot be empty",
   "i18n.port": "Port",
-  "i18n.portCannotEmpty": "Port cannot be empty.",
+  "i18n.portCannotEmpty": "Port cannot be empty",
   "i18n.createTime": "Creation time",
   "i18n.updateTime": "Update time",
   "i18n.add": "Add",
@@ -40,5 +40,8 @@
   "i18n.repoUrl": "Repo Url",
   "i18n.branch": "Branch",
   "i18n.cmd": "Cmd",
-  "i18n.ini": "Ini"
+  "i18n.ini": "Ini",
+  "i18n.anyCannotEmpty": "%v cannot be empty",
+  "i18n.anyAlreadyExists": "%v already exists",
+  "i18n.anyGtNChar": "%v cannot be greater than %v characters"
 }
