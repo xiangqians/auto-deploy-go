@@ -5,6 +5,7 @@ package api
 
 import (
 	"auto-deploy-go/src/db"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
@@ -12,6 +13,7 @@ import (
 
 type ItemLastRecord struct {
 	Id          int64
+	ItemId      int64
 	ItemName    string // item
 	ItemRem     string
 	PullStime   int64 // pull
@@ -39,7 +41,7 @@ type ItemLastRecord struct {
 func IndexPage(pContext *gin.Context) {
 	user := GetUser(pContext)
 	itemLastRecords := make([]ItemLastRecord, 1)
-	sql := "SELECT IFNULL(r.id, 0) AS 'id', i.`name` AS 'item_name', i.rem AS 'item_rem', " +
+	sql := "SELECT IFNULL(r.id, 0) AS 'id', i.id AS 'item_id', i.`name` AS 'item_name', i.rem AS 'item_rem', " +
 		"IFNULL(r.pull_stime, 0) AS 'pull_stime', IFNULL(r.pull_etime, 0) AS 'pull_etime', IFNULL(r.pull_rem, '') AS 'pull_rem', " +
 		"IFNULL(r.commit_id, '') AS 'commit_id', IFNULL(r.rev_msg, '') AS 'rev_msg', " +
 		"IFNULL(r.build_stime, 0) AS 'build_stime', IFNULL(r.build_etime, 0) AS 'build_etime', IFNULL(r.build_rem, '') AS 'build_rem', " +
@@ -52,14 +54,15 @@ func IndexPage(pContext *gin.Context) {
 		"FROM item i " +
 		"LEFT JOIN record r ON r.del_flag = 0 AND r.item_id = i.id " +
 		"LEFT JOIN record rt ON rt.del_flag = 0 AND rt.item_id = r.item_id AND r.create_time < rt.create_time " +
-		"WHERE i.del_flag = 0 AND i.user_id = ? " +
+		"WHERE i.del_flag = 0 AND i.user_id IN(SELECT DISTINCT(owner_id) FROM rx WHERE del_flag = 0 AND sharer_id = ? UNION ALL SELECT %v) " +
 		"GROUP BY i.id, r.id " +
 		"HAVING COUNT(rt.id) < 1"
+	sql = fmt.Sprintf(sql, user.Id)
 	err := db.Qry(&itemLastRecords, sql, user.Id)
 	if err != nil {
 		log.Println(err)
 	}
-	if itemLastRecords[0].Id == 0 {
+	if itemLastRecords[0].ItemId == 0 {
 		itemLastRecords = nil
 	}
 
