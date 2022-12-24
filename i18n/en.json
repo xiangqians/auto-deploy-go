@@ -45,5 +45,7 @@
   "i18n.anyAlreadyExists": "%v already exists",
   "i18n.alreadyHaveAnAccount": "Already have an account?",
   "i18n.rePasswd": "Retype Password",
-  "i18n.accountRegSuccess": "Account registration succeeded"
+  "i18n.accountRegSuccess": "Account registration succeeded",
+  "i18n.whatIsAutoDeploy": "What is AutoDeploy?",
+  "i18n.no.": "No."
 }

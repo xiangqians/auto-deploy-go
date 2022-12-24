@@ -12,8 +12,7 @@
 </head>
 <body>
 
-<form action="/user" method="post">
-    <input type="hidden" name="_method" value="PUT">
+<form action="/user" method="PUT">
     <p>{{ .message }}</p>
     <div>
         *<label>{{ Localize "i18n.user" }}:</label>
@@ -36,14 +35,14 @@
         <input name="rem" type="text" value="{{ .user.Rem }}">
     </div>
     <div>
-        <input type="button" value='{{ Localize "i18n.save" }}'>
+        <input type="submit" value='{{ Localize "i18n.save" }}'>
     </div>
     <div>
         <a href="/">{{ Localize "i18n.index" }}</a>
     </div>
 </form>
 
-{{ template "com/about.html" }}
+{{ template "com/footer.html" }}
 
 </body>
 </html>

@@ -45,5 +45,7 @@
   "i18n.anyAlreadyExists": "%v 已存在",
   "i18n.alreadyHaveAnAccount": "已有账号？",
   "i18n.rePasswd": "再次输入密码",
-  "i18n.accountRegSuccess": "账号注册成功"
+  "i18n.accountRegSuccess": "账号注册成功",
+  "i18n.whatIsAutoDeploy": "什么是AutoDeploy？",
+  "i18n.no.": "序号"
 }

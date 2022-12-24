@@ -8,38 +8,49 @@
     <meta charset="UTF-8">
     <link rel="shortcut icon" rel="external nofollow" href="/static/favicon.ico">
     <link rel="stylesheet" href="/static/css/test.css" type="text/css"/>
-    <title>{{ Localize "i18n.add" }} {{ Localize "i18n.git" }}</title>
+    <title>
+        {{ if gt .git.Id 0 }}
+        {{ Localize "i18n.upd" }}
+        {{else}}
+        {{ Localize "i18n.add" }}
+        {{end}}
+        {{ Localize "i18n.git" }}
+    </title>
 </head>
 <body>
 
-<form action="/git" method="post">
+<form action="/git" method="{{ if gt .git.Id 0 }}PUT{{else}}POST{{end}}">
     <p>{{ .message }}</p>
+    <input type="hidden" name="id" value="{{ .git.Id }}">
     <div>
-        <label>{{ Localize "i18n.name" }}:</label>
-        <input name="name" type="text" value="{{ .name }}">
+        *<label>{{ Localize "i18n.name" }}:</label>
+        <input name="name" type="text" value="{{ .git.Name }}">
     </div>
     <div>
-        <label>{{ Localize "i18n.user" }}:</label>
-        <input name="user" type="text" value="{{ .user }}">
+        *<label>{{ Localize "i18n.user" }}:</label>
+        <input name="user" type="text" value="{{ .git.User }}">
     </div>
     <div>
-        <label>{{ Localize "i18n.passwd" }}:</label>
+        *<label>{{ Localize "i18n.passwd" }}:</label>
         <input name="passwd" type="password">
     </div>
     <div>
         <label>{{ Localize "i18n.rem" }}:</label>
-        <input name="rem" type="text" value="{{ .rem }}">
+        <input name="rem" type="text" value="{{ .git.Rem }}">
     </div>
     <div>
-        <input type="submit" value='{{ Localize "i18n.add" }}'>
+        <input type="submit"
+               value='{{ if gt .git.Id 0 }} {{ Localize "i18n.upd" }} {{else}} {{ Localize "i18n.add" }} {{end}}'>
     </div>
 </form>
-
+<br>
 <div>
     <a href="/git/index">{{ Localize "i18n.git" }}</a>
 </div>
 
-{{ template "com/about.html" }}
+{{ template "com/footer.html" }}
 
 </body>
 </html>
+<script type="text/javascript" src="/static/js/jquery-3.6.2.min.js"></script>
+<script type="text/javascript" src="/static/js/form.js"></script>

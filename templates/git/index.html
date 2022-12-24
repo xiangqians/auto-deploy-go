@@ -11,26 +11,34 @@
     <title>{{ Localize "i18n.git" }}</title>
 </head>
 <body>
+<span name="_url_" class="display: none;" url="/git/index"></span>
 
 <table border="1" cellspacing="0" cellpadding="10" align="center">
     <tr>
-        <td>{{ Localize "i18n.id" }}</td>
+        <td>{{ Localize "i18n.no." }}</td>
         <td>{{ Localize "i18n.name" }}</td>
         <td>{{ Localize "i18n.user" }}</td>
         <td>{{ Localize "i18n.passwd" }}</td>
         <td>{{ Localize "i18n.rem" }}</td>
         <td>{{ Localize "i18n.createTime" }}</td>
         <td>{{ Localize "i18n.updateTime" }}</td>
+        <td colspan="2">{{ Localize "i18n.op" }}</td>
     </tr>
     {{ range $index,$value := .gits }}
     <tr>
-        <td>{{ $value.Id }}</td>
+        <td>{{ Add1 $index }}</td>
         <td>{{ $value.Name }}</td>
         <td>{{ $value.User }}</td>
         <td>******</td>
         <td>{{ $value.Rem }}</td>
         <td>{{ UnixToTime $value.CreateTime }}</td>
         <td>{{ UnixToTime $value.UpdateTime }}</td>
+        <td><a href="/git/addpage?id={{ $value.Id }}">{{ Localize "i18n.upd" }}</a></td>
+        <td>
+            <a href="/git/{{ $value.Id }}" method="DELETE" message='{{ Localize "i18n.del" }} {{ $value.Name }}?'>
+                {{ Localize "i18n.del" }}
+            </a>
+        </td>
     </tr>
     {{ end }}
 </table>
@@ -44,7 +52,9 @@
     <a href="/">{{ Localize "i18n.index" }}</a>
 </div>
 
-{{ template "com/about.html" }}
+{{ template "com/footer.html" }}
 
 </body>
 </html>
+<script type="text/javascript" src="/static/js/jquery-3.6.2.min.js"></script>
+<script type="text/javascript" src="/static/js/a.js"></script>

@@ -40,12 +40,12 @@ func initRoute(pEngine *gin.Engine) {
 	// git
 	gitRouterGroup := pEngine.Group("/git")
 	{
-		gitRouterGroup.GET("/index", api.GitIndex)
-		gitRouterGroup.GET("/addpage", api.GitAddPage)
+		gitRouterGroup.Any("/index", api.GitIndex)
+		gitRouterGroup.Any("/addpage", api.GitAddPage)
 	}
 	pEngine.POST("/git", api.GitAdd)
 	pEngine.PUT("/git", api.GitUpd)
-	pEngine.DELETE("/git", api.GitDel)
+	pEngine.DELETE("/git/:id", api.GitDel)
 
 	// server
 	serverRouterGroup := pEngine.Group("/server")

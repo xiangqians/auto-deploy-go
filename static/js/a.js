@@ -1,6 +1,5 @@
 (function () {
-    let as = $('a[_method="DELETE"]')
-    console.log('as', as)
+    let as = $('a[method]')
     for (let i = 0, l = as.length; i < l; i++) {
         let $a = $(as[i])
         $a.click(function () {
@@ -8,7 +7,7 @@
             let r = confirm(message)
             if (r) {
                 let url = $a.attr("href")
-                let method = "DELETE"
+                let method = $a.attr("method").trim().toUpperCase()
                 $.ajax({
                     url: url,
                     type: method,
