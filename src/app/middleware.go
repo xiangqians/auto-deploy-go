@@ -38,8 +38,7 @@ func userPermMiddleware(pEngine *gin.Engine) {
 		}
 
 		if reqPath == "/user/regpage" || reqPath == "/user/loginpage" ||
-			//(reqPath == "/user" && pContext.Request.Method == http.MethodPost) ||
-			reqPath == "/user/login" {
+			(reqPath == "/user" && pContext.Request.Method == http.MethodPost) || reqPath == "/user/login" {
 			if isLogin {
 				pContext.Redirect(http.StatusMovedPermanently, "/")
 				pContext.Abort()

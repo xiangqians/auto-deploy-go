@@ -14,25 +14,36 @@
 <form action="/user" method="post">
     <p>{{ .message }}</p>
     <div>
-        <label>{{ Localize "i18n.user" }}:</label>
-        <input name="name" type="text" value="{{ .username }}">
+        *<label>{{ Localize "i18n.user" }}:</label>
+        <input name="name" type="text" value="{{ .user.Name }}">
     </div>
     <div>
         <label>{{ Localize "i18n.nickname" }}:</label>
-        <input name="nickname" type="text" value="{{ .nickname }}">
+        <input name="nickname" type="text" value="{{ .user.Nickname }}">
     </div>
     <div>
-        <label>{{ Localize "i18n.passwd" }}:</label>
+        *<label>{{ Localize "i18n.passwd" }}:</label>
         <input name="passwd" type="password">
     </div>
     <div>
+        *<label>{{ Localize "i18n.rePasswd" }}:</label>
+        <input name="rePasswd" type="password">
+    </div>
+    <div>
         <label>{{ Localize "i18n.rem" }}:</label>
-        <input name="rem" type="text" value="{{ .rem }}">
+        <input name="rem" type="text" value="{{ .user.Rem }}">
     </div>
     <div>
         <input type="submit" value='{{ Localize "i18n.reg" }}'>
     </div>
+
+    <br>
+    <div>
+        {{ Localize "i18n.alreadyHaveAnAccount" }} <a href="/user/loginpage">{{ Localize "i18n.login" }} →</a>
+    </div>
 </form>
+
+{{ template "com/about.html" }}
 
 </body>
 </html>

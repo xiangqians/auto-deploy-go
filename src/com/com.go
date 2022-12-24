@@ -33,9 +33,13 @@ func VerifyText(t string, maxLen int) error {
 	return nil
 }
 
-// VerifyUsername 校验用户名
+// VerifyUserName 校验用户名
 // 1-16位长度（字母，数字，下划线，减号）
-func VerifyUsername(username string) error {
+func VerifyUserName(username string) error {
+	if username == "" {
+		return errors.New(i18n.MustGetMessage("i18n.userCannotEmpty"))
+	}
+
 	matched, err := regexp.MatchString("^[a-zA-Z0-9_-]{1,16}$", username)
 	if err == nil && matched {
 		return nil

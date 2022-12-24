@@ -60,6 +60,18 @@ func intHtmlTemplate(pEngine *gin.Engine) {
 			panic(err)
 		}
 
+		join := func(s string, arr ...string) []string {
+			newarr := make([]string, len(arr)+1)
+			i := 0
+			newarr[i] = s
+			i++
+			for _, e := range arr {
+				newarr[i] = e
+				i++
+			}
+			return newarr
+		}
+
 		// Generate our templates map from our layouts/ and includes/ directories
 		for _, matche := range matches {
 			pFile, ferr := os.Open(matche)
@@ -78,15 +90,7 @@ func intHtmlTemplate(pEngine *gin.Engine) {
 						if sfierr == nil {
 							for _, subFileInfo := range subFileInfos {
 								subfname := subFileInfo.Name()
-								files := make([]string, len(coms)+1)
-								i := 0
-								files[i] = fmt.Sprintf("%s/%s", matche, subfname)
-								i++
-								for _, com := range coms {
-									files[i] = com
-									i++
-								}
-
+								files := join(fmt.Sprintf("%s/%s", matche, subfname), coms...)
 								renderer.AddFromFilesFuncs(fmt.Sprintf("%s/%s", fname, subfname), pEngine.FuncMap, files...)
 							}
 						}
@@ -94,14 +98,7 @@ func intHtmlTemplate(pEngine *gin.Engine) {
 				} else
 				// /*
 				{
-					files := make([]string, len(coms)+1)
-					i := 0
-					files[i] = matche
-					i++
-					for _, com := range coms {
-						files[i] = com
-						i++
-					}
+					files := join(matche, coms...)
 					renderer.AddFromFilesFuncs(name, pEngine.FuncMap, files...)
 				}
 			}

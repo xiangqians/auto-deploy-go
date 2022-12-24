@@ -42,5 +42,8 @@
   "i18n.ini": "配置",
   "i18n.op": "操作",
   "i18n.anyCannotEmpty": "%v 不能为空",
-  "i18n.anyAlreadyExists": "%v 已存在"
+  "i18n.anyAlreadyExists": "%v 已存在",
+  "i18n.alreadyHaveAnAccount": "已有账号？",
+  "i18n.rePasswd": "再次输入密码",
+  "i18n.accountRegSuccess": "账号注册成功"
 }

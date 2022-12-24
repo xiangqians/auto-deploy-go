@@ -13,21 +13,26 @@
 
 <form action="/user" method="post">
     <input type="hidden" name="_method" value="PUT">
+    <p>{{ .message }}</p>
     <div>
-        <label>{{ Localize "i18n.user" }}:</label>
-        <input name="name" type="text" value="{{ .username }}" readonly="readonly">
+        *<label>{{ Localize "i18n.user" }}:</label>
+        <input name="name" type="text" value="{{ .user.Name }}">
     </div>
     <div>
         <label>{{ Localize "i18n.nickname" }}:</label>
-        <input name="nickname" type="text" value="{{ .nickname }}">
+        <input name="nickname" type="text" value="{{ .user.Nickname }}">
     </div>
     <div>
-        <label>{{ Localize "i18n.passwd" }}:</label>
+        *<label>{{ Localize "i18n.passwd" }}:</label>
         <input name="passwd" type="password">
     </div>
     <div>
+        *<label>{{ Localize "i18n.rePasswd" }}:</label>
+        <input name="rePasswd" type="password">
+    </div>
+    <div>
         <label>{{ Localize "i18n.rem" }}:</label>
-        <input name="rem" type="text" value="{{ .rem }}">
+        <input name="rem" type="text" value="{{ .user.Rem }}">
     </div>
     <div>
         <input type="button" value='{{ Localize "i18n.save" }}'>
@@ -39,5 +44,6 @@
 
 </body>
 </html>
+
 <script type="text/javascript" src="/static/js/jquery-3.6.2.min.js"></script>
 <script type="text/javascript" src="/static/js/form.js"></script>

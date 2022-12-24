@@ -42,5 +42,8 @@
   "i18n.ini": "Ini",
   "i18n.op": "Operate",
   "i18n.anyCannotEmpty": "%v cannot be empty",
-  "i18n.anyAlreadyExists": "%v already exists"
+  "i18n.anyAlreadyExists": "%v already exists",
+  "i18n.alreadyHaveAnAccount": "Already have an account?",
+  "i18n.rePasswd": "Retype Password",
+  "i18n.accountRegSuccess": "Account registration succeeded"
 }

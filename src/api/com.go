@@ -22,7 +22,7 @@ import (
 
 // 抽象实体定义
 type Abs struct {
-	Id         int64  `form:"id"`                    // 主键id
+	Id         int64  `form:"id" binding:"gte=0"`    // 主键id
 	Rem        string `form:"rem" binding:"max=200"` // 备注
 	DelFlag    byte   `form:"delFlag"`               // 删除标识，0-正常，1-删除
 	CreateTime int64  `form:"createTime"`            // 创建时间（时间戳，s）

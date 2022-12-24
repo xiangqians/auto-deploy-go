@@ -28,11 +28,11 @@ func initRoute(pEngine *gin.Engine) {
 	// user
 	userRouterGroup := pEngine.Group("/user")
 	{
-		userRouterGroup.GET("/regpage", api.UserRegPage)
-		userRouterGroup.GET("/loginpage", api.UserLoginPage)
+		userRouterGroup.Any("/regpage", api.UserRegPage)
+		userRouterGroup.Any("/loginpage", api.UserLoginPage)
 		userRouterGroup.POST("/login", api.UserLogin)
 		userRouterGroup.Any("/logout", api.UserLogout)
-		userRouterGroup.GET("/stgpage", api.UserStgPage)
+		userRouterGroup.Any("/stgpage", api.UserStgPage)
 	}
 	pEngine.POST("/user", api.UserAdd)
 	pEngine.PUT("/user", api.UserUpd)

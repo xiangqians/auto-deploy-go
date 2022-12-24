@@ -11,7 +11,6 @@ import (
 	"github.com/gin-contrib/i18n"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
-	"log"
 	"net/http"
 	"strings"
 	"time"
@@ -21,9 +20,10 @@ const SessionKeyUser = "_user_"
 
 type User struct {
 	Abs
-	Name     string // 用户名
-	Nickname string // 昵称
-	Passwd   string // 密码
+	Name     string `form:"name" binding:"required,excludes= ,min=1,max=60"`               // 用户名
+	Nickname string `form:"nickname"binding:"max=60"`                                      // 昵称
+	Passwd   string `form:"passwd" binding:"required,excludes= ,max=100"`                  // 密码
+	RePasswd string `form:"rePasswd" binding:"required,excludes= ,max=100,eqfield=Passwd"` // retype Passwd
 }
 
 func init() {
@@ -34,42 +34,38 @@ func init() {
 // 用户注册html
 func UserRegPage(pContext *gin.Context) {
 	session := sessions.Default(pContext)
-	username := session.Get("username")
-	nickname := session.Get("nickname")
-	rem := session.Get("rem")
+	user := session.Get("user")
 	message := session.Get("message")
-	session.Delete("username")
-	session.Delete("nickname")
-	session.Delete("rem")
+	session.Delete("user")
 	session.Delete("message")
 	session.Save()
 
+	if user == nil {
+		user = User{}
+	}
+
 	pContext.HTML(http.StatusOK, "user/reg.html", gin.H{
-		"username": username,
-		"nickname": nickname,
-		"rem":      rem,
-		"message":  message,
+		"user":    user,
+		"message": message,
 	})
 }
 
 // 用户注册
 func UserAdd(pContext *gin.Context) {
-	name := strings.TrimSpace(pContext.PostForm("name"))
-	nickname := strings.TrimSpace(pContext.PostForm("nickname"))
-	passwd := strings.TrimSpace(pContext.PostForm("passwd"))
-	rem := strings.TrimSpace(pContext.PostForm("rem"))
-	err := VerifyUserName(name)
+	user := User{}
+	err := ShouldBind(pContext, &user)
+
 	if err == nil {
-		err = com.VerifyUsername(name)
+		err = VerifyUserNameAndPasswd(user.Name, user.Passwd)
 	}
+
 	if err == nil {
-		err = com.VerifyPasswd(passwd)
+		err = VerifyDbUserName(user.Name)
 	}
+
+	session := sessions.Default(pContext)
 	if err != nil {
-		session := sessions.Default(pContext)
-		session.Set("username", name)
-		session.Set("nickname", nickname)
-		session.Set("rem", rem)
+		session.Set("user", user)
 		session.Set("message", err.Error())
 		session.Save()
 		pContext.Redirect(http.StatusMovedPermanently, "/user/regpage")
@@ -77,7 +73,11 @@ func UserAdd(pContext *gin.Context) {
 	}
 
 	db.Add("INSERT INTO `user` (`name`, `nickname`, `passwd`, `rem`, `create_time`) VALUES (?, ?, ?, ?, ?)",
-		name, nickname, passwd, rem, time.Now().Unix())
+		user.Name, strings.TrimSpace(user.Nickname), user.Passwd, strings.TrimSpace(user.Rem), time.Now().Unix())
+
+	session.Set("username", user.Name)
+	session.Set("message", i18n.MustGetMessage("i18n.accountRegSuccess"))
+	session.Save()
 
 	// 用户注册成功后，重定向到登录页
 	pContext.Redirect(http.StatusMovedPermanently, "/user/loginpage")
@@ -103,19 +103,23 @@ func UserLogin(pContext *gin.Context) {
 	name := strings.TrimSpace(pContext.PostForm("name"))
 	passwd := strings.TrimSpace(pContext.PostForm("passwd"))
 
+	err := VerifyUserNameAndPasswd(name, passwd)
+
+	var user User
+	if err == nil {
+		err = db.Qry(&user, "SELECT u.id, u.`name`, u.nickname, u.rem, u.create_time, u.update_time FROM `user` u WHERE u.del_flag = 0 AND u.`name` = ? AND u.passwd = ? LIMIT 1", name, passwd)
+	}
+
+	if err == nil && user.Id == 0 {
+		err = errors.New(i18n.MustGetMessage("i18n.userOrPasswdIncorrect"))
+	}
+
 	// 初始化session对象
 	session := sessions.Default(pContext)
 
-	var user User
-	err := db.Qry(&user, "SELECT u.id, u.`name`, u.nickname, u.rem, u.create_time, u.update_time FROM `user` u WHERE u.del_flag = 0 AND u.`name` = ? AND u.passwd = ? LIMIT 1", name, passwd)
 	if err != nil {
-		log.Println(err)
-		return
-	}
-
-	if user.Id == 0 {
 		session.Set("username", name)
-		session.Set("message", i18n.MustGetMessage("i18n.userOrPasswdIncorrect"))
+		session.Set("message", err.Error())
 		session.Save()
 		pContext.Redirect(http.StatusMovedPermanently, "/user/loginpage")
 		return
@@ -147,55 +151,69 @@ func UserLogout(pContext *gin.Context) {
 }
 
 func UserStgPage(pContext *gin.Context) {
-	user := GetUser(pContext)
+	session := sessions.Default(pContext)
+	user := session.Get("user")
+	message := session.Get("message")
+	session.Delete("user")
+	session.Delete("message")
+	session.Save()
+
+	if user == nil {
+		user = GetUser(pContext)
+	}
 	pContext.HTML(http.StatusOK, "user/stg.html", gin.H{
-		"username": user.Name,
-		"nickname": user.Nickname,
-		"rem":      user.Rem,
+		"user":    user,
+		"message": message,
 	})
 }
 
 func UserUpd(pContext *gin.Context) {
-	name := strings.TrimSpace(pContext.PostForm("name"))
-	nickname := strings.TrimSpace(pContext.PostForm("nickname"))
-	rem := strings.TrimSpace(pContext.PostForm("rem"))
-	user := GetUser(pContext)
+	user := User{}
+	err := ShouldBind(pContext, &user)
 
-	var err error = nil
-	if user.Name != name {
-		err = VerifyUserName(name)
+	if err == nil {
+		err = VerifyUserNameAndPasswd(user.Name, user.Passwd)
 	}
+
+	sessionUser := GetUser(pContext)
+	if err == nil && user.Name != sessionUser.Name {
+		err = VerifyDbUserName(user.Name)
+	}
+
+	user.Nickname = strings.TrimSpace(user.Nickname)
+	user.Rem = strings.TrimSpace(user.Rem)
+
+	session := sessions.Default(pContext)
 	if err != nil {
-		session := sessions.Default(pContext)
-		session.Set("username", name)
-		session.Set("nickname", nickname)
-		session.Set("rem", rem)
+		session.Set("user", user)
 		session.Set("message", err.Error())
 		session.Save()
-		pContext.Redirect(http.StatusMovedPermanently, "/user/regpage")
+		pContext.Redirect(http.StatusMovedPermanently, "/user/stgpage")
 		return
 	}
 
-	passwd := strings.TrimSpace(pContext.PostForm("passwd"))
 	db.Add("UPDATE `user` SET `name` = ?, nickname = ?, `passwd` = ?, rem = ?, update_time = ? WHERE id = ?",
-		name, nickname, passwd, rem, time.Now().Unix(), user.Id)
+		user.Name, user.Nickname, user.Passwd, user.Rem, time.Now().Unix(), sessionUser.Id)
 
 	// 更新session中User信息
-	session := sessions.Default(pContext)
-	user.Name = name
-	user.Nickname = nickname
-	user.Rem = rem
-	session.Set(SessionKeyUser, user)
+	sessionUser.Name = user.Name
+	sessionUser.Nickname = user.Nickname
+	sessionUser.Rem = user.Rem
+	session.Set(SessionKeyUser, sessionUser)
 	session.Save()
 
 	pContext.Redirect(http.StatusMovedPermanently, "/user/stgpage")
 }
 
-func VerifyUserName(name string) error {
-	if name == "" {
-		return errors.New(i18n.MustGetMessage("i18n.userCannotEmpty"))
+func VerifyUserNameAndPasswd(name, passwd string) error {
+	err := com.VerifyUserName(name)
+	if err == nil {
+		err = com.VerifyPasswd(passwd)
 	}
+	return err
+}
 
+func VerifyDbUserName(name string) error {
 	var id int64
 	err := db.Qry(&id, "SELECT u.id FROM `user` u WHERE u.del_flag = 0 AND u.`name` = ? LIMIT 1", name)
 	if err != nil {
