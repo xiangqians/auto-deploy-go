@@ -19,44 +19,47 @@ $. 引用模板中的根级上下文
 -->
 
 <div style="text-align: right; padding-right: 50px">
-    <a href="/user/stgpage">{{ .user.Name }}, {{ .user.Nickname }}</a>
-    <br>
-    <a href="/user/logout">{{ Localize "i18n.logout" }}</a>
+    <div style="padding: 4px;">
+        <a href="/user/stgpage">{{ .user.Name }}, {{ .user.Nickname }}</a>
+    </div>
+    <div style="padding: 4px;">
+        <a href="/user/logout">{{ Localize "i18n.logout" }}</a>
+    </div>
 </div>
 <br>
 
-<div>
-    <a href="/git/index">{{ Localize "i18n.git" }}</a>
-    <br>
-    <a href="/server/index">{{ Localize "i18n.server" }}</a>
-    <br>
-    <a href="/item/index">{{ Localize "i18n.item" }}</a>
+<div style="text-align: left; padding-left: 50px;">
+    <a style="padding: 8px;" href="/git/index">{{ Localize "i18n.git" }}</a>
+    <a style="padding: 8px;" href="/server/index">{{ Localize "i18n.server" }}</a>
+    <a style="padding: 8px;" href="/item/index">{{ Localize "i18n.item" }}</a>
 </div>
 
 <br>
 <br>
 
-<table>
+<table border="1" cellspacing="0" cellpadding="10" align="center">
+    <p>{{ .message }}</p>
     <tr>
-        <td>{{ Localize "i18n.id" }}</td>
-        <!-- 鼠标悬停在此标签上时，title = item rem -->
+        <td>{{ Localize "i18n.no." }}</td>
         <td>{{ Localize "i18n.name" }}</td>
         <td>{{ Localize "i18n.stageView" }}</td>
         <!-- 鼠标悬停在此标签上时，title = lastRevMessage -->
         <td>{{ Localize "i18n.lastDeployTime" }}</td>
-        <td>{{ Localize "i18n.rem" }}</td>
-        <td>{{ Localize "i18n.createTime" }}</td>
-        <td>{{ Localize "i18n.updateTime" }}</td>
+        <td>{{ Localize "i18n.status" }}</td>
+        <td colspan="1">{{ Localize "i18n.op" }}</td>
     </tr>
-    {{ range $index,$value := .items1 }}
+    {{ range $index,$value := .itemLastRecords }}
     <tr>
-        <td>{{ $value.Id }}</td>
-        <td>{{ $value.Name }}</td>
+        <td>{{ Add1 $index }}</td>
+        <td title="{{ $value.ItemRem }}"><a href="javascript:void(0);">{{ $value.ItemName }}</a></td>
         <td>-</td>
-        <td>-</td>
-        <td>{{ $value.Rem }}</td>
-        <td>{{ $value.CreateTime }}</td>
-        <td>{{ $value.UpdateTime }}</td>
+        <td title="{{ $value.RevMsg }}">{{ UnixToTime $value.CreateTime }}</td>
+        <td>{{ DeployStatusText $value.Status }}</td>
+        <td>
+            <a href="" method="POST" message='{{ Localize "i18n.deploy" }} {{ $value.ItemName }}?'>
+                {{ Localize "i18n.deploy" }}
+            </a>
+        </td>
     </tr>
     {{ end }}
 </table>
@@ -65,3 +68,5 @@ $. 引用模板中的根级上下文
 
 </body>
 </html>
+<script type="text/javascript" src="/static/js/jquery-3.6.2.min.js"></script>
+<script type="text/javascript" src="/static/js/a.js"></script>

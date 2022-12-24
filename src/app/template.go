@@ -22,7 +22,7 @@ func intHtmlTemplate(pEngine *gin.Engine) {
 		"Localize": i18n.GetMessage,
 		"UnixToTime": func(unix int64) string {
 			if unix == 0 {
-				return ""
+				return "-"
 			}
 			t := time.Unix(unix, 0)
 			return t.Format("2006/01/02 15:04:05")
@@ -30,6 +30,25 @@ func intHtmlTemplate(pEngine *gin.Engine) {
 		"Add1": func(i int) int {
 			return i + 1
 		},
+		"DeployStatusText": func(status byte) string {
+			switch status {
+			// 1-部署中
+			case 1:
+				return i18n.MustGetMessage("i18n.inDeploy")
+
+			// 2-部署异常，
+			case 2:
+				return i18n.MustGetMessage("i18n.deployExc")
+
+			// 3-部署成功
+			case 3:
+				return i18n.MustGetMessage("i18n.deploySuccess")
+
+			default:
+				return "-"
+			}
+		},
+
 		//"Template": func(name string) string {
 		//	var data any = nil
 		//	re := pEngine.HTMLRender.Instance(name, data)

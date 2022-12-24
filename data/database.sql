@@ -102,7 +102,7 @@ CREATE TABLE `record` -- 项目部署记录信息表
     `deploy_stime` INTEGER DEFAULT 0,                 -- deploy开始时间（时间戳，s）
     `deploy_etime` INTEGER DEFAULT 0,                 -- deploy结束时间（时间戳，s）
     `deploy_rem`   TEXT    DEFAULT NULL,              -- deploy备注信息
-    `status`       TINYINT      NOT NULL,             -- 状态，1-部署中，2-部署异常，3-已部署
+    `status`       TINYINT      NOT NULL,             -- 状态，1-部署中，2-部署异常，3-部署成功
     `rem`          TEXT    DEFAULT NULL,              -- 备注信息
     `del_flag`     TINYINT DEFAULT 0,                 -- 删除标识，0-正常，1-删除
     `create_time`  INTEGER DEFAULT 0,                 -- 创建时间（时间戳，s）

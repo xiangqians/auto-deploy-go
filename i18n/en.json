@@ -47,5 +47,10 @@
   "i18n.rePasswd": "Retype Password",
   "i18n.accountRegSuccess": "Account registration succeeded",
   "i18n.whatIsAutoDeploy": "What is AutoDeploy?",
-  "i18n.no.": "No."
+  "i18n.no.": "No.",
+  "i18n.deploy": "Deploy",
+  "i18n.status": "Status",
+  "i18n.inDeploy": "In deployment",
+  "i18n.deployExc": "Deployment Exception",
+  "i18n.deploySuccess": "Deployment succeeded"
 }
