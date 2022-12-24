@@ -7,10 +7,11 @@
 <head>
     <meta charset="UTF-8">
     <link rel="shortcut icon" rel="external nofollow" href="/static/favicon.ico">
+    <link rel="stylesheet" href="/static/css/test.css" type="text/css"/>
     <title>{{ Localize "i18n.item" }}</title></head>
 <body>
 
-<table border="1" cellspacing="0" cellpadding="10">
+<table border="1" cellspacing="0" cellpadding="10" align="center">
     <tr>
         <td>{{ Localize "i18n.id" }}</td>
         <td>{{ Localize "i18n.name" }}</td>
@@ -50,6 +51,8 @@
 <div>
     <a href="/">{{ Localize "i18n.index" }}</a>
 </div>
+
+{{ template "com/about.html" }}
 
 </body>
 </html>
