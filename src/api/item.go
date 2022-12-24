@@ -59,7 +59,17 @@ func ItemAddPage(pContext *gin.Context) {
 	session.Save()
 
 	if item == nil {
-		item = Item{}
+		_item := Item{}
+		idStr := pContext.Query("id")
+		id, err := strconv.ParseInt(idStr, 10, 64)
+		if err == nil && id > 0 {
+			user := GetUser(pContext)
+			err = db.Qry(&_item, "SELECT i.id, i.`name`, i.git_id, i.repo_url, i.branch, i.server_id, i.ini, i.rem FROM item i  WHERE i.del_flag = 0 AND i.user_id = ? AND i.id = ?", user.Id, id)
+			if err != nil {
+				log.Println(err)
+			}
+		}
+		item = _item
 	}
 
 	pContext.HTML(http.StatusOK, "item/add.html", gin.H{
@@ -71,14 +81,8 @@ func ItemAddPage(pContext *gin.Context) {
 }
 
 func ItemAdd(pContext *gin.Context) {
-	item := Item{}
-	err := ShouldBind(pContext, &item)
+	item, err := itemPreAddOrUpd(pContext)
 	if err != nil {
-		session := sessions.Default(pContext)
-		session.Set("item", item)
-		session.Set("message", err.Error())
-		session.Save()
-		pContext.Redirect(http.StatusMovedPermanently, "/item/addpage")
 		return
 	}
 
@@ -89,6 +93,14 @@ func ItemAdd(pContext *gin.Context) {
 }
 
 func ItemUpd(pContext *gin.Context) {
+	item, err := itemPreAddOrUpd(pContext)
+	if err != nil {
+		return
+	}
+
+	user := GetUser(pContext)
+	db.Upd("UPDATE `item` SET `name` = ?, `git_id` = ?, `repo_url` = ?, `branch` = ?, `server_id` = ?, `ini` = ?, `rem` = ?, update_time = ? WHERE del_flag = 0 AND user_id = ? AND id = ?",
+		item.Name, item.GitId, item.RepoUrl, item.Branch, item.ServerId, item.Ini, item.Rem, time.Now().Unix(), user.Id, item.Id)
 	pContext.Redirect(http.StatusMovedPermanently, "/item/index")
 }
 
@@ -100,6 +112,20 @@ func ItemDel(pContext *gin.Context) {
 		db.Del("UPDATE item SET del_flag = 1, update_time = ? WHERE user_id = ? AND id = ?", time.Now().Unix(), user.Id, id)
 	}
 	pContext.Redirect(http.StatusMovedPermanently, "/item/index")
+}
+
+func itemPreAddOrUpd(pContext *gin.Context) (Item, error) {
+	item := Item{}
+	err := ShouldBind(pContext, &item)
+	if err != nil {
+		session := sessions.Default(pContext)
+		session.Set("item", item)
+		session.Set("message", err.Error())
+		session.Save()
+		pContext.Redirect(http.StatusMovedPermanently, "/item/addpage")
+	}
+
+	return item, err
 }
 
 func Items(pContext *gin.Context) []Item {

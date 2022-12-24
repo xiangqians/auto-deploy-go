@@ -8,12 +8,19 @@
     <meta charset="UTF-8">
     <link rel="shortcut icon" rel="external nofollow" href="/static/favicon.ico">
     <link rel="stylesheet" href="/static/css/test.css" type="text/css"/>
-    <title>{{ Localize "i18n.add" }}{{ Localize "i18n.item" }}</title>
+    <title>
+        {{ if gt .item.Id 0 }}
+        {{ Localize "i18n.upd" }}
+        {{else}}
+        {{ Localize "i18n.add" }}
+        {{end}}
+        {{ Localize "i18n.item" }}
+    </title>
 </head>
 <body>
-
-<form action="/item" method="post">
+<form action="/item" method="{{ if gt .item.Id 0 }}PUT{{else}}POST{{end}}">
     <p>{{ .message }}</p>
+    <input type="hidden" name="id" value="{{ .item.Id }}">
     <div>
         *<label>{{ Localize "i18n.name" }}:</label>
         <input name="name" type="text" value="{{ .item.Name }}">
@@ -55,7 +62,8 @@
         <input name="rem" type="text" value="{{ .item.Rem }}">
     </div>
     <div>
-        <input type="submit" value='{{ Localize "i18n.add" }}'>
+        <input type="submit"
+               value='{{ if gt .item.Id 0 }} {{ Localize "i18n.upd" }} {{else}} {{ Localize "i18n.add" }} {{end}}'>
     </div>
 </form>
 <br>
@@ -68,3 +76,5 @@
 
 </body>
 </html>
+<script type="text/javascript" src="/static/js/jquery-3.6.2.min.js"></script>
+<script type="text/javascript" src="/static/js/form.js"></script>
