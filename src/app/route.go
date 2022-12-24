@@ -67,6 +67,16 @@ func initRoute(pEngine *gin.Engine) {
 	pEngine.PUT("/item", api.ItemUpd)
 	pEngine.DELETE("/item/:id", api.ItemDel)
 
+	// rx
+	rxRouterGroup := pEngine.Group("/rx")
+	{
+		rxRouterGroup.Any("/index", api.RxIndex)
+		rxRouterGroup.Any("/addpage", api.RxAddPage)
+		rxRouterGroup.POST("/join", api.RxJoin)
+	}
+	pEngine.POST("/rx", api.RxAdd)
+	pEngine.DELETE("/rx/:id", api.RxDel)
+
 	// ws
 	pEngine.GET("/ws", api.Ws)
 }

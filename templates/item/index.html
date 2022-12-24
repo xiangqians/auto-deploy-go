@@ -38,7 +38,7 @@
         <td>{{ UnixToTime $value.UpdateTime }}</td>
         <td><a href="/item/addpage?id={{ $value.Id }}">{{ Localize "i18n.upd" }}</a></td>
         <td>
-            <a href="/item/{{ $value.Id }}" method="DELETE" message='{{ Localize "i18n.del" }} {{ $value.Name }}?'>
+            <a href="/item/{{ $value.Id }}" method="DELETE" confirm='{{ Localize "i18n.del" }} {{ $value.Name }}?'>
                 {{ Localize "i18n.del" }}
             </a>
         </td>

@@ -52,5 +52,11 @@
   "i18n.status": "状态",
   "i18n.inDeploy": "部署中",
   "i18n.deployExc": "部署异常",
-  "i18n.deploySuccess": "部署成功"
+  "i18n.deploySuccess": "部署成功",
+  "i18n.rx": "RX",
+  "i18n.owner": "拥有者",
+  "i18n.sharer": "共享者",
+  "i18n.code": "Code",
+  "i18n.join": "加入",
+  "i18n.pleaseEnterSharedCode": "请输入共享code"
 }

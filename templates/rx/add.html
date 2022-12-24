@@ -1,0 +1,37 @@
+<!--
+ | @author xiangqian
+ | @date 23:21 2022/12/24
+ |-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="shortcut icon" rel="external nofollow" href="/static/favicon.ico">
+    <link rel="stylesheet" href="/static/css/test.css" type="text/css"/>
+    <title>{{ Localize "i18n.add" }}{{ Localize "i18n.rx" }}</title>
+</head>
+<body>
+
+<form action="/rx" method="POST">
+    <p>{{ .message }}</p>
+    <div>
+        *<label>{{ Localize "i18n.name" }}:</label>
+        <input name="name" type="text" value="{{ .rx.Name }}">
+    </div>
+    <div>
+        <label>{{ Localize "i18n.rem" }}:</label>
+        <input name="rem" type="text" value="{{ .rx.Rem }}">
+    </div>
+    <div>
+        <input type="submit" value='{{ Localize "i18n.add" }}'>
+    </div>
+</form>
+<br>
+<div>
+    <a href="/rx/index">{{ Localize "i18n.rx" }}</a>
+</div>
+
+{{ template "com/footer.html" }}
+
+</body>
+</html>

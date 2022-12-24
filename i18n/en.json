@@ -52,5 +52,11 @@
   "i18n.status": "Status",
   "i18n.inDeploy": "In deployment",
   "i18n.deployExc": "Deployment Exception",
-  "i18n.deploySuccess": "Deployment succeeded"
+  "i18n.deploySuccess": "Deployment succeeded",
+  "i18n.rx": "RX",
+  "i18n.owner": "Owner",
+  "i18n.sharer": "Sharer",
+  "i18n.code": "Code",
+  "i18n.join": "Join",
+  "i18n.pleaseEnterSharedCode": "Please enter the shared code"
 }
