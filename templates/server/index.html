@@ -7,13 +7,16 @@
 <head>
     <meta charset="UTF-8">
     <link rel="shortcut icon" rel="external nofollow" href="/static/favicon.ico">
+    <link rel="stylesheet" href="/static/css/test.css" type="text/css"/>
     <title>{{ Localize "i18n.server" }}</title>
 </head>
 <body>
 
-<table>
+<span name="_url_" class="display: none;" url="/server/index"></span>
+
+<table border="1" cellspacing="0" cellpadding="10" align="center">
     <tr>
-        <td>{{ Localize "i18n.id" }}</td>
+        <td>{{ Localize "i18n.no." }}</td>
         <td>{{ Localize "i18n.name" }}</td>
         <td>{{ Localize "i18n.host" }}</td>
         <td>{{ Localize "i18n.port" }}</td>
@@ -22,18 +25,25 @@
         <td>{{ Localize "i18n.rem" }}</td>
         <td>{{ Localize "i18n.createTime" }}</td>
         <td>{{ Localize "i18n.updateTime" }}</td>
+        <td colspan="2">{{ Localize "i18n.op" }}</td>
     </tr>
     {{ range $index,$value := .servers }}
     <tr>
-        <td>{{ $value.Id }}</td>
+        <td>{{ Add1 $index }}</td>
         <td>{{ $value.Name }}</td>
         <td>{{ $value.Host }}</td>
         <td>{{ $value.Port }}</td>
         <td>{{ $value.User }}</td>
         <td>******</td>
         <td>{{ $value.Rem }}</td>
-        <td>{{ $value.CreateTime }}</td>
-        <td>{{ $value.UpdateTime }}</td>
+        <td>{{ UnixToTime $value.CreateTime }}</td>
+        <td>{{ UnixToTime $value.UpdateTime }}</td>
+        <td><a href="/server/addpage?id={{ $value.Id }}">{{ Localize "i18n.upd" }}</a></td>
+        <td>
+            <a href="/server/{{ $value.Id }}" method="DELETE" message='{{ Localize "i18n.del" }} {{ $value.Name }}?'>
+                {{ Localize "i18n.del" }}
+            </a>
+        </td>
     </tr>
     {{ end }}
 </table>
@@ -48,5 +58,9 @@
     <a href="/">{{ Localize "i18n.index" }}</a>
 </div>
 
+{{ template "com/footer.html" }}
+
 </body>
 </html>
+<script type="text/javascript" src="/static/js/jquery-3.6.2.min.js"></script>
+<script type="text/javascript" src="/static/js/a.js"></script>

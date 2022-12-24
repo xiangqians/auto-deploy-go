@@ -50,12 +50,12 @@ func initRoute(pEngine *gin.Engine) {
 	// server
 	serverRouterGroup := pEngine.Group("/server")
 	{
-		serverRouterGroup.GET("/index", api.ServerIndex)
-		serverRouterGroup.GET("/addpage", api.ServerAddPage)
+		serverRouterGroup.Any("/index", api.ServerIndex)
+		serverRouterGroup.Any("/addpage", api.ServerAddPage)
 	}
 	pEngine.POST("/server", api.ServerAdd)
 	pEngine.PUT("/server", api.ServerUpd)
-	pEngine.DELETE("/server", api.ServerDel)
+	pEngine.DELETE("/server/:id", api.ServerDel)
 
 	// item
 	itemRouterGroup := pEngine.Group("/item")
