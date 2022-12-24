@@ -67,8 +67,9 @@
 <script type="text/javascript">
     $('a[name="join"]')[0]['_pre_'] = function () {
         let r = false
-        let code = prompt('{{ Localize "i18n.pleaseEnterSharedCode" }}', '').trim()
-        if (code != "") {
+        let code = prompt('{{ Localize "i18n.pleaseEnterSharedCode" }}', '')
+        if (code && code !== "") {
+            code = code.trim()
             r = true
         }
         return [r, {"code": code}]

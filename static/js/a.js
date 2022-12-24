@@ -2,6 +2,7 @@
     let as = $('a[method]')
     for (let i = 0, l = as.length; i < l; i++) {
         let $a = $(as[i])
+        // console.log($a)
         $a.click(function () {
             let formData = null
             let r = true
@@ -10,8 +11,8 @@
             if (pre) {
                 let rarr = pre()
                 r = rarr && rarr[0] ? true : false
-                let rl = rarr.length
-                if (r && rl > 1) {
+                let rl = 0
+                if (r && (rl = rarr.length) > 1) {
                     formData = new FormData()
                     for (let ri = 1; ri < rl; ri++) {
                         let robj = rarr[ri]
