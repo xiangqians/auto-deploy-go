@@ -7,7 +7,7 @@
 <head>
     <meta charset="UTF-8">
     <link rel="shortcut icon" rel="external nofollow" href="/static/favicon.ico">
-    <link rel="stylesheet" href="/static/css/test.css" type="text/css"/>
+    <link rel="stylesheet" href="/static/css/com.css" type="text/css"/>
     <title>
         {{ if gt .item.Id 0 }}
         {{ Localize "i18n.upd" }}
@@ -18,6 +18,7 @@
     </title>
 </head>
 <body>
+
 <form action="/item" method="{{ if gt .item.Id 0 }}PUT{{else}}POST{{end}}">
     <p>{{ .message }}</p>
     <input type="hidden" name="id" value="{{ .item.Id }}">
@@ -77,4 +78,4 @@
 </body>
 </html>
 <script type="text/javascript" src="/static/js/jquery-3.6.2.min.js"></script>
-<script type="text/javascript" src="/static/js/form.js"></script>
+<script type="text/javascript" src="/static/js/com.js"></script>
