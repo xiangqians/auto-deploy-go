@@ -36,7 +36,12 @@
         <td>{{ UnixToTime $value.AddTime }}</td>
         <td>{{ UnixToTime $value.UpdTime }}</td>
         <td>{{ $value.Id }}</td>
-        <td><a href="/rx/addpage?id={{ $value.Id }}">{{ Localize "i18n.upd" }}</a></td>
+        <td>
+            {{ if ne $value.OwnerId $.user.Id }}
+            <span>{{ Localize "i18n.upd" }}</span>
+            {{ else }}
+            <a href="/rx/addpage?id={{ $value.Id }}">{{ Localize "i18n.upd" }}</a>
+            {{ end }}
         <td>
             <a href="/rx/{{ $value.Id }}" method="DELETE" confirm='{{ Localize "i18n.del" }} {{ $value.Name }}?'>
                 {{ Localize "i18n.del" }}

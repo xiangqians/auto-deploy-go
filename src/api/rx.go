@@ -36,6 +36,7 @@ func RxIndex(pContext *gin.Context) {
 	session.Delete("message")
 	session.Save()
 	pContext.HTML(http.StatusOK, "rx/index.html", gin.H{
+		"user":    GetUser(pContext),
 		"rxs":     Rxs(pContext),
 		"message": message,
 	})

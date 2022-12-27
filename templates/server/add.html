@@ -19,7 +19,7 @@
 <body>
 
 <form action="/server" method="{{ if gt .server.Id 0 }}PUT{{else}}POST{{end}}">
-    <p>{{ .message }}</p>
+    <p class="message">{{ .message }}</p>
     <input type="hidden" name="id" value="{{ .server.Id }}">
     <div>
         *<label>{{ Localize "i18n.name" }}:</label>
