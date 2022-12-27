@@ -45,7 +45,7 @@ func VerifyUserName(username string) error {
 		return nil
 	}
 
-	return errors.New("用户名1-16位长度（字母，数字，下划线，减号）")
+	return errors.New(i18n.MustGetMessage("i18n.userNameMastNBitsLong"))
 }
 
 // VerifyPasswd 校验密码
@@ -56,7 +56,7 @@ func VerifyPasswd(passwd string) error {
 		return nil
 	}
 
-	return errors.New("密码8-16位长度（字母，数字，特殊字符）")
+	return errors.New(i18n.MustGetMessage("i18n.passwdMastNBitsLong"))
 }
 
 // Uuid https://github.com/google/uuid

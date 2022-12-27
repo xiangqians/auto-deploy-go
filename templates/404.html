@@ -8,38 +8,11 @@
     <meta charset="UTF-8">
     <link rel="shortcut icon" rel="external nofollow" href="/static/favicon.ico">
     <link rel="stylesheet" href="/static/css/com.css" type="text/css"/>
-    <title>404</title>
-    <style>
-        span {
-            display: block;
-            padding-top: 8px;
-        }
-
-        td {
-            padding-left: 10px;
-        }
-    </style>
+    <title>{{ Localize "i18n.404" }}</title>
 </head>
 <body>
 
-<h3>404 page not found</h3>
-
-<div>
-    <table>
-        <tr>
-            <td>goVersion</td>
-            <td>{{ .goVersion }}</td>
-        </tr>
-        <tr>
-            <td>ginVersion</td>
-            <td>{{ .ginVersion }}</td>
-        </tr>
-        <tr>
-            <td>time</td>
-            <td>{{ .time }}</td>
-        </tr>
-    </table>
-</div>
+<h3>{{ Localize "i18n.404" }}</h3>
 
 {{ template "com/footer.html" }}
 

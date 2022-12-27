@@ -17,9 +17,12 @@ import (
 
 // 初始化HTML模板
 func intHtmlTemplate(pEngine *gin.Engine) {
-	// 自定义模板函数，为了获取 i18n 文件中 key 对应的 value
+	// 自定义模板函数
 	pEngine.SetFuncMap(template.FuncMap{
+		// 为了获取 i18n 文件中 key 对应的 value
 		"Localize": i18n.GetMessage,
+
+		// unix时间戳转日期
 		"UnixToTime": func(unix int64) string {
 			if unix == 0 {
 				return "-"
@@ -27,9 +30,13 @@ func intHtmlTemplate(pEngine *gin.Engine) {
 			t := time.Unix(unix, 0)
 			return t.Format("2006/01/02 15:04:05")
 		},
+
+		// +1
 		"Add1": func(i int) int {
 			return i + 1
 		},
+
+		// 部署状态文本信息
 		"DeployStatusText": func(status byte) string {
 			switch status {
 			// 1-部署中
@@ -79,16 +86,16 @@ func intHtmlTemplate(pEngine *gin.Engine) {
 			panic(err)
 		}
 
-		join := func(s string, arr ...string) []string {
-			newarr := make([]string, len(arr)+1)
+		getFiles := func(s string) []string {
+			files := make([]string, len(coms)+1)
 			i := 0
-			newarr[i] = s
+			files[i] = s
 			i++
-			for _, e := range arr {
-				newarr[i] = e
+			for _, e := range coms {
+				files[i] = e
 				i++
 			}
-			return newarr
+			return files
 		}
 
 		// Generate our templates map from our layouts/ and includes/ directories
@@ -109,7 +116,7 @@ func intHtmlTemplate(pEngine *gin.Engine) {
 						if sfierr == nil {
 							for _, subFileInfo := range subFileInfos {
 								subfname := subFileInfo.Name()
-								files := join(fmt.Sprintf("%s/%s", matche, subfname), coms...)
+								files := getFiles(fmt.Sprintf("%s/%s", matche, subfname))
 								renderer.AddFromFilesFuncs(fmt.Sprintf("%s/%s", fname, subfname), pEngine.FuncMap, files...)
 							}
 						}
@@ -117,7 +124,7 @@ func intHtmlTemplate(pEngine *gin.Engine) {
 				} else
 				// /*
 				{
-					files := join(matche, coms...)
+					files := getFiles(matche)
 					renderer.AddFromFilesFuncs(name, pEngine.FuncMap, files...)
 				}
 			}

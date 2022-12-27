@@ -58,5 +58,8 @@
   "i18n.sharer": "共享者",
   "i18n.code": "Code",
   "i18n.join": "加入",
-  "i18n.pleaseEnterSharedCode": "请输入共享code"
+  "i18n.pleaseEnterSharedCode": "请输入共享code",
+  "i18n.userNameMastNBitsLong": "用户名必须1-16位长度（字母，数字，下划线，减号）",
+  "i18n.passwdMastNBitsLong": "密码必须1-16位长度（字母，数字，下划线，减号）",
+  "i18n.404": "未找到页面"
 }
