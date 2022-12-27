@@ -36,7 +36,9 @@
         <td>{{ UnixToTime $value.AddTime }}</td>
         <td>{{ UnixToTime $value.UpdTime }}</td>
         <td><span id="code{{ $value.Id }}" style="display: none">{{ $value.Id }}</span>
-            <button name="copy">{{ Localize "i18n.copy" }}</button>
+            <button name="copy" {{ if ne $value.SharerId 0 }} disabled="disabled" {{ end }}>
+                {{ Localize "i18n.copy" }}
+            </button>
         </td>
         <td>
             {{ if ne $value.OwnerId $.user.Id }}
