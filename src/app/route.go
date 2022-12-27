@@ -23,7 +23,7 @@ func initRoute(pEngine *gin.Engine) {
 	})
 
 	// index
-	pEngine.GET("/", api.IndexPage)
+	pEngine.Any("/", api.IndexPage)
 
 	// user
 	userRouterGroup := pEngine.Group("/user")
@@ -75,6 +75,7 @@ func initRoute(pEngine *gin.Engine) {
 		rxRouterGroup.POST("/join", api.RxJoin)
 	}
 	pEngine.POST("/rx", api.RxAdd)
+	pEngine.PUT("/rx", api.RxUpd)
 	pEngine.DELETE("/rx/:id", api.RxDel)
 
 	// ws

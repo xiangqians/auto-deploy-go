@@ -28,8 +28,8 @@
   "i18n.hostCannotEmpty": "Host cannot be empty",
   "i18n.port": "Port",
   "i18n.portCannotEmpty": "Port cannot be empty",
-  "i18n.createTime": "Creation time",
-  "i18n.updateTime": "Update time",
+  "i18n.addTime": "Creation time",
+  "i18n.updTime": "Update time",
   "i18n.add": "Add",
   "i18n.upd": "Update",
   "i18n.del": "Delete",
@@ -61,5 +61,8 @@
   "i18n.pleaseEnterSharedCode": "Please enter the shared code",
   "i18n.userNameMastNBitsLong": "User name must be 1-16 bits long(letters, numbers, underscores, minus signs)",
   "i18n.passwdMastNBitsLong": "Password must be 1-16 bits long(letters, numbers, underscores, minus signs)",
-  "i18n.404": "404 page not found"
+  "i18n.404": "404 page not found",
+  "i18n.invalidCode": "Invalid code",
+  "i18n.codeHasBeenUsed": "Code has been used",
+  "i18n.yourCodeCannotBeSharedByYourself": "Your code cannot be shared by yourself"
 }

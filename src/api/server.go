@@ -50,7 +50,7 @@ func ServerAddPage(pContext *gin.Context) {
 		id, err := strconv.ParseInt(idStr, 10, 64)
 		if err == nil && id > 0 {
 			user := GetUser(pContext)
-			err = db.Qry(&_server, "SELECT s.id, s.`name`, s.`host`, s.`port`, s.`user`, s.rem, s.create_time, s.update_time FROM server s WHERE s.del_flag = 0 AND s.user_id = ? AND s.id = ?", user.Id, id)
+			err = db.Qry(&_server, "SELECT s.id, s.`name`, s.`host`, s.`port`, s.`user`, s.rem, s.add_time, s.upd_time FROM server s WHERE s.del_flag = 0 AND s.user_id = ? AND s.id = ?", user.Id, id)
 			if err != nil {
 				log.Println(err)
 			}
@@ -71,7 +71,7 @@ func ServerAdd(pContext *gin.Context) {
 	}
 
 	user := GetUser(pContext)
-	db.Add("INSERT INTO `server` (`user_id`, `name`, `host`, `port`, `user`, `passwd`, `rem`, `create_time`) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+	db.Add("INSERT INTO `server` (`user_id`, `name`, `host`, `port`, `user`, `passwd`, `rem`, `add_time`) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
 		user.Id, server.Name, server.Host, server.Port, server.User, server.Passwd, server.Rem, time.Now().Unix())
 	pContext.Redirect(http.StatusMovedPermanently, "/server/index")
 }
@@ -83,7 +83,7 @@ func ServerUpd(pContext *gin.Context) {
 	}
 
 	user := GetUser(pContext)
-	db.Upd("UPDATE `server` SET `name` = ?, `host` = ?, `port` = ?, `user` = ?, `passwd` = ?, `rem` = ?, update_time = ? WHERE del_flag = 0 AND user_id = ? AND id = ?",
+	db.Upd("UPDATE `server` SET `name` = ?, `host` = ?, `port` = ?, `user` = ?, `passwd` = ?, `rem` = ?, upd_time = ? WHERE del_flag = 0 AND user_id = ? AND id = ?",
 		server.Name, server.Host, server.Port, server.User, server.Passwd, server.Rem, time.Now().Unix(), user.Id, server.Id)
 	pContext.Redirect(http.StatusMovedPermanently, "/server/index")
 }
@@ -93,7 +93,7 @@ func ServerDel(pContext *gin.Context) {
 	id, err := strconv.ParseInt(idStr, 10, 64)
 	if err == nil {
 		user := GetUser(pContext)
-		db.Del("UPDATE server SET del_flag = 1, update_time = ? WHERE user_id = ? AND id = ?", time.Now().Unix(), user.Id, id)
+		db.Del("UPDATE server SET del_flag = 1, upd_time = ? WHERE user_id = ? AND id = ?", time.Now().Unix(), user.Id, id)
 	}
 	pContext.Redirect(http.StatusMovedPermanently, "/server/index")
 }
@@ -122,7 +122,7 @@ func serverPreAddOrUpd(pContext *gin.Context) (Server, error) {
 func Servers(pContext *gin.Context) []Server {
 	user := GetUser(pContext)
 	servers := make([]Server, 1)
-	err := db.Qry(&servers, "SELECT s.id, s.`name`, s.`host`, s.`port`, s.`user`, s.rem, s.create_time, s.update_time FROM server s WHERE s.del_flag = 0 AND s.user_id = ?", user.Id)
+	err := db.Qry(&servers, "SELECT s.id, s.`name`, s.`host`, s.`port`, s.`user`, s.rem, s.add_time, s.upd_time FROM server s WHERE s.del_flag = 0 AND s.user_id = ?", user.Id)
 	if err != nil {
 		log.Println(err)
 		return nil

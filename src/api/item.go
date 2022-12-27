@@ -87,7 +87,7 @@ func ItemAdd(pContext *gin.Context) {
 	}
 
 	user := GetUser(pContext)
-	db.Add("INSERT INTO `item` (`user_id`, `name`, `git_id`, `repo_url`, `branch`, `server_id`, `ini`, `rem`, `create_time`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+	db.Add("INSERT INTO `item` (`user_id`, `name`, `git_id`, `repo_url`, `branch`, `server_id`, `ini`, `rem`, `add_time`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
 		user.Id, item.Name, item.GitId, item.RepoUrl, item.Branch, item.ServerId, item.Ini, item.Rem, time.Now().Unix())
 	pContext.Redirect(http.StatusMovedPermanently, "/item/index")
 }
@@ -99,7 +99,7 @@ func ItemUpd(pContext *gin.Context) {
 	}
 
 	user := GetUser(pContext)
-	db.Upd("UPDATE `item` SET `name` = ?, `git_id` = ?, `repo_url` = ?, `branch` = ?, `server_id` = ?, `ini` = ?, `rem` = ?, update_time = ? WHERE del_flag = 0 AND user_id = ? AND id = ?",
+	db.Upd("UPDATE `item` SET `name` = ?, `git_id` = ?, `repo_url` = ?, `branch` = ?, `server_id` = ?, `ini` = ?, `rem` = ?, upd_time = ? WHERE del_flag = 0 AND user_id = ? AND id = ?",
 		item.Name, item.GitId, item.RepoUrl, item.Branch, item.ServerId, item.Ini, item.Rem, time.Now().Unix(), user.Id, item.Id)
 	pContext.Redirect(http.StatusMovedPermanently, "/item/index")
 }
@@ -109,7 +109,7 @@ func ItemDel(pContext *gin.Context) {
 	id, err := strconv.ParseInt(idStr, 10, 64)
 	if err == nil {
 		user := GetUser(pContext)
-		db.Del("UPDATE item SET del_flag = 1, update_time = ? WHERE user_id = ? AND id = ?", time.Now().Unix(), user.Id, id)
+		db.Del("UPDATE item SET del_flag = 1, upd_time = ? WHERE user_id = ? AND id = ?", time.Now().Unix(), user.Id, id)
 	}
 	pContext.Redirect(http.StatusMovedPermanently, "/item/index")
 }
@@ -131,7 +131,7 @@ func itemPreAddOrUpd(pContext *gin.Context) (Item, error) {
 func Items(pContext *gin.Context) []Item {
 	user := GetUser(pContext)
 	items := make([]Item, 1)
-	err := db.Qry(&items, "SELECT i.id, i.`name`, i.git_id, IFNULL(g.`name`, '') AS 'git_name', i.repo_url, i.branch, i.server_id, IFNULL(s.`name`, '') AS 'server_name', i.rem, i.create_time, i.update_time FROM item i LEFT JOIN git g ON g.del_flag = 0 AND g.id = i.git_id LEFT JOIN server s ON s.del_flag = 0 AND s.id = i.server_id WHERE i.del_flag = 0 AND i.user_id = ?", user.Id)
+	err := db.Qry(&items, "SELECT i.id, i.`name`, i.git_id, IFNULL(g.`name`, '') AS 'git_name', i.repo_url, i.branch, i.server_id, IFNULL(s.`name`, '') AS 'server_name', i.rem, i.add_time, i.upd_time FROM item i LEFT JOIN git g ON g.del_flag = 0 AND g.id = i.git_id LEFT JOIN server s ON s.del_flag = 0 AND s.id = i.server_id WHERE i.del_flag = 0 AND i.user_id = ?", user.Id)
 	if err != nil {
 		log.Println(err)
 		return nil

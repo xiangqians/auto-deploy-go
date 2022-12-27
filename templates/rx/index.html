@@ -3,7 +3,7 @@
  | @date 22:26 2022/12/24
  |-->
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" url="/rx/index">
 <head>
     <meta charset="UTF-8">
     <link rel="shortcut icon" rel="external nofollow" href="/static/favicon.ico">
@@ -12,7 +12,7 @@
 </head>
 <body>
 
-<span name="_url_" class="display: none;" url="/rx/index"></span>
+<p class="message">{{ .message }}</p>
 
 <table border="1" cellspacing="0" cellpadding="10" align="center">
     <tr>
@@ -21,10 +21,10 @@
         <td>{{ Localize "i18n.owner" }}</td>
         <td>{{ Localize "i18n.sharer" }}</td>
         <td>{{ Localize "i18n.rem" }}</td>
-        <td>{{ Localize "i18n.createTime" }}</td>
-        <td>{{ Localize "i18n.updateTime" }}</td>
+        <td>{{ Localize "i18n.addTime" }}</td>
+        <td>{{ Localize "i18n.updTime" }}</td>
         <td>{{ Localize "i18n.code" }}</td>
-        <td colspan="1">{{ Localize "i18n.op" }}</td>
+        <td colspan="2">{{ Localize "i18n.op" }}</td>
     </tr>
     {{ range $index,$value := .rxs }}
     <tr>
@@ -33,9 +33,10 @@
         <td>{{ $value.OwnerName }}</td>
         <td>{{ $value.SharerName }}</td>
         <td>{{ $value.Rem }}</td>
-        <td>{{ UnixToTime $value.CreateTime }}</td>
-        <td>{{ UnixToTime $value.UpdateTime }}</td>
+        <td>{{ UnixToTime $value.AddTime }}</td>
+        <td>{{ UnixToTime $value.UpdTime }}</td>
         <td>{{ $value.Id }}</td>
+        <td><a href="/rx/addpage?id={{ $value.Id }}">{{ Localize "i18n.upd" }}</a></td>
         <td>
             <a href="/rx/{{ $value.Id }}" method="DELETE" confirm='{{ Localize "i18n.del" }} {{ $value.Name }}?'>
                 {{ Localize "i18n.del" }}

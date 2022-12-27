@@ -48,7 +48,7 @@ func GitAddPage(pContext *gin.Context) {
 		id, err := strconv.ParseInt(idStr, 10, 64)
 		if err == nil && id > 0 {
 			user := GetUser(pContext)
-			err = db.Qry(&_git, "SELECT g.id, g.`name`, g.`user`, g.rem, g.create_time, g.update_time FROM git g WHERE g.del_flag = 0 AND g.user_id = ? AND g.id = ?", user.Id, id)
+			err = db.Qry(&_git, "SELECT g.id, g.`name`, g.`user`, g.rem, g.add_time, g.upd_time FROM git g WHERE g.del_flag = 0 AND g.user_id = ? AND g.id = ?", user.Id, id)
 			if err != nil {
 				log.Println(err)
 			}
@@ -69,7 +69,7 @@ func GitAdd(pContext *gin.Context) {
 	}
 
 	user := GetUser(pContext)
-	db.Add("INSERT INTO `git` (`user_id`, `name`, `user`, `passwd`, `rem`, `create_time`) VALUES (?, ?, ?, ?, ?, ?)",
+	db.Add("INSERT INTO `git` (`user_id`, `name`, `user`, `passwd`, `rem`, `add_time`) VALUES (?, ?, ?, ?, ?, ?)",
 		user.Id, git.Name, git.User, git.Passwd, git.Rem, time.Now().Unix())
 	pContext.Redirect(http.StatusMovedPermanently, "/git/index")
 }
@@ -81,7 +81,7 @@ func GitUpd(pContext *gin.Context) {
 	}
 
 	user := GetUser(pContext)
-	db.Upd("UPDATE git SET `name` = ?, `user` = ?, `passwd` = ?, `rem` = ?, update_time = ? WHERE del_flag = 0 AND user_id = ? AND id = ?",
+	db.Upd("UPDATE git SET `name` = ?, `user` = ?, `passwd` = ?, `rem` = ?, upd_time = ? WHERE del_flag = 0 AND user_id = ? AND id = ?",
 		git.Name, git.User, git.Passwd, git.Rem, time.Now().Unix(), user.Id, git.Id)
 	pContext.Redirect(http.StatusMovedPermanently, "/git/index")
 }
@@ -91,7 +91,7 @@ func GitDel(pContext *gin.Context) {
 	id, err := strconv.ParseInt(idStr, 10, 64)
 	if err == nil {
 		user := GetUser(pContext)
-		db.Del("UPDATE git SET del_flag = 1, update_time = ? WHERE user_id = ? AND id = ?", time.Now().Unix(), user.Id, id)
+		db.Del("UPDATE git SET del_flag = 1, upd_time = ? WHERE user_id = ? AND id = ?", time.Now().Unix(), user.Id, id)
 	}
 	pContext.Redirect(http.StatusMovedPermanently, "/git/index")
 }
@@ -119,7 +119,7 @@ func gitPreAddOrUpd(pContext *gin.Context) (Git, error) {
 func Gits(pContext *gin.Context) []Git {
 	user := GetUser(pContext)
 	gits := make([]Git, 1)
-	err := db.Qry(&gits, "SELECT g.id, g.`name`, g.`user`, g.rem, g.create_time, g.update_time FROM git g WHERE g.del_flag = 0 AND g.user_id = ?", user.Id)
+	err := db.Qry(&gits, "SELECT g.id, g.`name`, g.`user`, g.rem, g.add_time, g.upd_time FROM git g WHERE g.del_flag = 0 AND g.user_id = ?", user.Id)
 	if err != nil {
 		log.Println(err)
 		return nil

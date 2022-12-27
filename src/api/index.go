@@ -35,7 +35,7 @@ type ItemLastRecord struct {
 	DeployRem   string
 	Status      byte   // status
 	Rem         string // Rem
-	CreateTime  int64  // CreateTime
+	AddTime     int64  // AddTime
 }
 
 func IndexPage(pContext *gin.Context) {
@@ -50,10 +50,10 @@ func IndexPage(pContext *gin.Context) {
 		"IFNULL(r.deploy_stime, 0) AS 'deploy_stime', IFNULL(r.deploy_etime, 0) AS 'deploy_etime', IFNULL(r.deploy_rem, '') AS 'deploy_rem', " +
 		"IFNULL(r.status, 0) AS 'status', " +
 		"IFNULL(r.rem, '') AS 'rem', " +
-		"IFNULL(r.create_time, 0) AS 'create_time' " +
+		"IFNULL(r.add_time, 0) AS 'add_time' " +
 		"FROM item i " +
 		"LEFT JOIN record r ON r.del_flag = 0 AND r.item_id = i.id " +
-		"LEFT JOIN record rt ON rt.del_flag = 0 AND rt.item_id = r.item_id AND r.create_time < rt.create_time " +
+		"LEFT JOIN record rt ON rt.del_flag = 0 AND rt.item_id = r.item_id AND r.add_time < rt.add_time " +
 		"WHERE i.del_flag = 0 AND i.user_id IN(SELECT DISTINCT(owner_id) FROM rx WHERE del_flag = 0 AND sharer_id = ? UNION ALL SELECT %v) " +
 		"GROUP BY i.id, r.id " +
 		"HAVING COUNT(rt.id) < 1"

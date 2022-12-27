@@ -8,12 +8,20 @@
     <meta charset="UTF-8">
     <link rel="shortcut icon" rel="external nofollow" href="/static/favicon.ico">
     <link rel="stylesheet" href="/static/css/com.css" type="text/css"/>
-    <title>{{ Localize "i18n.add" }}{{ Localize "i18n.rx" }}</title>
+    <title>
+        {{ if gt .rx.Id 0 }}
+        {{ Localize "i18n.upd" }}
+        {{else}}
+        {{ Localize "i18n.add" }}
+        {{end}}
+        {{ Localize "i18n.rx" }}
+    </title>
 </head>
 <body>
 
-<form action="/rx" method="POST">
+<form action="/rx" method="{{ if gt .rx.Id 0 }}PUT{{else}}POST{{end}}">
     <p>{{ .message }}</p>
+    <input type="hidden" name="id" value="{{ .rx.Id }}">
     <div>
         *<label>{{ Localize "i18n.name" }}:</label>
         <input name="name" type="text" value="{{ .rx.Name }}">
@@ -23,7 +31,8 @@
         <input name="rem" type="text" value="{{ .rx.Rem }}">
     </div>
     <div>
-        <input type="submit" value='{{ Localize "i18n.add" }}'>
+        <input type="submit"
+               value='{{ if gt .rx.Id 0 }} {{ Localize "i18n.upd" }} {{else}} {{ Localize "i18n.add" }} {{end}}'>
     </div>
 </form>
 <br>
@@ -35,3 +44,5 @@
 
 </body>
 </html>
+<script type="text/javascript" src="/static/js/jquery-3.6.2.min.js"></script>
+<script type="text/javascript" src="/static/js/com.js"></script>

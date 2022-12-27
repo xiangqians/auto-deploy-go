@@ -20,8 +20,8 @@
         <td>{{ Localize "i18n.branch" }}</td>
         <td>{{ Localize "i18n.server" }}</td>
         <td>{{ Localize "i18n.rem" }}</td>
-        <td>{{ Localize "i18n.createTime" }}</td>
-        <td>{{ Localize "i18n.updateTime" }}</td>
+        <td>{{ Localize "i18n.addTime" }}</td>
+        <td>{{ Localize "i18n.updTime" }}</td>
         <td colspan="2">{{ Localize "i18n.op" }}</td>
     </tr>
     {{ range $index,$value := .items }}
@@ -33,8 +33,8 @@
         <td>{{ $value.Branch }}</td>
         <td>{{ $value.ServerName }}</td>
         <td>{{ $value.Rem }}</td>
-        <td>{{ UnixToTime $value.CreateTime }}</td>
-        <td>{{ UnixToTime $value.UpdateTime }}</td>
+        <td>{{ UnixToTime $value.AddTime }}</td>
+        <td>{{ UnixToTime $value.UpdTime }}</td>
         <td><a href="/item/addpage?id={{ $value.Id }}">{{ Localize "i18n.upd" }}</a></td>
         <td>
             <a href="/item/{{ $value.Id }}" method="DELETE" confirm='{{ Localize "i18n.del" }} {{ $value.Name }}?'>

@@ -72,7 +72,7 @@ func UserAdd(pContext *gin.Context) {
 		return
 	}
 
-	db.Add("INSERT INTO `user` (`name`, `nickname`, `passwd`, `rem`, `create_time`) VALUES (?, ?, ?, ?, ?)",
+	db.Add("INSERT INTO `user` (`name`, `nickname`, `passwd`, `rem`, `add_time`) VALUES (?, ?, ?, ?, ?)",
 		user.Name, strings.TrimSpace(user.Nickname), user.Passwd, strings.TrimSpace(user.Rem), time.Now().Unix())
 
 	session.Set("username", user.Name)
@@ -107,7 +107,7 @@ func UserLogin(pContext *gin.Context) {
 
 	var user User
 	if err == nil {
-		err = db.Qry(&user, "SELECT u.id, u.`name`, u.nickname, u.rem, u.create_time, u.update_time FROM `user` u WHERE u.del_flag = 0 AND u.`name` = ? AND u.passwd = ? LIMIT 1", name, passwd)
+		err = db.Qry(&user, "SELECT u.id, u.`name`, u.nickname, u.rem, u.add_time, u.upd_time FROM `user` u WHERE u.del_flag = 0 AND u.`name` = ? AND u.passwd = ? LIMIT 1", name, passwd)
 	}
 
 	if err == nil && user.Id == 0 {
@@ -192,7 +192,7 @@ func UserUpd(pContext *gin.Context) {
 		return
 	}
 
-	db.Add("UPDATE `user` SET `name` = ?, nickname = ?, `passwd` = ?, rem = ?, update_time = ? WHERE id = ?",
+	db.Add("UPDATE `user` SET `name` = ?, nickname = ?, `passwd` = ?, rem = ?, upd_time = ? WHERE id = ?",
 		user.Name, user.Nickname, user.Passwd, user.Rem, time.Now().Unix(), sessionUser.Id)
 
 	// 更新session中User信息

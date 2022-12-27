@@ -54,10 +54,10 @@ $. 引用模板中的根级上下文
         <td>{{ Add1 $index }}</td>
         <td title="{{ $value.ItemRem }}"><a href="javascript:void(0);">{{ $value.ItemName }}</a></td>
         <td>-</td>
-        <td title="{{ $value.RevMsg }}">{{ UnixToTime $value.CreateTime }}</td>
+        <td title="{{ $value.RevMsg }}">{{ UnixToTime $value.AddTime }}</td>
         <td>{{ DeployStatusText $value.Status }}</td>
         <td>
-            <a href="" method="POST" confirm='{{ Localize "i18n.deploy" }} {{ $value.ItemName }}?'>
+            <a href="/" method="POST" confirm='{{ Localize "i18n.deploy" }} {{ $value.ItemName }}?'>
                 {{ Localize "i18n.deploy" }}
             </a>
         </td>
