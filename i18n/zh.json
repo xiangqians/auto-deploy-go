@@ -64,5 +64,7 @@
   "i18n.404": "未找到页面",
   "i18n.invalidCode": "无效code",
   "i18n.codeHasBeenUsed": "code已被使用",
-  "i18n.yourCodeCannotBeSharedByYourself": "自己的code无法被自己分享"
+  "i18n.yourCodeCannotBeSharedByYourself": "自己的code无法被自己分享",
+  "i18n.copy": "复制",
+  "i18n.copied": "已复制"
 }

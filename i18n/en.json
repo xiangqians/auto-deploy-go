@@ -64,5 +64,7 @@
   "i18n.404": "404 page not found",
   "i18n.invalidCode": "Invalid code",
   "i18n.codeHasBeenUsed": "Code has been used",
-  "i18n.yourCodeCannotBeSharedByYourself": "Your code cannot be shared by yourself"
+  "i18n.yourCodeCannotBeSharedByYourself": "Your code cannot be shared by yourself",
+  "i18n.copy": "Copy",
+  "i18n.copied": "Copied"
 }

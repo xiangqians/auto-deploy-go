@@ -35,7 +35,9 @@
         <td>{{ $value.Rem }}</td>
         <td>{{ UnixToTime $value.AddTime }}</td>
         <td>{{ UnixToTime $value.UpdTime }}</td>
-        <td>{{ $value.Id }}</td>
+        <td><span id="code{{ $value.Id }}" style="display: none">{{ $value.Id }}</span>
+            <button name="copy">{{ Localize "i18n.copy" }}</button>
+        </td>
         <td>
             {{ if ne $value.OwnerId $.user.Id }}
             <span>{{ Localize "i18n.upd" }}</span>
@@ -69,6 +71,7 @@
 </body>
 </html>
 <script type="text/javascript" src="/static/js/jquery-3.6.2.min.js"></script>
+<script type="text/javascript" src="/static/js/clipboard.min.js"></script>
 <script type="text/javascript" src="/static/js/com.js"></script>
 <script type="text/javascript">
     $('a[name="join"]')[0]['_pre_'] = function () {
@@ -80,4 +83,26 @@
         }
         return [r, {"code": code}]
     }
+
+    // clipboard
+    let clipboard = new ClipboardJS('button[name="copy"]', {
+        text: function (elem) {
+            let $elem = $(elem)
+            let $prev = $elem.prev()
+            // console.log($prev)
+            return $prev.text();
+        },
+    });
+    clipboard.on('success', function (e) {
+        // console.info('Action:', e.action)
+        // console.info('Text:', e.text)
+        // console.info('Trigger:', e.trigger)
+        alert('{{ Localize "i18n.copied" }}')
+    });
+    clipboard.on('error', function (e) {
+        // console.info('Action:', e.action)
+        // console.info('Text:', e.text)
+        // console.info('Trigger:', e.trigger)
+        alert(e)
+    });
 </script>
