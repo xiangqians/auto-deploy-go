@@ -21,13 +21,16 @@ import (
 	"time"
 )
 
-//const (
-//	StagePull   Stage = iota + 1 // 拉取资源
-//	StageBuild                   // 构建
-//	StagePack                    // 打包
-//	StageUl                      // upload上传
-//	StageDeploy                  // 部署
-//)
+// Stage 自动化部署阶段
+type Stage int8
+
+const (
+	StagePull   Stage = iota + 1 // 拉取资源
+	StageBuild                   // 构建
+	StagePack                    // 打包
+	StageUl                      // upload上传
+	StageDeploy                  // 部署
+)
 
 const (
 	StatusInDeploy      byte = iota + 1 // 部署中
@@ -130,9 +133,15 @@ func Deploy(pContext *gin.Context) {
 
 	go func() {
 		// updRecord func
-		updRecord := func(status byte) {
+		updRecord := func(err error) {
+			status := StatusDeploySuccess
+			rem := ""
+			if err != nil {
+				status = StatusDeployExc
+				rem = err.Error()
+			}
 			// update record
-			db.Upd("UPDATE record SET `status` = ?, `upd_time` = ? where id = ?", status, time.Now().Unix(), recordId)
+			db.Upd("UPDATE record SET `status` = ?, rem = ?, `upd_time` = ? where id = ?", status, rem, time.Now().Unix(), recordId)
 		}
 
 		// localRepoPath
@@ -144,34 +153,65 @@ func Deploy(pContext *gin.Context) {
 		// git clone
 		err = gitClone(item, recordId, localRepoPath)
 		if err != nil {
-			updRecord(StatusDeployExc)
+			updRecord(err)
+			return
+		}
+
+		// ini
+		ini := ParseIniText(item.Ini)
+
+		// build
+		err = build(ini, recordId, localRepoPath)
+		if err != nil {
+			updRecord(err)
 			return
 		}
 
 		// deploy success
-		updRecord(StatusDeploySuccess)
+		updRecord(nil)
 	}()
 
 	redirect("")
 }
 
-func gitClone(item Item, recordId int64, localRepoPath string) error {
-	db.Upd("UPDATE record SET pull_stime = ? WHERE id = ?", time.Now().Unix(), recordId)
+func build(ini Ini, recordId int64, localRepoPath string) error {
+	updSTime(StageBuild, recordId)
 
-	updETime := func(err error) {
-		var etime int64 = time.Now().Unix()
-		rem := ""
-		if err != nil {
-			etime = -1
-			rem = err.Error()
+	_build := ini.Build
+	if _build != nil && len(_build) > 0 {
+		for _, cmd := range _build {
+			cd, err := com.Cd(localRepoPath)
+			if err != nil {
+				updETime(StageBuild, recordId, err)
+				return err
+			}
+
+			cmd = fmt.Sprintf("%s && %s", cd, cmd)
+			pCmd, err := com.Command(cmd)
+			if err != nil {
+				updETime(StageBuild, recordId, err)
+				return err
+			}
+
+			_, err = pCmd.CombinedOutput()
+			if err != nil {
+				updETime(StageBuild, recordId, err)
+				return err
+			}
 		}
-		db.Upd("UPDATE record SET pull_etime = ?, pull_rem = ? WHERE id = ?", etime, rem, recordId)
 	}
+
+	updETime(StageBuild, recordId, nil)
+	return nil
+}
+
+func gitClone(item Item, recordId int64, localRepoPath string) error {
+	updSTime(StagePull, recordId)
 
 	_git := Git{}
 	err := db.Qry(&_git, "SELECT g.id, g.`user`, g.passwd FROM git g WHERE g.del_flag = 0 AND g.id = ?", item.GitId)
 	if err != nil {
-		updETime(err)
+		updETime(StagePull, recordId, err)
 		return err
 	}
 
@@ -192,7 +232,7 @@ func gitClone(item Item, recordId int64, localRepoPath string) error {
 		Auth:          auth,
 	})
 	if err != nil {
-		updETime(err)
+		updETime(StagePull, recordId, err)
 		return err
 	}
 
@@ -200,28 +240,84 @@ func gitClone(item Item, recordId int64, localRepoPath string) error {
 	// ... retrieves the branch pointed by HEAD
 	pReference, err := pRepository.Head()
 	if err != nil {
-		updETime(err)
+		updETime(StagePull, recordId, err)
 		return err
 	}
 
 	// ... retrieves the commit history
 	pCommitIter, err := pRepository.Log(&git.LogOptions{From: pReference.Hash()})
 	if err != nil {
-		updETime(err)
+		updETime(StagePull, recordId, err)
 		return err
 	}
 
 	// 最近一次提交信息
 	pCommit, err := pCommitIter.Next()
 	if err != nil {
-		updETime(err)
+		updETime(StagePull, recordId, err)
 		return err
 	}
 
 	db.Upd("UPDATE record SET commit_id = ?, rev_msg = ? WHERE id = ?", pCommit.ID().String(), pCommit.String(), recordId)
 
-	updETime(nil)
+	updETime(StagePull, recordId, nil)
 	return nil
+}
+
+func updETime(stage Stage, recordId int64, err error) {
+	etimeName := ""
+	remName := ""
+	switch stage {
+	case StagePull:
+		etimeName = "pull_etime"
+		remName = "pull_rem"
+
+	case StageBuild:
+		etimeName = "build_etime"
+		remName = "build_rem"
+
+	case StagePack:
+		etimeName = "pack_etime"
+		remName = "pack_rem"
+
+	case StageUl:
+		etimeName = "ul_etime"
+		remName = "ul_rem"
+
+	case StageDeploy:
+		etimeName = "deploy_etime"
+		remName = "deploy_rem"
+	}
+
+	var etime int64 = time.Now().Unix()
+	rem := ""
+	if err != nil {
+		etime = -1
+		rem = err.Error()
+	}
+	db.Upd(fmt.Sprintf("UPDATE record SET %s = ?, %s = ? WHERE id = ?", etimeName, remName), etime, rem, recordId)
+}
+
+func updSTime(stage Stage, recordId int64) {
+	stimeName := ""
+	switch stage {
+	case StagePull:
+		stimeName = "pull_stime"
+
+	case StageBuild:
+		stimeName = "build_stime"
+
+	case StagePack:
+		stimeName = "pack_stime"
+
+	case StageUl:
+		stimeName = "ul_stime"
+
+	case StageDeploy:
+		stimeName = "deploy_stime"
+	}
+
+	db.Upd(fmt.Sprintf("UPDATE record SET %s = ? WHERE id = ?", stimeName), time.Now().Unix(), recordId)
 }
 
 func ItemLastRecords(pContext *gin.Context, itemId int64) []ItemLastRecord {

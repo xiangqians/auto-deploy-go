@@ -13,11 +13,15 @@ func TestIni(t *testing.T) {
 	iniText := `
 [build]
 1
-
+11
+12
+13
 
 [target]
 2
-
+23
+24
+25
 
 [deploy]
 3

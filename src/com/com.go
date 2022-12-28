@@ -9,7 +9,9 @@ import (
 	"github.com/gin-contrib/i18n"
 	"github.com/google/uuid"
 	"os"
+	"os/exec"
 	"regexp"
+	"runtime"
 	"strings"
 )
 
@@ -112,4 +114,31 @@ func DelFile(path string) error {
 // DelDir 删除文件夹
 func DelDir(path string) error {
 	return os.RemoveAll(path)
+}
+
+// Command
+func Command(cmd string) (*exec.Cmd, error) {
+	switch runtime.GOOS {
+	case "windows":
+		return exec.Command("cmd", "/C", cmd), nil
+
+	case "linux":
+		return exec.Command("bash", "-c", cmd), nil
+
+	default:
+		return nil, errors.New(fmt.Sprintf("The current system is not supported, %v", runtime.GOOS))
+	}
+}
+
+func Cd(path string) (string, error) {
+	switch runtime.GOOS {
+	case "windows":
+		return fmt.Sprintf("cd /d %s", path), nil
+
+	case "linux":
+		return fmt.Sprintf("cd %s", path), nil
+
+	default:
+		return "", errors.New(fmt.Sprintf("The current system is not supported, %v", runtime.GOOS))
+	}
 }

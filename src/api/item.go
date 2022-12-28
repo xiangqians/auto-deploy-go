@@ -18,9 +18,6 @@ import (
 	"time"
 )
 
-// Stage 自动化部署阶段
-type Stage int8
-
 const (
 	TagBuild  string = "[build]"
 	TagTarget        = "[target]"
@@ -42,9 +39,9 @@ type Item struct {
 }
 
 type Ini struct {
-	Build  string // [build]
-	Target string // [target]
-	Deploy string // [deploy]
+	Build  []string // [build]
+	Target []string // [target]
+	Deploy string   // [deploy]
 }
 
 func init() {
@@ -161,23 +158,27 @@ func ParseIniText(iniTxt string) Ini {
 	ini := Ini{}
 	pReader := bufio.NewReader(bytes.NewBufferString(iniTxt))
 
-	set := func(txt, ty string) {
+	set := func(slice []string, ty string) {
 		switch ty {
 		case TagBuild:
-			ini.Build = txt
+			ini.Build = slice
 
 		case TagTarget:
-			ini.Target = txt
+			ini.Target = slice
 
 		case TagDeploy:
-			ini.Deploy = txt
+			str := ""
+			for _, v := range slice {
+				str += v + "\n"
+			}
+			ini.Deploy = str
 
 		default:
 		}
 	}
 
 	ty := ""
-	txt := ""
+	var slice []string
 	for {
 		line, err := pReader.ReadString('\n')
 		line = strings.TrimSpace(line)
@@ -195,28 +196,28 @@ func ParseIniText(iniTxt string) Ini {
 
 		switch line {
 		case TagBuild:
-			set(txt, ty)
-			txt = ""
+			set(slice, ty)
+			slice = nil
 			ty = line
 			continue
 
 		case TagTarget:
-			set(txt, ty)
-			txt = ""
+			set(slice, ty)
+			slice = nil
 			ty = line
 			continue
 
 		case TagDeploy:
-			set(txt, ty)
-			txt = ""
+			set(slice, ty)
+			slice = nil
 			ty = line
 			continue
 
 		default:
-			txt += line + "\n"
+			slice = append(slice, line)
 		}
 	}
-	set(txt, ty)
+	set(slice, ty)
 
 	return ini
 }
