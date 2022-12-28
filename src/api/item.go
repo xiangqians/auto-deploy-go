@@ -22,14 +22,6 @@ import (
 type Stage int8
 
 const (
-	StagePull   Stage = iota + 1 // 拉取资源
-	StageBuild                   // 构建
-	StagePack                    // 打包
-	StageUl                      // upload上传
-	StageDeploy                  // 部署
-)
-
-const (
 	TagBuild  string = "[build]"
 	TagTarget        = "[target]"
 	TagDeploy        = "[deploy]"

@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"github.com/gin-contrib/i18n"
 	"github.com/google/uuid"
+	"os"
 	"regexp"
 	"strings"
 )
@@ -92,4 +93,23 @@ func NameHumpToUnderline(name string) string {
 		}
 	}
 	return strings.ToLower(strings.Join(res, "_"))
+}
+
+// IsExist 判断所给路径（文件/文件夹）是否存在
+func IsExist(path string) bool {
+	_, err := os.Stat(path)
+	if err != nil {
+		return os.IsExist(err)
+	}
+	return true
+}
+
+// DelFile 删除文件
+func DelFile(path string) error {
+	return os.Remove(path)
+}
+
+// DelDir 删除文件夹
+func DelDir(path string) error {
+	return os.RemoveAll(path)
 }

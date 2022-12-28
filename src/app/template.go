@@ -4,6 +4,7 @@
 package app
 
 import (
+	"auto-deploy-go/src/api"
 	"fmt"
 	"github.com/gin-contrib/i18n"
 	"github.com/gin-contrib/multitemplate"
@@ -40,15 +41,15 @@ func intHtmlTemplate(pEngine *gin.Engine) {
 		"DeployStatusText": func(status byte) string {
 			switch status {
 			// 1-部署中
-			case 1:
+			case api.StatusInDeploy:
 				return i18n.MustGetMessage("i18n.inDeploy")
 
 			// 2-部署异常，
-			case 2:
+			case api.StatusDeployExc:
 				return i18n.MustGetMessage("i18n.deployExc")
 
 			// 3-部署成功
-			case 3:
+			case api.StatusDeploySuccess:
 				return i18n.MustGetMessage("i18n.deploySuccess")
 
 			default:

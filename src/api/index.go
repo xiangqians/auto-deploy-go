@@ -4,14 +4,39 @@
 package api
 
 import (
+	"auto-deploy-go/src/com"
 	"auto-deploy-go/src/db"
 	"fmt"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
+	"github.com/go-git/go-git/v5"
+	"github.com/go-git/go-git/v5/plumbing"
+	"github.com/go-git/go-git/v5/plumbing/transport"
+	"github.com/go-git/go-git/v5/plumbing/transport/http"
 	"log"
-	"net/http"
+	netHttp "net/http"
+	"os"
 	"strconv"
+	"sync"
+	"time"
 )
+
+//const (
+//	StagePull   Stage = iota + 1 // 拉取资源
+//	StageBuild                   // 构建
+//	StagePack                    // 打包
+//	StageUl                      // upload上传
+//	StageDeploy                  // 部署
+//)
+
+const (
+	StatusInDeploy      byte = iota + 1 // 部署中
+	StatusDeployExc                     // 部署异常
+	StatusDeploySuccess                 // 部署成功
+)
+
+// 互斥锁
+var lock sync.Mutex
 
 type ItemLastRecord struct {
 	Id          int64
@@ -45,33 +70,158 @@ func IndexPage(pContext *gin.Context) {
 	message := session.Get("message")
 	session.Delete("message")
 	session.Save()
-	pContext.HTML(http.StatusOK, "index.html", gin.H{
+	pContext.HTML(netHttp.StatusOK, "index.html", gin.H{
 		"user":            GetUser(pContext),
 		"itemLastRecords": ItemLastRecords(pContext, 0),
 		"message":         message,
 	})
 }
 
-// 1. 集成git拉取代码
 func Deploy(pContext *gin.Context) {
-	message := ""
+	// redirect func
+	redirect := func(message string) {
+		session := sessions.Default(pContext)
+		session.Set("message", message)
+		session.Save()
+		pContext.Redirect(netHttp.StatusMovedPermanently, "/")
+	}
+
+	// itemId
 	itemIdStr := pContext.Param("itemId")
 	itemId, err := strconv.ParseInt(itemIdStr, 10, 64)
 	if err != nil {
-		message = err.Error()
-	} else {
-		itemLastRecords := ItemLastRecords(pContext, itemId)
-		if itemLastRecords == nil {
-			message = "项目不存在"
-		} else {
+		redirect(err.Error())
+		return
+	}
 
+	// 加锁
+	lock.Lock()
+	// 解锁
+	defer lock.Unlock()
+
+	// itemLastRecords
+	itemLastRecords := ItemLastRecords(pContext, itemId)
+	if itemLastRecords == nil {
+		redirect("项目不存在")
+		return
+	}
+
+	// itemLastRecord
+	itemLastRecord := itemLastRecords[0]
+	if itemLastRecord.Status == StatusInDeploy {
+		redirect("项目已在部署中")
+		return
+	}
+
+	// item
+	item := Item{}
+	err = db.Qry(&item, "SELECT i.id, i.`name`, i.git_id, i.repo_url, i.branch, i.server_id, i.ini, i.rem FROM item i  WHERE i.del_flag = 0 AND i.id = ?", itemId)
+	if err != nil {
+		redirect(err.Error())
+		return
+	}
+
+	// add record
+	recordId, err := db.Add("INSERT INTO record(item_id, `status`, `add_time`) VALUES(?, ?, ?)", itemId, StatusInDeploy, time.Now().Unix())
+	if err != nil {
+		redirect(err.Error())
+		return
+	}
+
+	go func() {
+		// updRecord func
+		updRecord := func(status byte) {
+			// update record
+			db.Upd("UPDATE record SET `status` = ?, `upd_time` = ? where id = ?", status, time.Now().Unix(), recordId)
+		}
+
+		// localRepoPath
+		localRepoPath := fmt.Sprintf("%v/tmp/item%v", com.DataDir, item.Id)
+		if com.IsExist(localRepoPath) {
+			com.DelDir(localRepoPath)
+		}
+
+		// git clone
+		err = gitClone(item, recordId, localRepoPath)
+		if err != nil {
+			updRecord(StatusDeployExc)
+			return
+		}
+
+		// deploy success
+		updRecord(StatusDeploySuccess)
+	}()
+
+	redirect("")
+}
+
+func gitClone(item Item, recordId int64, localRepoPath string) error {
+	db.Upd("UPDATE record SET pull_stime = ? WHERE id = ?", time.Now().Unix(), recordId)
+
+	updETime := func(err error) {
+		var etime int64 = time.Now().Unix()
+		rem := ""
+		if err != nil {
+			etime = -1
+			rem = err.Error()
+		}
+		db.Upd("UPDATE record SET pull_etime = ?, pull_rem = ? WHERE id = ?", etime, rem, recordId)
+	}
+
+	_git := Git{}
+	err := db.Qry(&_git, "SELECT g.id, g.`user`, g.passwd FROM git g WHERE g.del_flag = 0 AND g.id = ?", item.GitId)
+	if err != nil {
+		updETime(err)
+		return err
+	}
+
+	var auth transport.AuthMethod = nil
+	if _git.Id != 0 {
+		auth = &http.BasicAuth{
+			Username: _git.User,
+			Password: _git.Passwd,
 		}
 	}
 
-	session := sessions.Default(pContext)
-	session.Set("message", message)
-	session.Save()
-	pContext.Redirect(http.StatusMovedPermanently, "/")
+	// Clones the repository into the given dir, just as a normal git clone does
+	isBare := false
+	pRepository, err := git.PlainClone(localRepoPath, isBare, &git.CloneOptions{
+		URL:           item.RepoUrl,
+		ReferenceName: plumbing.ReferenceName(fmt.Sprintf("refs/heads/%s", item.Branch)), // branchName, tagName, commitId
+		Progress:      os.Stdout,
+		Auth:          auth,
+	})
+	if err != nil {
+		updETime(err)
+		return err
+	}
+
+	// 获取 HEAD 指向的分支
+	// ... retrieves the branch pointed by HEAD
+	pReference, err := pRepository.Head()
+	if err != nil {
+		updETime(err)
+		return err
+	}
+
+	// ... retrieves the commit history
+	pCommitIter, err := pRepository.Log(&git.LogOptions{From: pReference.Hash()})
+	if err != nil {
+		updETime(err)
+		return err
+	}
+
+	// 最近一次提交信息
+	pCommit, err := pCommitIter.Next()
+	if err != nil {
+		updETime(err)
+		return err
+	}
+
+	db.Upd("UPDATE record SET commit_id = ?, rev_msg = ? WHERE id = ?", pCommit.ID().String(), pCommit.String(), recordId)
+
+	updETime(nil)
+	return nil
 }
 
 func ItemLastRecords(pContext *gin.Context, itemId int64) []ItemLastRecord {

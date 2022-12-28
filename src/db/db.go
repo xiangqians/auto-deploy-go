@@ -38,8 +38,19 @@ func Qry(i any, sql string, args ...any) error {
 	return nil
 }
 
+// Add return insertId
 func Add(sql string, args ...any) (int64, error) {
-	return exec(sql, args...)
+	pDb, err := db()
+	if err != nil {
+		return 0, err
+	}
+	defer pDb.Close()
+
+	res, err := pDb.Exec(sql, args...)
+	if err != nil {
+		return 0, err
+	}
+	return res.LastInsertId()
 }
 
 func Upd(sql string, args ...any) (int64, error) {
@@ -62,7 +73,6 @@ func exec(sql string, args ...any) (int64, error) {
 	if err != nil {
 		return 0, err
 	}
-	res.LastInsertId()
 
 	return res.RowsAffected()
 }
