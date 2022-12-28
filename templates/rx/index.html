@@ -85,26 +85,42 @@
         }
         return [r, {"code": code}]
     }
+</script>
+<script type="text/javascript">
 
-    // clipboard
-    let clipboard = new ClipboardJS('button[name="copy"]', {
-        text: function (elem) {
-            let $elem = $(elem)
-            let $prev = $elem.prev()
-            // console.log($prev)
-            return $prev.text();
-        },
-    });
-    clipboard.on('success', function (e) {
-        // console.info('Action:', e.action)
-        // console.info('Text:', e.text)
-        // console.info('Trigger:', e.trigger)
-        alert('{{ Localize "i18n.copied" }}')
-    });
-    clipboard.on('error', function (e) {
-        // console.info('Action:', e.action)
-        // console.info('Text:', e.text)
-        // console.info('Trigger:', e.trigger)
-        alert(e)
-    });
+    function initClipboard() {
+        // clipboard
+        let clipboard = new ClipboardJS('button[name="copy"]', {
+            text: function (elem) {
+                let $elem = $(elem)
+                let $prev = $elem.prev()
+                // console.log($prev)
+                return $prev.text();
+            },
+        });
+
+        clipboard.on('success', function (e) {
+            // console.info('Action:', e.action)
+            // console.info('Text:', e.text)
+            // console.info('Trigger:', e.trigger)
+            alert('{{ Localize "i18n.copied" }}')
+        });
+
+        clipboard.on('error', function (e) {
+            // console.info('Action:', e.action)
+            // console.info('Text:', e.text)
+            // console.info('Trigger:', e.trigger)
+            alert(e)
+        });
+
+        window.clipboard = clipboard
+    }
+
+    // 销毁 clipboard, 如果存在的话
+    if (window.clipboard) {
+        window.clipboard.destroy()
+        window.clipboard = null
+    }
+    initClipboard()
+
 </script>

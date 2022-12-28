@@ -24,6 +24,7 @@ func initRoute(pEngine *gin.Engine) {
 
 	// index
 	pEngine.Any("/", api.IndexPage)
+	pEngine.POST("/deploy/:itemId", api.Deploy)
 
 	// user
 	userRouterGroup := pEngine.Group("/user")

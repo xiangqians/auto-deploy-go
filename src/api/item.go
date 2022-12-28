@@ -61,8 +61,13 @@ func init() {
 }
 
 func ItemIndex(pContext *gin.Context) {
+	session := sessions.Default(pContext)
+	message := session.Get("message")
+	session.Delete("message")
+	session.Save()
 	pContext.HTML(http.StatusOK, "item/index.html", gin.H{
-		"items": Items(pContext),
+		"items":   Items(pContext),
+		"message": message,
 	})
 }
 
