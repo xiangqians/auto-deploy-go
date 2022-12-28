@@ -6,11 +6,16 @@ package api
 import (
 	"auto-deploy-go/src/com"
 	"auto-deploy-go/src/db"
+	"crypto/md5"
 	"encoding/gob"
+	"encoding/hex"
 	"errors"
+	"fmt"
 	"github.com/gin-contrib/i18n"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
+	"io"
+	"log"
 	"net/http"
 	"strings"
 	"time"
@@ -73,7 +78,7 @@ func UserAdd(pContext *gin.Context) {
 	}
 
 	db.Add("INSERT INTO `user` (`name`, `nickname`, `passwd`, `rem`, `add_time`) VALUES (?, ?, ?, ?, ?)",
-		user.Name, strings.TrimSpace(user.Nickname), user.Passwd, strings.TrimSpace(user.Rem), time.Now().Unix())
+		user.Name, strings.TrimSpace(user.Nickname), PasswdEncrypt(user.Passwd), strings.TrimSpace(user.Rem), time.Now().Unix())
 
 	session.Set("username", user.Name)
 	session.Set("message", i18n.MustGetMessage("i18n.accountRegSuccess"))
@@ -107,7 +112,7 @@ func UserLogin(pContext *gin.Context) {
 
 	var user User
 	if err == nil {
-		err = db.Qry(&user, "SELECT u.id, u.`name`, u.nickname, u.rem, u.add_time, u.upd_time FROM `user` u WHERE u.del_flag = 0 AND u.`name` = ? AND u.passwd = ? LIMIT 1", name, passwd)
+		err = db.Qry(&user, "SELECT u.id, u.`name`, u.nickname, u.rem, u.add_time, u.upd_time FROM `user` u WHERE u.del_flag = 0 AND u.`name` = ? AND u.passwd = ? LIMIT 1", name, PasswdEncrypt(passwd))
 	}
 
 	if err == nil && user.Id == 0 {
@@ -193,7 +198,7 @@ func UserUpd(pContext *gin.Context) {
 	}
 
 	db.Add("UPDATE `user` SET `name` = ?, nickname = ?, `passwd` = ?, rem = ?, upd_time = ? WHERE id = ?",
-		user.Name, user.Nickname, user.Passwd, user.Rem, time.Now().Unix(), sessionUser.Id)
+		user.Name, user.Nickname, PasswdEncrypt(user.Passwd), user.Rem, time.Now().Unix(), sessionUser.Id)
 
 	// 更新session中User信息
 	sessionUser.Name = user.Name
@@ -238,4 +243,24 @@ func GetUser(pContext *gin.Context) User {
 	//return &user
 
 	return user
+}
+
+func PasswdEncrypt(passwd string) string {
+	d := md5.New()
+	salt := "test"
+	str := ""
+	for i := 0; i < len(passwd); i++ {
+		str += fmt.Sprintf("%c", passwd[i])
+		if i%2 == 0 {
+			str += salt
+		}
+	}
+
+	_, err := io.WriteString(d, str)
+	if err != nil {
+		log.Println(err)
+		return passwd
+	}
+
+	return hex.EncodeToString(d.Sum(nil))
 }
