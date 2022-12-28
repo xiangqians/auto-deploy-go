@@ -13,6 +13,7 @@ import (
 	"html/template"
 	"os"
 	"path/filepath"
+	"strconv"
 	"time"
 )
 
@@ -28,6 +29,18 @@ func intHtmlTemplate(pEngine *gin.Engine) {
 			if unix == 0 {
 				return "-"
 			}
+			t := time.Unix(unix, 0)
+			return t.Format("2006/01/02 15:04:05")
+		},
+		"UnixToTime2": func(unix int64) string {
+			if unix == 0 {
+				return ""
+			}
+
+			if unix < 0 {
+				return strconv.FormatInt(unix, 10)
+			}
+
 			t := time.Unix(unix, 0)
 			return t.Format("2006/01/02 15:04:05")
 		},
