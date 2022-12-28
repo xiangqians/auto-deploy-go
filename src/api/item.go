@@ -18,6 +18,23 @@ import (
 	"time"
 )
 
+// Stage 自动化部署阶段
+type Stage int8
+
+const (
+	StagePull   Stage = iota + 1 // 拉取资源
+	StageBuild                   // 构建
+	StagePack                    // 打包
+	StageUl                      // upload上传
+	StageDeploy                  // 部署
+)
+
+const (
+	TagBuild  string = "[build]"
+	TagTarget        = "[target]"
+	TagDeploy        = "[deploy]"
+)
+
 // Item 项目
 type Item struct {
 	Abs
@@ -42,17 +59,6 @@ func init() {
 	// 注册 Item 模型
 	gob.Register(Item{})
 }
-
-// Stage 自动化部署阶段
-type Stage int8
-
-const (
-	StagePull   Stage = iota + 1 // 拉取资源
-	StageBuild                   // 构建
-	StagePack                    // 打包
-	StageUl                      // upload上传
-	StageDeploy                  // 部署
-)
 
 func ItemIndex(pContext *gin.Context) {
 	pContext.HTML(http.StatusOK, "item/index.html", gin.H{
@@ -160,13 +166,13 @@ func ParseIniText(iniTxt string) Ini {
 
 	set := func(txt, ty string) {
 		switch ty {
-		case "[build]":
+		case TagBuild:
 			ini.Build = txt
 
-		case "[target]":
+		case TagTarget:
 			ini.Target = txt
 
-		case "[deploy]":
+		case TagDeploy:
 			ini.Deploy = txt
 
 		default:
@@ -191,19 +197,19 @@ func ParseIniText(iniTxt string) Ini {
 		}
 
 		switch line {
-		case "[build]":
+		case TagBuild:
 			set(txt, ty)
 			txt = ""
 			ty = line
 			continue
 
-		case "[target]":
+		case TagTarget:
 			set(txt, ty)
 			txt = ""
 			ty = line
 			continue
 
-		case "[deploy]":
+		case TagDeploy:
 			set(txt, ty)
 			txt = ""
 			ty = line
