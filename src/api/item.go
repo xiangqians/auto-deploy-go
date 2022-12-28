@@ -5,12 +5,16 @@ package api
 
 import (
 	"auto-deploy-go/src/db"
+	"bufio"
+	"bytes"
 	"encoding/gob"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
+	"io"
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -26,6 +30,12 @@ type Item struct {
 	ServerId   int64  `form:"serverId" binding:"required,gt=0"`                    // 项目所属Server id
 	ServerName string `form:"serverName"`                                          // 项目所属Server Name
 	Ini        string `form:"ini" binding:"required,min=1,max=1000"`               // 脚本
+}
+
+type Ini struct {
+	Build  string // [build]
+	Target string // [target]
+	Deploy string // [deploy]
 }
 
 func init() {
@@ -142,4 +152,68 @@ func Items(pContext *gin.Context) []Item {
 	}
 
 	return items
+}
+
+func ParseIniText(iniTxt string) Ini {
+	ini := Ini{}
+	pReader := bufio.NewReader(bytes.NewBufferString(iniTxt))
+
+	set := func(txt, ty string) {
+		switch ty {
+		case "[build]":
+			ini.Build = txt
+
+		case "[target]":
+			ini.Target = txt
+
+		case "[deploy]":
+			ini.Deploy = txt
+
+		default:
+		}
+	}
+
+	ty := ""
+	txt := ""
+	for {
+		line, err := pReader.ReadString('\n')
+		line = strings.TrimSpace(line)
+		if err != nil {
+			if err == io.EOF {
+				break
+			}
+			log.Println(err)
+			continue
+		}
+
+		if line == "" {
+			continue
+		}
+
+		switch line {
+		case "[build]":
+			set(txt, ty)
+			txt = ""
+			ty = line
+			continue
+
+		case "[target]":
+			set(txt, ty)
+			txt = ""
+			ty = line
+			continue
+
+		case "[deploy]":
+			set(txt, ty)
+			txt = ""
+			ty = line
+			continue
+
+		default:
+			txt += line + "\n"
+		}
+	}
+	set(txt, ty)
+
+	return ini
 }
