@@ -179,19 +179,9 @@ func ParseIniText(iniTxt string) Ini {
 
 	ty := ""
 	var slice []string
-	for {
-		line, err := pReader.ReadString('\n')
-		line = strings.TrimSpace(line)
-		if err != nil {
-			if err == io.EOF {
-				break
-			}
-			log.Println(err)
-			continue
-		}
-
+	handleLine := func(line string) {
 		if line == "" {
-			continue
+			return
 		}
 
 		switch line {
@@ -199,23 +189,34 @@ func ParseIniText(iniTxt string) Ini {
 			set(slice, ty)
 			slice = nil
 			ty = line
-			continue
 
 		case TagTarget:
 			set(slice, ty)
 			slice = nil
 			ty = line
-			continue
 
 		case TagDeploy:
 			set(slice, ty)
 			slice = nil
 			ty = line
-			continue
 
 		default:
 			slice = append(slice, line)
 		}
+	}
+	for {
+		line, err := pReader.ReadString('\n')
+		line = strings.TrimSpace(line)
+		if err != nil {
+			if err == io.EOF {
+				handleLine(line)
+				break
+			}
+			log.Println(err)
+			continue
+		}
+
+		handleLine(line)
 	}
 	set(slice, ty)
 

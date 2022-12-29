@@ -6,6 +6,7 @@ package api
 import (
 	"auto-deploy-go/src/com"
 	"auto-deploy-go/src/db"
+	"bufio"
 	"errors"
 	"fmt"
 	"github.com/gin-contrib/sessions"
@@ -177,10 +178,10 @@ func Deploy(pContext *gin.Context) {
 		}
 
 		// pack
-		packDir := fmt.Sprintf("%v/pack", basePath)
-		delIfExist(packDir)
-		packFile := fmt.Sprintf("%s/target.zip", packDir)
-		err = pack(ini, recordId, resPath, packFile)
+		packPath := fmt.Sprintf("%v/pack", basePath)
+		delIfExist(packPath)
+		packName := fmt.Sprintf("%s/target.zip", packPath)
+		err = pack(ini, recordId, resPath, packName)
 		if err != nil {
 			updRecord(err)
 			return
@@ -215,7 +216,21 @@ func pack(ini Ini, recordId int64, resPath, packFile string) error {
 		}
 	}
 
-	err := com.Zip("", packFile, files...)
+	// deploy.sh
+	deployName := fmt.Sprintf("%s/deploy.sh", resPath)
+	pDeployFile, err := os.Create(deployName)
+	if err != nil {
+		updETime(StagePack, recordId, err)
+		return err
+	}
+	defer pDeployFile.Close()
+	pWriter := bufio.NewWriter(pDeployFile)
+	pWriter.WriteString(ini.Deploy)
+	pWriter.Flush()
+	files = append(files, deployName)
+
+	// zip
+	err = com.Zip("", packFile, files...)
 	if err != nil {
 		updETime(StagePack, recordId, err)
 		return err

@@ -12,23 +12,20 @@ import (
 func TestIni(t *testing.T) {
 	iniText := `
 [build]
-1
-11
-12
-13
+mvn clean
+mvn package
 
 [target]
-2
-23
-24
-25
+./target/jenkins-test-1.0-SNAPSHOT.jar
+target/jenkins-test-1.0-SNAPSHOT.jar.original
+./target/classes
+target/maven-archiver
 
 [deploy]
 3
 
 4
-
-`
+mv ./test test`
 	ini := api.ParseIniText(iniText)
 	log.Printf("Build:\n%v\n", ini.Build)
 	log.Printf("Target:\n%v\n", ini.Target)
