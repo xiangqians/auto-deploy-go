@@ -44,6 +44,7 @@ const (
 )
 
 const PackName string = "target.zip"
+const DeployName string = "deploy.sh"
 
 // 互斥锁
 var lock sync.Mutex
@@ -195,17 +196,12 @@ func Deploy(pContext *gin.Context) {
 		// 上传路径
 		ulPath := fmt.Sprintf("auto-deploy/item%v", item.Id)
 
-		// ul
-		err = ul(item, recordId, packName, ulPath)
+		// ul and deploy
+		err = ulAndDeploy(item, recordId, packName, ulPath)
 		if err != nil {
 			updRecord(err)
 			return
 		}
-
-		//		ulName := fmt.Sprintf("%s/%s", ulPath, PackName)
-
-		// deploy
-		// StageDeploy
 
 		// deploy success
 		updRecord(nil)
@@ -214,7 +210,7 @@ func Deploy(pContext *gin.Context) {
 	redirect("")
 }
 
-func ul(item Item, recordId int64, packName, ulPath string) error {
+func ulAndDeploy(item Item, recordId int64, packName, ulPath string) error {
 	updSTime(StageUl, recordId)
 
 	server := Server{}
@@ -245,16 +241,19 @@ func ul(item Item, recordId int64, packName, ulPath string) error {
 	}
 	defer pSshClient.Close()
 
-	// 开启一个 session，用于执行一个命令
-	session, err := pSshClient.NewSession()
-	if err != nil {
-		updETime(StageUl, recordId, err)
-		return err
+	exec := func(cmd string) error {
+		// 开启一个 session，用于执行一个命令
+		session, eerr := pSshClient.NewSession()
+		if eerr != nil {
+			return eerr
+		}
+		defer session.Close()
+		_, eerr = session.CombinedOutput(cmd)
+		return eerr
 	}
-	defer session.Close()
 
 	// 创建上传路径
-	_, err = session.CombinedOutput(fmt.Sprintf("mkdir -p %s", ulPath))
+	err = exec(fmt.Sprintf("mkdir -p %s", ulPath))
 	if err != nil {
 		updETime(StageUl, recordId, err)
 		return err
@@ -275,21 +274,40 @@ func ul(item Item, recordId int64, packName, ulPath string) error {
 		return err
 	}
 	defer pSrcFile.Close()
-	pDstFile, err := pSftpClient.Create(fmt.Sprintf("%s/%s", ulPath, PackName))
+	ulName := fmt.Sprintf("%s/%s", ulPath, PackName)
+	pDstFile, err := pSftpClient.Create(ulName)
 	if err != nil {
 		updETime(StageUl, recordId, err)
 		return err
 	}
 	defer pDstFile.Close()
-	//buf := make([]byte, 100*1024*1024) // 100 MB
-	//_, err = io.CopyBuffer(pDstFile, pSrcFile, buf)
-	_, err = io.CopyN(pDstFile, pSrcFile, 100*1024*1024) // 100 MB
+	buf := make([]byte, 100*1024*1024) // 100 MB
+	_, err = io.CopyBuffer(pDstFile, pSrcFile, buf)
+	//_, err = io.CopyN(pDstFile, pSrcFile, 100*1024*1024) // 100 MB -> EOF ?
+	if err != nil {
+		updETime(StageUl, recordId, err)
+		return err
+	}
+
+	// 解压
+	err = exec(fmt.Sprintf("unzip -o %s -d %s", ulName, ulPath))
 	if err != nil {
 		updETime(StageUl, recordId, err)
 		return err
 	}
 
 	updETime(StageUl, recordId, nil)
+
+	// #################### Deploy  ####################
+
+	updSTime(StageDeploy, recordId)
+	deployName := fmt.Sprintf("%s/%s", ulPath, DeployName)
+	err = exec(fmt.Sprintf("chmod +x %s && %s", deployName, deployName))
+	if err != nil {
+		updETime(StageDeploy, recordId, err)
+		return err
+	}
+	updETime(StageDeploy, recordId, nil)
 	return nil
 }
 
@@ -309,8 +327,7 @@ func pack(ini Ini, recordId int64, resPath, packName string) error {
 		}
 	}
 
-	// deploy.sh
-	deployName := fmt.Sprintf("%s/deploy.sh", resPath)
+	deployName := fmt.Sprintf("%s/%s", resPath, DeployName)
 	pDeployFile, err := os.Create(deployName)
 	if err != nil {
 		updETime(StagePack, recordId, err)
