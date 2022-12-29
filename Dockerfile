@@ -16,10 +16,11 @@ COPY i18n /opt/auto-deploy/i18n
 COPY static /opt/auto-deploy/static
 COPY templates /opt/auto-deploy/templates
 COPY data /opt/auto-deploy/data
-COPY o_linux_amd64 /opt/auto-deploy/
+#COPY o_linux_amd64 /opt/auto-deploy/
+COPY o_linux_amd64 /opt/auto-deploy/o
 
 # 可执行文件
-RUN chmod +x /opt/auto-deploy/o_linux_amd64
+RUN chmod +x /opt/auto-deploy/o
 
 # 暴露端口
 #EXPOSE 8080
@@ -28,4 +29,4 @@ RUN chmod +x /opt/auto-deploy/o_linux_amd64
 WORKDIR /opt/auto-deploy
 
 # 容器入口
-ENTRYPOINT ["./o_linux_amd64"]
+ENTRYPOINT ["./o"]
