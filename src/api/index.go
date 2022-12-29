@@ -6,6 +6,7 @@ package api
 import (
 	"auto-deploy-go/src/com"
 	"auto-deploy-go/src/db"
+	"errors"
 	"fmt"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
@@ -144,14 +145,22 @@ func Deploy(pContext *gin.Context) {
 			db.Upd("UPDATE record SET `status` = ?, rem = ?, `upd_time` = ? where id = ?", status, rem, time.Now().Unix(), recordId)
 		}
 
-		// localRepoPath
-		localRepoPath := fmt.Sprintf("%v/tmp/item%v", com.DataDir, item.Id)
-		if com.IsExist(localRepoPath) {
-			com.DelDir(localRepoPath)
+		delIfExist := func(path string) {
+			if com.IsExist(path) {
+				com.DelDir(path)
+			}
+			com.Mkdir(path)
 		}
 
-		// git clone
-		err = gitClone(item, recordId, localRepoPath)
+		// base path
+		basePath := fmt.Sprintf("%v/tmp/item%v", com.DataDir, item.Id)
+
+		// localRepoPath
+		resPath := fmt.Sprintf("%v/res", basePath)
+		delIfExist(resPath)
+
+		// pull
+		err = pull(item, recordId, resPath)
 		if err != nil {
 			updRecord(err)
 			return
@@ -161,11 +170,27 @@ func Deploy(pContext *gin.Context) {
 		ini := ParseIniText(item.Ini)
 
 		// build
-		err = build(ini, recordId, localRepoPath)
+		err = build(ini, recordId, resPath)
 		if err != nil {
 			updRecord(err)
 			return
 		}
+
+		// pack
+		packDir := fmt.Sprintf("%v/pack", basePath)
+		delIfExist(packDir)
+		packFile := fmt.Sprintf("%s/target.zip", packDir)
+		err = pack(ini, recordId, resPath, packFile)
+		if err != nil {
+			updRecord(err)
+			return
+		}
+
+		// ul
+		// StageUl
+
+		// deploy
+		// StageDeploy
 
 		// deploy success
 		updRecord(nil)
@@ -174,13 +199,39 @@ func Deploy(pContext *gin.Context) {
 	redirect("")
 }
 
-func build(ini Ini, recordId int64, localRepoPath string) error {
+func pack(ini Ini, recordId int64, resPath, packFile string) error {
+	updSTime(StagePack, recordId)
+	target := ini.Target
+	var files []string
+	if target != nil && len(target) > 0 {
+		for _, v := range target {
+			path := fmt.Sprintf("%s/%s", resPath, v)
+			if !com.IsExist(path) {
+				err := errors.New(fmt.Sprintf("%s file does not exist", v))
+				updETime(StagePack, recordId, err)
+				return err
+			}
+			files = append(files, path)
+		}
+	}
+
+	err := com.Zip("", packFile, files...)
+	if err != nil {
+		updETime(StagePack, recordId, err)
+		return err
+	}
+
+	updETime(StagePack, recordId, nil)
+	return nil
+}
+
+func build(ini Ini, recordId int64, resPath string) error {
 	updSTime(StageBuild, recordId)
 
 	_build := ini.Build
 	if _build != nil && len(_build) > 0 {
 		for _, cmd := range _build {
-			cd, err := com.Cd(localRepoPath)
+			cd, err := com.Cd(resPath)
 			if err != nil {
 				updETime(StageBuild, recordId, err)
 				return err
@@ -205,7 +256,7 @@ func build(ini Ini, recordId int64, localRepoPath string) error {
 	return nil
 }
 
-func gitClone(item Item, recordId int64, localRepoPath string) error {
+func pull(item Item, recordId int64, resPath string) error {
 	updSTime(StagePull, recordId)
 
 	_git := Git{}
@@ -225,7 +276,7 @@ func gitClone(item Item, recordId int64, localRepoPath string) error {
 
 	// Clones the repository into the given dir, just as a normal git clone does
 	isBare := false
-	pRepository, err := git.PlainClone(localRepoPath, isBare, &git.CloneOptions{
+	pRepository, err := git.PlainClone(resPath, isBare, &git.CloneOptions{
 		URL:           item.RepoUrl,
 		ReferenceName: plumbing.ReferenceName(fmt.Sprintf("refs/heads/%s", item.Branch)), // branchName, tagName, commitId
 		Progress:      os.Stdout,

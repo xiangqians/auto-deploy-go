@@ -11,6 +11,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/render"
 	"html/template"
+	"math"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -43,6 +44,18 @@ func intHtmlTemplate(pEngine *gin.Engine) {
 
 			t := time.Unix(unix, 0)
 			return t.Format("2006/01/02 15:04:05")
+		},
+		"UnixDiff": func(unix1, unix2 int64) string {
+			if unix1 == -1 || unix2 == -1 {
+				return "-1s"
+			}
+
+			if unix1 == 0 || unix2 == 0 {
+				return "-"
+			}
+
+			r := math.Abs(float64(unix1 - unix2)) // s
+			return strconv.FormatFloat(r, 'f', 2, 64) + "s"
 		},
 
 		// +1

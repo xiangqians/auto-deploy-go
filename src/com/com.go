@@ -4,10 +4,12 @@
 package com
 
 import (
+	"archive/zip"
 	"errors"
 	"fmt"
 	"github.com/gin-contrib/i18n"
 	"github.com/google/uuid"
+	"io"
 	"os"
 	"os/exec"
 	"regexp"
@@ -116,6 +118,11 @@ func DelDir(path string) error {
 	return os.RemoveAll(path)
 }
 
+// Mkdir 创建目录
+func Mkdir(path string) error {
+	return os.MkdirAll(path, os.ModePerm)
+}
+
 // Command
 func Command(cmd string) (*exec.Cmd, error) {
 	switch runtime.GOOS {
@@ -141,4 +148,87 @@ func Cd(path string) (string, error) {
 	default:
 		return "", errors.New(fmt.Sprintf("The current system is not supported, %v", runtime.GOOS))
 	}
+}
+
+// Zip 创建zip归档文件
+// prefix: zip归档前缀
+// dstName: 创建zip归档文件名
+// srcNames: 待归档的文件集
+func Zip(prefix string, dstName string, srcNames ...string) error {
+	pDstFile, err := os.Create(dstName)
+	if err != nil {
+		return err
+	}
+	defer pDstFile.Close()
+
+	// 创建一个压缩文档
+	pZipWriter := zip.NewWriter(pDstFile)
+	// 关闭压缩文档
+	defer pZipWriter.Close()
+
+	for _, srcName := range srcNames {
+		pSrcFile, err := os.Open(srcName)
+		if err != nil {
+			continue
+		}
+
+		err = zip0(pZipWriter, prefix, pSrcFile)
+		pSrcFile.Close()
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func zip0(pZipWriter *zip.Writer, prefix string, pFile *os.File) error {
+	fileInfo, err := pFile.Stat()
+	if err != nil {
+		return err
+	}
+
+	if fileInfo.IsDir() {
+		if prefix == "" {
+			prefix = fileInfo.Name()
+		} else {
+			prefix += "/" + fileInfo.Name()
+		}
+
+		subFileInfos, err := pFile.Readdir(-1)
+		if err != nil {
+			return err
+		}
+
+		for _, subFileInfo := range subFileInfos {
+			pSubFile, err := os.Open(pFile.Name() + "/" + subFileInfo.Name())
+			if err != nil {
+				return err
+			}
+
+			err = zip0(pZipWriter, prefix, pSubFile)
+			pSubFile.Close()
+			if err != nil {
+				return err
+			}
+		}
+
+		return nil
+	}
+
+	pFileHeader, err := zip.FileInfoHeader(fileInfo)
+	if err != nil {
+		return err
+	}
+
+	if prefix != "" {
+		pFileHeader.Name = prefix + "/" + pFileHeader.Name
+	}
+	pWriter, err := pZipWriter.CreateHeader(pFileHeader)
+	if err != nil {
+		return err
+	}
+
+	_, err = io.Copy(pWriter, pFile)
+	return err
 }

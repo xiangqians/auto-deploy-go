@@ -53,11 +53,11 @@ $. 引用模板中的根级上下文
     <tr>
         <td>{{ Add1 $index }}</td>
         <td title="{{ $value.ItemRem }}"><a href="javascript:void(0);">{{ $value.ItemName }}</a></td>
-        <td title="pull {{ UnixToTime2 $value.PullStime }} - {{ UnixToTime2 $value.PullEtime }}: {{ $value.PullRem }}
-        build {{ UnixToTime2 $value.BuildStime }} - {{ UnixToTime2 $value.BuildEtime }}: {{ $value.BuildRem }}
-        pack {{ UnixToTime2 $value.PackStime }} - {{ UnixToTime2 $value.PackEtime }}: {{ $value.PackRem }}
-        ul {{ UnixToTime2 $value.UlStime }} - {{ UnixToTime2 $value.UlEtime }}: {{ $value.UlRem }}
-        deploy {{ UnixToTime2 $value.DeployStime }} - {{ UnixToTime2 $value.DeployEtime }}: {{ $value.DeployRem }}">
+        <td title="pull ({{ UnixDiff $value.PullStime $value.PullEtime }}): {{ $value.PullRem }}
+        build ({{ UnixDiff $value.BuildStime $value.BuildEtime }}): {{ $value.BuildRem }}
+        pack ({{ UnixDiff $value.PackStime $value.PackEtime }}): {{ $value.PackRem }}
+        ul ({{ UnixDiff $value.UlStime $value.UlEtime }}): {{ $value.UlRem }}
+        deploy ({{ UnixDiff $value.DeployStime $value.DeployEtime }}): {{ $value.DeployRem }}">
             -
         </td>
         <td title="{{ $value.RevMsg }}">{{ UnixToTime $value.AddTime }}</td>
