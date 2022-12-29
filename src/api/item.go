@@ -180,7 +180,7 @@ func ParseIniText(iniTxt string) Ini {
 	ty := ""
 	var slice []string
 	handleLine := func(line string) {
-		if line == "" {
+		if line == "" || strings.HasPrefix(line, "#") {
 			return
 		}
 

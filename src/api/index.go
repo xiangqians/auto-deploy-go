@@ -15,6 +15,9 @@ import (
 	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/go-git/go-git/v5/plumbing/transport"
 	"github.com/go-git/go-git/v5/plumbing/transport/http"
+	"github.com/pkg/sftp"
+	"golang.org/x/crypto/ssh"
+	"io"
 	"log"
 	netHttp "net/http"
 	"os"
@@ -39,6 +42,8 @@ const (
 	StatusDeployExc                     // 部署异常
 	StatusDeploySuccess                 // 部署成功
 )
+
+const PackName string = "target.zip"
 
 // 互斥锁
 var lock sync.Mutex
@@ -180,15 +185,24 @@ func Deploy(pContext *gin.Context) {
 		// pack
 		packPath := fmt.Sprintf("%v/pack", basePath)
 		delIfExist(packPath)
-		packName := fmt.Sprintf("%s/target.zip", packPath)
+		packName := fmt.Sprintf("%s/%s", packPath, PackName)
 		err = pack(ini, recordId, resPath, packName)
 		if err != nil {
 			updRecord(err)
 			return
 		}
 
+		// 上传路径
+		ulPath := fmt.Sprintf("auto-deploy/item%v", item.Id)
+
 		// ul
-		// StageUl
+		err = ul(item, recordId, packName, ulPath)
+		if err != nil {
+			updRecord(err)
+			return
+		}
+
+		//		ulName := fmt.Sprintf("%s/%s", ulPath, PackName)
 
 		// deploy
 		// StageDeploy
@@ -200,10 +214,89 @@ func Deploy(pContext *gin.Context) {
 	redirect("")
 }
 
-func pack(ini Ini, recordId int64, resPath, packFile string) error {
+func ul(item Item, recordId int64, packName, ulPath string) error {
+	updSTime(StageUl, recordId)
+
+	server := Server{}
+	err := db.Qry(&server, "SELECT s.id, s.`host`, s.`port`, s.`user`, s.passwd FROM server s WHERE s.del_flag = 0 AND s.id = ?", item.ServerId)
+	if err != nil {
+		updETime(StageUl, recordId, err)
+		return err
+	}
+
+	if server.Id == 0 {
+		err = errors.New("server does not exist")
+		updETime(StageUl, recordId, err)
+		return err
+	}
+
+	// 建立 ssh client
+	config := &ssh.ClientConfig{
+		User:            server.User,
+		Auth:            []ssh.AuthMethod{ssh.Password(server.Passwd)},
+		Timeout:         5 * time.Minute,
+		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
+	}
+	addr := fmt.Sprintf("%s:%d", server.Host, server.Port)
+	pSshClient, err := ssh.Dial("tcp", addr, config)
+	if err != nil {
+		updETime(StageUl, recordId, err)
+		return err
+	}
+	defer pSshClient.Close()
+
+	// 开启一个 session，用于执行一个命令
+	session, err := pSshClient.NewSession()
+	if err != nil {
+		updETime(StageUl, recordId, err)
+		return err
+	}
+	defer session.Close()
+
+	// 创建上传路径
+	_, err = session.CombinedOutput(fmt.Sprintf("mkdir -p %s", ulPath))
+	if err != nil {
+		updETime(StageUl, recordId, err)
+		return err
+	}
+
+	// 基于ssh client, 创建 sftp 客户端
+	pSftpClient, err := sftp.NewClient(pSshClient)
+	if err != nil {
+		updETime(StageUl, recordId, err)
+		return err
+	}
+	defer pSftpClient.Close()
+
+	// 上传文件
+	pSrcFile, err := os.Open(packName)
+	if err != nil {
+		updETime(StageUl, recordId, err)
+		return err
+	}
+	defer pSrcFile.Close()
+	pDstFile, err := pSftpClient.Create(fmt.Sprintf("%s/%s", ulPath, PackName))
+	if err != nil {
+		updETime(StageUl, recordId, err)
+		return err
+	}
+	defer pDstFile.Close()
+	//buf := make([]byte, 100*1024*1024) // 100 MB
+	//_, err = io.CopyBuffer(pDstFile, pSrcFile, buf)
+	_, err = io.CopyN(pDstFile, pSrcFile, 100*1024*1024) // 100 MB
+	if err != nil {
+		updETime(StageUl, recordId, err)
+		return err
+	}
+
+	updETime(StageUl, recordId, nil)
+	return nil
+}
+
+func pack(ini Ini, recordId int64, resPath, packName string) error {
 	updSTime(StagePack, recordId)
 	target := ini.Target
-	var files []string
+	var names []string
 	if target != nil && len(target) > 0 {
 		for _, v := range target {
 			path := fmt.Sprintf("%s/%s", resPath, v)
@@ -212,7 +305,7 @@ func pack(ini Ini, recordId int64, resPath, packFile string) error {
 				updETime(StagePack, recordId, err)
 				return err
 			}
-			files = append(files, path)
+			names = append(names, path)
 		}
 	}
 
@@ -227,10 +320,10 @@ func pack(ini Ini, recordId int64, resPath, packFile string) error {
 	pWriter := bufio.NewWriter(pDeployFile)
 	pWriter.WriteString(ini.Deploy)
 	pWriter.Flush()
-	files = append(files, deployName)
+	names = append(names, deployName)
 
 	// zip
-	err = com.Zip("", packFile, files...)
+	err = com.Zip("", packName, names...)
 	if err != nil {
 		updETime(StagePack, recordId, err)
 		return err

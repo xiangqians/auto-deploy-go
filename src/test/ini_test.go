@@ -13,16 +13,16 @@ func TestIni(t *testing.T) {
 	iniText := `
 [build]
 mvn clean
-mvn package
+#mvn package
 
 [target]
-./target/jenkins-test-1.0-SNAPSHOT.jar
+#./target/jenkins-test-1.0-SNAPSHOT.jar
 target/jenkins-test-1.0-SNAPSHOT.jar.original
-./target/classes
-target/maven-archiver
+#./target/classes
+#target/maven-archiver
 
 [deploy]
-3
+#3
 
 4
 mv ./test test`
