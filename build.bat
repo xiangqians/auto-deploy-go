@@ -8,6 +8,8 @@ xcopy static "%outputDir%\static" /s /e /h /i /y
 xcopy templates "%outputDir%\templates" /s /e /h /i /y
 xcopy data "%outputDir%\data" /s /e /h /i /y
 xcopy Dockerfile "%outputDir%" /y
+xcopy docker_build.sh "%outputDir%" /y
+xcopy docker_run.sh "%outputDir%" /y
 
 :: go
 ::set outputPkg="%outputDir%/o"
