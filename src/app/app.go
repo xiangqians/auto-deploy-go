@@ -37,6 +37,7 @@ func Run() {
 	initRoute(pEngine)
 
 	// port
+	// $ auto-deploy -port 8080
 	var port int
 	flag.IntVar(&port, "port", 8080, "port")
 	flag.Parse()

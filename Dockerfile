@@ -30,3 +30,4 @@ WORKDIR /opt/auto-deploy
 
 # 容器入口
 ENTRYPOINT ["./o"]
+#ENTRYPOINT ["./o -port 8080"]
