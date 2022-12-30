@@ -32,6 +32,7 @@ echo pause >> %startupName%
 :: startup.sh
 set startupName=%outputDir%/startup.sh
 echo # startup.sh > %startupName%
+echo # \$ chmod +x o_linux_amd64 startup.sh >> %startupName%
 echo ./o_linux_amd64 >> %startupName%
 
 pause
