@@ -10,3 +10,14 @@ func main() {
 	app.Run()
 
 }
+
+// Binary was compiled with 'CGO_ENABLED=0', go-sqlite3 requires cgo to work. This is a stub
+// https://github.com/mattn/go-sqlite3/issues/855
+// https://github.com/mattn/go-sqlite3/issues/975
+// require (
+//		github.com/mattn/go-sqlite3 v2.0.3+incompatible
+// )
+// 解决：拉取其他版本
+// https://github.com/mattn/go-sqlite3
+// Latest stable version is v1.14 or later, not v2.
+// go get github.com/mattn/go-sqlite3@v1.14.16

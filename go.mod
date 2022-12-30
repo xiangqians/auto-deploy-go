@@ -5,7 +5,7 @@ go 1.19
 require (
 	github.com/gin-contrib/i18n v0.0.1
 	github.com/gin-contrib/multitemplate v0.0.0-20220829131020-8c2a8441bc2b
-	github.com/gin-contrib/sessions v0.0.5
+	github.com/gin-contrib/sessions v0.0.4
 	github.com/gin-contrib/static v0.0.1
 	github.com/gin-gonic/gin v1.8.1
 	github.com/go-git/go-git/v5 v5.5.1
@@ -14,7 +14,7 @@ require (
 	github.com/go-playground/validator/v10 v10.11.1
 	github.com/google/uuid v1.3.0
 	github.com/gorilla/websocket v1.5.0
-	github.com/mattn/go-sqlite3 v2.0.3+incompatible
+	github.com/mattn/go-sqlite3 v1.14.16
 	github.com/pkg/sftp v1.13.5
 	golang.org/x/crypto v0.3.0
 	golang.org/x/text v0.4.0
