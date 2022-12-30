@@ -25,5 +25,5 @@ func Parse() {
 	log.Printf("Db: %v\n", Db)
 	log.Printf("TmpDir: %v\n", TmpDir)
 
-	// -port 8089 -db "C:\Users\xiangqian\Desktop\tmp\auto-deploy\data\database.db"
+	// -db "C:\Users\xiangqian\Desktop\tmp\auto-deploy\data\database.db" -tmpdir "C:\Users\xiangqian\Desktop\tmp\auto-deploy\tmp"
 }
