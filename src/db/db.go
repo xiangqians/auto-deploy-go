@@ -5,16 +5,15 @@
 package db
 
 import (
+	"auto-deploy-go/src/arg"
 	"auto-deploy-go/src/com"
 	"database/sql"
 	_ "github.com/mattn/go-sqlite3"
 	"reflect"
 )
 
-const dataSourceName = com.DataDir + "/database.db"
-
 func db() (*sql.DB, error) {
-	return sql.Open("sqlite3", dataSourceName)
+	return sql.Open("sqlite3", arg.Db)
 }
 
 func Qry(i any, sql string, args ...any) error {

@@ -4,6 +4,7 @@
 package api
 
 import (
+	"auto-deploy-go/src/arg"
 	"auto-deploy-go/src/com"
 	"auto-deploy-go/src/db"
 	"bufio"
@@ -160,7 +161,7 @@ func Deploy(pContext *gin.Context) {
 		}
 
 		// base path
-		basePath := fmt.Sprintf("%v/tmp/item%v", com.DataDir, item.Id)
+		basePath := fmt.Sprintf("%v/item%v", arg.TmpDir, item.Id)
 
 		// localRepoPath
 		resPath := fmt.Sprintf("%v/res", basePath)

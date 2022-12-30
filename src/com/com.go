@@ -22,10 +22,6 @@ const (
 	LocaleEn = "en"
 )
 
-// DataDir
-// const DataDir = "./data"
-const DataDir = "C:\\Users\\xiangqian\\Desktop\\tmp\\auto-deploy\\data"
-
 func VerifyText(t string, maxLen int) error {
 	if t == "" {
 		return errors.New(i18n.MustGetMessage("i18n.anyCannotEmpty"))

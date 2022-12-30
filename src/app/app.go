@@ -6,8 +6,8 @@ package app
 
 import (
 	"auto-deploy-go/src/api"
+	"auto-deploy-go/src/arg"
 	"auto-deploy-go/src/logger"
-	"flag"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"strconv"
@@ -36,14 +36,11 @@ func Run() {
 	userPermMiddleware(pEngine)
 	initRoute(pEngine)
 
-	// port
-	// $ auto-deploy -port 8080
-	var port int
-	flag.IntVar(&port, "port", 8080, "port")
-	flag.Parse()
+	// arg parse
+	arg.Parse()
 
 	// addr
-	addr := fmt.Sprintf(":%v", strconv.FormatInt(int64(port), 10))
+	addr := fmt.Sprintf(":%v", strconv.FormatInt(int64(arg.Port), 10))
 
 	// run
 	pEngine.Run(addr)
