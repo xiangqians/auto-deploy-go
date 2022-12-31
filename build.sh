@@ -8,6 +8,7 @@ echo outputDir: ${outputDir}
 
 # 删除 build 目录
 rm -rf "${outputDir}"
+echo rd: ${outputDir}
 
 # 创建 build 目录
 mkdir -p "${outputDir}"
@@ -19,18 +20,23 @@ cp -r templates "${outputDir}/"
 cp -r data "${outputDir}/"
 cp -r script "${outputDir}/"
 
-# go
+# pkgName
 os=`go env GOOS`
 arch=`go env GOARCH`
 pkgName=o_${os}_${arch}
-outputPkg=${outputDir}/${pkgName}
-echo outputPkg: ${outputPkg}
-cd ./src && go build -ldflags="-s -w" -o "${outputPkg}"
+echo pkgName: ${pkgName}
+
+# go
+pkgPath=${outputDir}/${pkgName}
+cd ./src && go build -ldflags="-s -w" -o "${pkgPath}"
+echo pkgPath: ${pkgPath}
 
 # startup.sh
-cat>${outputDir}/startup.sh<<EOF
+startupPath=${outputDir}/startup.sh
+cat>${startupPath}<<EOF
 # startup.sh
 # \$ chmod +x ${pkgName} startup.sh
 ./${pkgName}
 EOF
-chmod +x "${outputDir}/startup.sh"
+echo startupPath: ${startupPath}
+chmod +x "${startupPath}"
