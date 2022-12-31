@@ -25,8 +25,8 @@ echo pkgName: %pkgName%
 
 :: go
 set pkgPath="%outputDir%/%pkgName%"
-::cd ./src && go build -ldflags="-s -w" -o %pkgPath%
-cd ./src && go build -ldflags="-s -w" -o %pkgPath% && upx -9 --brute %pkgPath%
+cd ./src && go build -ldflags="-s -w" -o %pkgPath%
+::cd ./src && go build -ldflags="-s -w" -o %pkgPath% && upx -9 --brute %pkgPath%
 echo pkgPath: %pkgPath%
 
 :: startup.bat
