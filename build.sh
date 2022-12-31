@@ -18,7 +18,7 @@ cp -r i18n "${outputDir}/"
 cp -r static "${outputDir}/"
 cp -r templates "${outputDir}/"
 cp -r data "${outputDir}/"
-cp -r script "${outputDir}/"
+cp -r env "${outputDir}/"
 
 # pkgName
 os=`go env GOOS`
