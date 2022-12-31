@@ -6,7 +6,7 @@ package api
 import (
 	"auto-deploy-go/src/arg"
 	"auto-deploy-go/src/db"
-	"auto-deploy-go/src/depl"
+	"auto-deploy-go/src/deploy"
 	"auto-deploy-go/src/typ"
 	"auto-deploy-go/src/util"
 	"fmt"
@@ -120,17 +120,17 @@ func asynDeploy(item typ.Item, recordId int64) {
 	delIfExist(resPath)
 
 	// 1. pull
-	err := depl.Pull(item, recordId, resPath)
+	err := deploy.Pull(item, recordId, resPath)
 	if err != nil {
 		updRecord(err)
 		return
 	}
 
 	// script
-	script := depl.ParseScriptTxt(item.Script)
+	script := deploy.ParseScriptTxt(item.Script)
 
 	// 2. build
-	err = depl.Build(script, recordId, resPath)
+	err = deploy.Build(script, recordId, resPath)
 	if err != nil {
 		updRecord(err)
 		return
@@ -140,7 +140,7 @@ func asynDeploy(item typ.Item, recordId int64) {
 	packPath := fmt.Sprintf("%v/pack", basePath)
 	delIfExist(packPath)
 	packName := fmt.Sprintf("%s/%s", packPath, typ.PackName)
-	err = depl.Pack(script, recordId, resPath, packName)
+	err = deploy.Pack(script, recordId, resPath, packName)
 	if err != nil {
 		updRecord(err)
 		return
@@ -150,7 +150,7 @@ func asynDeploy(item typ.Item, recordId int64) {
 	ulPath := fmt.Sprintf("auto-deploy/item%v", item.Id)
 
 	// 4&5. ul and deploy
-	err = depl.UlAndDeploy(item, recordId, packName, ulPath)
+	err = deploy.UlAndDeploy(item, recordId, packName, ulPath)
 	if err != nil {
 		updRecord(err)
 		return

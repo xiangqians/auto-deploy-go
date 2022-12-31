@@ -1,7 +1,7 @@
 // upload
 // @author xiangqian
 // @date 22:31 2022/12/31
-package depl
+package deploy
 
 import (
 	"auto-deploy-go/src/db"
@@ -16,18 +16,18 @@ import (
 )
 
 func UlAndDeploy(item typ.Item, recordId int64, packName, ulPath string) error {
-	updSTime(typ.StageUl, recordId)
+	updSTime(typ.StepUl, recordId)
 
 	server := typ.Server{}
 	err := db.Qry(&server, "SELECT s.id, s.`host`, s.`port`, s.`user`, s.passwd FROM server s WHERE s.del_flag = 0 AND s.id = ?", item.ServerId)
 	if err != nil {
-		updETime(typ.StageUl, recordId, err)
+		updETime(typ.StepUl, recordId, err)
 		return err
 	}
 
 	if server.Id == 0 {
 		err = errors.New("server does not exist")
-		updETime(typ.StageUl, recordId, err)
+		updETime(typ.StepUl, recordId, err)
 		return err
 	}
 
@@ -41,7 +41,7 @@ func UlAndDeploy(item typ.Item, recordId int64, packName, ulPath string) error {
 	addr := fmt.Sprintf("%s:%d", server.Host, server.Port)
 	pSshClient, err := ssh.Dial("tcp", addr, config)
 	if err != nil {
-		updETime(typ.StageUl, recordId, err)
+		updETime(typ.StepUl, recordId, err)
 		return err
 	}
 	defer pSshClient.Close()
@@ -60,14 +60,14 @@ func UlAndDeploy(item typ.Item, recordId int64, packName, ulPath string) error {
 	// 创建上传路径
 	err = exec(fmt.Sprintf("mkdir -p %s", ulPath))
 	if err != nil {
-		updETime(typ.StageUl, recordId, err)
+		updETime(typ.StepUl, recordId, err)
 		return err
 	}
 
 	// 基于ssh client, 创建 sftp 客户端
 	pSftpClient, err := sftp.NewClient(pSshClient)
 	if err != nil {
-		updETime(typ.StageUl, recordId, err)
+		updETime(typ.StepUl, recordId, err)
 		return err
 	}
 	defer pSftpClient.Close()
@@ -75,14 +75,14 @@ func UlAndDeploy(item typ.Item, recordId int64, packName, ulPath string) error {
 	// 上传文件
 	pSrcFile, err := os.Open(packName)
 	if err != nil {
-		updETime(typ.StageUl, recordId, err)
+		updETime(typ.StepUl, recordId, err)
 		return err
 	}
 	defer pSrcFile.Close()
 	ulName := fmt.Sprintf("%s/%s", ulPath, typ.PackName)
 	pDstFile, err := pSftpClient.Create(ulName)
 	if err != nil {
-		updETime(typ.StageUl, recordId, err)
+		updETime(typ.StepUl, recordId, err)
 		return err
 	}
 	defer pDstFile.Close()
@@ -90,28 +90,28 @@ func UlAndDeploy(item typ.Item, recordId int64, packName, ulPath string) error {
 	_, err = io.CopyBuffer(pDstFile, pSrcFile, buf)
 	//_, err = io.CopyN(pDstFile, pSrcFile, 100*1024*1024) // 100 MB -> EOF ?
 	if err != nil {
-		updETime(typ.StageUl, recordId, err)
+		updETime(typ.StepUl, recordId, err)
 		return err
 	}
 
 	// 解压
 	err = exec(fmt.Sprintf("unzip -o %s -d %s", ulName, ulPath))
 	if err != nil {
-		updETime(typ.StageUl, recordId, err)
+		updETime(typ.StepUl, recordId, err)
 		return err
 	}
 
-	updETime(typ.StageUl, recordId, nil)
+	updETime(typ.StepUl, recordId, nil)
 
 	// #################### Deploy  ####################
 
-	updSTime(typ.StageDeploy, recordId)
+	updSTime(typ.StepDeploy, recordId)
 	deployName := fmt.Sprintf("%s/%s", ulPath, typ.DeployName)
 	err = exec(fmt.Sprintf("chmod +x %s && %s", deployName, deployName))
 	if err != nil {
-		updETime(typ.StageDeploy, recordId, err)
+		updETime(typ.StepDeploy, recordId, err)
 		return err
 	}
-	updETime(typ.StageDeploy, recordId, nil)
+	updETime(typ.StepDeploy, recordId, nil)
 	return nil
 }

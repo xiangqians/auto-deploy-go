@@ -1,7 +1,7 @@
 // Script
 // @author xiangqian
 // @date 21:53 2022/12/31
-package depl
+package deploy
 
 import (
 	"auto-deploy-go/src/db"
@@ -84,27 +84,27 @@ func ParseScriptTxt(scriptTxt string) typ.Script {
 	return script
 }
 
-func updETime(stage typ.Stage, recordId int64, err error) {
+func updETime(Step typ.Step, recordId int64, err error) {
 	etimeName := ""
 	remName := ""
-	switch stage {
-	case typ.StagePull:
+	switch Step {
+	case typ.StepPull:
 		etimeName = "pull_etime"
 		remName = "pull_rem"
 
-	case typ.StageBuild:
+	case typ.StepBuild:
 		etimeName = "build_etime"
 		remName = "build_rem"
 
-	case typ.StagePack:
+	case typ.StepPack:
 		etimeName = "pack_etime"
 		remName = "pack_rem"
 
-	case typ.StageUl:
+	case typ.StepUl:
 		etimeName = "ul_etime"
 		remName = "ul_rem"
 
-	case typ.StageDeploy:
+	case typ.StepDeploy:
 		etimeName = "deploy_etime"
 		remName = "deploy_rem"
 	}
@@ -118,22 +118,22 @@ func updETime(stage typ.Stage, recordId int64, err error) {
 	db.Upd(fmt.Sprintf("UPDATE record SET %s = ?, %s = ? WHERE id = ?", etimeName, remName), etime, rem, recordId)
 }
 
-func updSTime(stage typ.Stage, recordId int64) {
+func updSTime(Step typ.Step, recordId int64) {
 	stimeName := ""
-	switch stage {
-	case typ.StagePull:
+	switch Step {
+	case typ.StepPull:
 		stimeName = "pull_stime"
 
-	case typ.StageBuild:
+	case typ.StepBuild:
 		stimeName = "build_stime"
 
-	case typ.StagePack:
+	case typ.StepPack:
 		stimeName = "pack_stime"
 
-	case typ.StageUl:
+	case typ.StepUl:
 		stimeName = "ul_stime"
 
-	case typ.StageDeploy:
+	case typ.StepDeploy:
 		stimeName = "deploy_stime"
 	}
 

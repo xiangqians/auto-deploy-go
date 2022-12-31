@@ -10,15 +10,15 @@ const (
 	TagDeploy        = "[deploy]"
 )
 
-// Stage 自动化部署阶段
-type Stage int8
+// Step 自动化部署步骤
+type Step int8
 
 const (
-	StagePull   Stage = iota + 1 // 拉取资源
-	StageBuild                   // 构建
-	StagePack                    // 打包
-	StageUl                      // upload上传
-	StageDeploy                  // 部署
+	StepPull   Step = iota + 1 // 拉取资源
+	StepBuild                  // 构建
+	StepPack                   // 打包
+	StepUl                     // upload上传
+	StepDeploy                 // 部署
 )
 
 const PackName string = "target.zip"

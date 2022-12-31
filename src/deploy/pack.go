@@ -1,7 +1,7 @@
 // pack
 // @author xiangqian
 // @date 22:23 2022/12/31
-package depl
+package deploy
 
 import (
 	"auto-deploy-go/src/typ"
@@ -13,7 +13,7 @@ import (
 )
 
 func Pack(script typ.Script, recordId int64, resPath, packName string) error {
-	updSTime(typ.StagePack, recordId)
+	updSTime(typ.StepPack, recordId)
 	target := script.Target
 	var names []string
 	if target != nil && len(target) > 0 {
@@ -21,7 +21,7 @@ func Pack(script typ.Script, recordId int64, resPath, packName string) error {
 			path := fmt.Sprintf("%s/%s", resPath, v)
 			if !util.IsExistOfPath(path) {
 				err := errors.New(fmt.Sprintf("%s file does not exist", v))
-				updETime(typ.StagePack, recordId, err)
+				updETime(typ.StepPack, recordId, err)
 				return err
 			}
 			names = append(names, path)
@@ -31,7 +31,7 @@ func Pack(script typ.Script, recordId int64, resPath, packName string) error {
 	deployName := fmt.Sprintf("%s/%s", resPath, typ.DeployName)
 	pDeployFile, err := os.Create(deployName)
 	if err != nil {
-		updETime(typ.StagePack, recordId, err)
+		updETime(typ.StepPack, recordId, err)
 		return err
 	}
 	defer pDeployFile.Close()
@@ -43,10 +43,10 @@ func Pack(script typ.Script, recordId int64, resPath, packName string) error {
 	// zip
 	err = util.Zip("", packName, names...)
 	if err != nil {
-		updETime(typ.StagePack, recordId, err)
+		updETime(typ.StepPack, recordId, err)
 		return err
 	}
 
-	updETime(typ.StagePack, recordId, nil)
+	updETime(typ.StepPack, recordId, nil)
 	return nil
 }

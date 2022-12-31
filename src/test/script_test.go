@@ -4,7 +4,7 @@
 package test
 
 import (
-	"auto-deploy-go/src/depl"
+	"auto-deploy-go/src/deploy"
 	"log"
 	"testing"
 )
@@ -26,7 +26,7 @@ target/jenkins-test-1.0-SNAPSHOT.jar.original
 
 4
 mv ./test test`
-	script := depl.ParseScriptTxt(iniText)
+	script := deploy.ParseScriptTxt(iniText)
 	log.Printf("Build:\n%v\n", script.Build)
 	log.Printf("Target:\n%v\n", script.Target)
 	log.Printf("Deploy:\n%v\n", script.Deploy)
