@@ -28,7 +28,9 @@ echo pkgName: ${pkgName}
 
 # go
 pkgPath=${outputDir}/${pkgName}
-cd ./src && go build -ldflags="-s -w" -o "${pkgPath}"
+#cd ./src && go build -ldflags="-s -w" -o "${pkgPath}"
+# \$ sudo apt install upx
+cd ./src && go build -ldflags="-s -w" -o "${pkgPath}" && upx -9 --brute "${pkgPath}"
 echo pkgPath: ${pkgPath}
 
 # startup.sh
