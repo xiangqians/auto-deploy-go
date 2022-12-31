@@ -1,7 +1,7 @@
 // common
 // @author xiangqian
 // @date 22:31 2022/12/20
-package com
+package util
 
 import (
 	"archive/zip"
@@ -15,11 +15,6 @@ import (
 	"regexp"
 	"runtime"
 	"strings"
-)
-
-const (
-	LocaleZh = "zh"
-	LocaleEn = "en"
 )
 
 func VerifyText(t string, maxLen int) error {
@@ -95,8 +90,8 @@ func NameHumpToUnderline(name string) string {
 	return strings.ToLower(strings.Join(res, "_"))
 }
 
-// IsExist 判断所给路径（文件/文件夹）是否存在
-func IsExist(path string) bool {
+// IsExistOfPath 判断所给路径（文件/文件夹）是否存在
+func IsExistOfPath(path string) bool {
 	_, err := os.Stat(path)
 	if err != nil {
 		return os.IsExist(err)

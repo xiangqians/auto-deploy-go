@@ -4,10 +4,10 @@
 package api
 
 import (
-	"auto-deploy-go/src/com"
 	"auto-deploy-go/src/db"
+	"auto-deploy-go/src/typ"
+	"auto-deploy-go/src/util"
 	"crypto/md5"
-	"encoding/gob"
 	"encoding/hex"
 	"errors"
 	"fmt"
@@ -23,19 +23,6 @@ import (
 
 const SessionKeyUser = "_user_"
 
-type User struct {
-	Abs
-	Name     string `form:"name" binding:"required,excludes= ,min=1,max=60"`               // 用户名
-	Nickname string `form:"nickname"binding:"max=60"`                                      // 昵称
-	Passwd   string `form:"passwd" binding:"required,excludes= ,max=100"`                  // 密码
-	RePasswd string `form:"rePasswd" binding:"required,excludes= ,max=100,eqfield=Passwd"` // retype Passwd
-}
-
-func init() {
-	// 注册 User 模型
-	gob.Register(User{})
-}
-
 // 用户注册html
 func UserRegPage(pContext *gin.Context) {
 	session := sessions.Default(pContext)
@@ -46,7 +33,7 @@ func UserRegPage(pContext *gin.Context) {
 	session.Save()
 
 	if user == nil {
-		user = User{}
+		user = typ.User{}
 	}
 
 	pContext.HTML(http.StatusOK, "user/reg.html", gin.H{
@@ -57,7 +44,7 @@ func UserRegPage(pContext *gin.Context) {
 
 // 用户注册
 func UserAdd(pContext *gin.Context) {
-	user := User{}
+	user := typ.User{}
 	err := ShouldBind(pContext, &user)
 
 	if err == nil {
@@ -110,7 +97,7 @@ func UserLogin(pContext *gin.Context) {
 
 	err := VerifyUserNameAndPasswd(name, passwd)
 
-	var user User
+	var user typ.User
 	if err == nil {
 		err = db.Qry(&user, "SELECT u.id, u.`name`, u.nickname, u.rem, u.add_time, u.upd_time FROM `user` u WHERE u.del_flag = 0 AND u.`name` = ? AND u.passwd = ? LIMIT 1", name, PasswdEncrypt(passwd))
 	}
@@ -173,7 +160,7 @@ func UserStgPage(pContext *gin.Context) {
 }
 
 func UserUpd(pContext *gin.Context) {
-	user := User{}
+	user := typ.User{}
 	err := ShouldBind(pContext, &user)
 
 	if err == nil {
@@ -211,9 +198,9 @@ func UserUpd(pContext *gin.Context) {
 }
 
 func VerifyUserNameAndPasswd(name, passwd string) error {
-	err := com.VerifyUserName(name)
+	err := util.VerifyUserName(name)
 	if err == nil {
-		err = com.VerifyPasswd(passwd)
+		err = util.VerifyPasswd(passwd)
 	}
 	return err
 }
@@ -232,10 +219,10 @@ func VerifyDbUserName(name string) error {
 	return nil
 }
 
-func GetUser(pContext *gin.Context) User {
+func GetUser(pContext *gin.Context) typ.User {
 	session := sessions.Default(pContext)
-	var user User
-	if v, r := session.Get(SessionKeyUser).(User); r {
+	var user typ.User
+	if v, r := session.Get(SessionKeyUser).(typ.User); r {
 		user = v
 	}
 

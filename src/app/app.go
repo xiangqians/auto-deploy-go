@@ -16,7 +16,7 @@ import (
 func Run() {
 	// init
 	logger.Init()
-	api.InitValidateTrans()
+	api.Init()
 
 	// validation
 	//regTrimSpaceValidation()

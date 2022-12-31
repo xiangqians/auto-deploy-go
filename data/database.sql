@@ -87,7 +87,7 @@ CREATE TABLE `item` -- 项目信息表
     `repo_url`  VARCHAR(512) NOT NULL,             -- Git仓库地址
     `branch`    VARCHAR(64)  NOT NULL,             -- 分支名
     `server_id` INTEGER      NOT NULL,             -- 项目所属Server id
-    `ini`       TEXT         DEFAULT NULL,         -- 配置
+    `script`    TEXT         DEFAULT NULL,         -- 脚本
     `rem`       VARCHAR(256) DEFAULT '',           -- 备注
     `del_flag`  TINYINT      DEFAULT 0,            -- 删除标识，0-正常，1-删除
     `add_time`  INTEGER      DEFAULT 0,            -- 创建时间（时间戳，s）

@@ -6,7 +6,7 @@ package db
 
 import (
 	"auto-deploy-go/src/arg"
-	"auto-deploy-go/src/com"
+	"auto-deploy-go/src/util"
 	"database/sql"
 	_ "github.com/mattn/go-sqlite3"
 	"reflect"
@@ -171,7 +171,7 @@ func getDest(cols []string, rflType reflect.Type, rflVal reflect.Value) []any {
 func setDest(cols []string, dest *[]any, typeField reflect.StructField, rflVal reflect.Value) {
 	name := typeField.Tag.Get("sql")
 	if name == "" {
-		name = com.NameHumpToUnderline(typeField.Name)
+		name = util.NameHumpToUnderline(typeField.Name)
 	}
 	for ci, col := range cols {
 		if col == name {

@@ -5,7 +5,7 @@ package api
 
 import (
 	"auto-deploy-go/src/db"
-	"encoding/gob"
+	"auto-deploy-go/src/typ"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"log"
@@ -14,21 +14,6 @@ import (
 	"strings"
 	"time"
 )
-
-type Server struct {
-	Abs
-	UserId int64  // Server所属用户id
-	Name   string `form:"name" binding:"required,min=1,max=60"`    // 名称
-	Host   string `form:"host" binding:"required,min=1,max=60"`    // host
-	Port   int    `form:"port" binding:"required,gt=0"`            // 端口
-	User   string `form:"user" binding:"required,min=1,max=60"`    // 用户
-	Passwd string `form:"passwd" binding:"required,min=1,max=100"` // 密码
-}
-
-func init() {
-	// 注册 Server 模型
-	gob.Register(Server{})
-}
 
 func ServerIndex(pContext *gin.Context) {
 	pContext.HTML(http.StatusOK, "server/index.html", gin.H{
@@ -45,7 +30,7 @@ func ServerAddPage(pContext *gin.Context) {
 	session.Save()
 
 	if server == nil {
-		_server := Server{}
+		_server := typ.Server{}
 		idStr := pContext.Query("id")
 		id, err := strconv.ParseInt(idStr, 10, 64)
 		if err == nil && id > 0 {
@@ -98,8 +83,8 @@ func ServerDel(pContext *gin.Context) {
 	pContext.Redirect(http.StatusMovedPermanently, "/server/index")
 }
 
-func serverPreAddOrUpd(pContext *gin.Context) (Server, error) {
-	server := Server{}
+func serverPreAddOrUpd(pContext *gin.Context) (typ.Server, error) {
+	server := typ.Server{}
 	err := ShouldBind(pContext, &server)
 
 	server.Name = strings.TrimSpace(server.Name)
@@ -119,9 +104,9 @@ func serverPreAddOrUpd(pContext *gin.Context) (Server, error) {
 	return server, err
 }
 
-func Servers(pContext *gin.Context) []Server {
+func Servers(pContext *gin.Context) []typ.Server {
 	user := GetUser(pContext)
-	servers := make([]Server, 1)
+	servers := make([]typ.Server, 1)
 	err := db.Qry(&servers, "SELECT s.id, s.`name`, s.`host`, s.`port`, s.`user`, s.rem, s.add_time, s.upd_time FROM server s WHERE s.del_flag = 0 AND s.user_id = ?", user.Id)
 	if err != nil {
 		log.Println(err)

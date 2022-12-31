@@ -5,7 +5,7 @@ package api
 
 import (
 	"auto-deploy-go/src/db"
-	"encoding/gob"
+	"auto-deploy-go/src/typ"
 	"github.com/gin-contrib/i18n"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
@@ -15,20 +15,6 @@ import (
 	"strings"
 	"time"
 )
-
-type Rx struct {
-	Abs
-	Name       string `form:"name" binding:"required,min=1,max=60"` // 名称
-	OwnerId    int64  // 拥有者id
-	OwnerName  string // 拥有者名称
-	SharerId   int64  // 共享者id
-	SharerName string // 共享者名称
-}
-
-func init() {
-	// 注册 Rx 模型
-	gob.Register(Rx{})
-}
 
 func RxIndex(pContext *gin.Context) {
 	session := sessions.Default(pContext)
@@ -51,7 +37,7 @@ func RxAddPage(pContext *gin.Context) {
 	session.Save()
 
 	if rx == nil {
-		_rx := Rx{}
+		_rx := typ.Rx{}
 		idStr := pContext.Query("id")
 		id, err := strconv.ParseInt(idStr, 10, 64)
 		if err == nil && id > 0 {
@@ -101,7 +87,7 @@ func RxJoin(pContext *gin.Context) {
 	if err != nil {
 		message = err.Error()
 	} else {
-		rx := Rx{}
+		rx := typ.Rx{}
 		err = db.Qry(&rx, "SELECT r.id, r.`name`, r.owner_id, IFNULL(ou.`name`, '') AS 'owner_name', r.sharer_id, IFNULL(su.`name`, '') AS 'sharer_name', r.rem, r.add_time, r.upd_time FROM rx r LEFT JOIN user ou ON ou.del_flag = 0 AND ou.id = r.owner_id LEFT JOIN user su ON su.del_flag = 0 AND su.id = r.sharer_id WHERE r.del_flag = 0 AND r.id = ? GROUP BY r.id", code)
 		if rx.Id == 0 {
 			message = i18n.MustGetMessage("i18n.invalidCode")
@@ -136,8 +122,8 @@ func RxDel(pContext *gin.Context) {
 	pContext.Redirect(http.StatusMovedPermanently, "/rx/index")
 }
 
-func rxPreAddOrUpd(pContext *gin.Context) (Rx, error) {
-	rx := Rx{}
+func rxPreAddOrUpd(pContext *gin.Context) (typ.Rx, error) {
+	rx := typ.Rx{}
 	err := ShouldBind(pContext, &rx)
 
 	rx.Name = strings.TrimSpace(rx.Name)
@@ -154,9 +140,9 @@ func rxPreAddOrUpd(pContext *gin.Context) (Rx, error) {
 	return rx, err
 }
 
-func Rxs(pContext *gin.Context) []Rx {
+func Rxs(pContext *gin.Context) []typ.Rx {
 	user := GetUser(pContext)
-	rxs := make([]Rx, 1)
+	rxs := make([]typ.Rx, 1)
 	err := db.Qry(&rxs, "SELECT r.id, r.`name`, r.owner_id, IFNULL(ou.`name`, '') AS 'owner_name', r.sharer_id, IFNULL(su.`name`, '') AS 'sharer_name', r.rem, r.add_time, r.upd_time FROM rx r LEFT JOIN user ou ON ou.del_flag = 0 AND ou.id = r.owner_id LEFT JOIN user su ON su.del_flag = 0 AND su.id = r.sharer_id WHERE r.del_flag = 0 AND( r.owner_id = ? OR r.sharer_id = ?) GROUP BY r.id", user.Id, user.Id)
 	if err != nil {
 		log.Println(err)

@@ -4,7 +4,7 @@
 package api
 
 import (
-	"auto-deploy-go/src/com"
+	"auto-deploy-go/src/typ"
 	"errors"
 	"fmt"
 	"github.com/gin-contrib/i18n"
@@ -20,19 +20,14 @@ import (
 	"strings"
 )
 
-// 抽象实体定义
-type Abs struct {
-	Id      int64  `form:"id" binding:"gte=0"`    // 主键id
-	Rem     string `form:"rem" binding:"max=200"` // 备注
-	DelFlag byte   `form:"delFlag"`               // 删除标识，0-正常，1-删除
-	AddTime int64  `form:"addTime"`               // 创建时间（时间戳，s）
-	UpdTime int64  `form:"updTime"`               // 修改时间（时间戳，s）
-}
-
 var (
 	zhTrans ut.Translator
 	enTrans ut.Translator
 )
+
+func Init() {
+	InitValidateTrans()
+}
 
 func InitValidateTrans() {
 	if v, r := binding.Validator.Engine().(*validator.Validate); r {
@@ -40,11 +35,11 @@ func InitValidateTrans() {
 			// 支持的语言
 			zh.New(),
 			en.New())
-		if trans, r := uni.GetTranslator(com.LocaleZh); r {
+		if trans, r := uni.GetTranslator(typ.LocaleZh); r {
 			zh_trans.RegisterDefaultTranslations(v, trans)
 			zhTrans = trans
 		}
-		if trans, r := uni.GetTranslator(com.LocaleEn); r {
+		if trans, r := uni.GetTranslator(typ.LocaleEn); r {
 			en_trans.RegisterDefaultTranslations(v, trans)
 			enTrans = trans
 		}
@@ -62,7 +57,7 @@ func TransErr(pContext *gin.Context, err error) error {
 		switch lang {
 		//case com.LocaleZh:
 		//	validationErrTrans = errs.Translate(zhTrans)
-		case com.LocaleEn:
+		case typ.LocaleEn:
 			validationErrTrans = errs.Translate(enTrans)
 		default:
 			validationErrTrans = errs.Translate(zhTrans)
@@ -77,7 +72,7 @@ func TransErr(pContext *gin.Context, err error) error {
 			}
 			if errMsg != "" {
 				switch lang {
-				case com.LocaleEn:
+				case typ.LocaleEn:
 					errMsg += ", "
 				default:
 					errMsg += "、"

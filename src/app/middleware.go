@@ -5,7 +5,7 @@ package app
 
 import (
 	"auto-deploy-go/src/api"
-	"auto-deploy-go/src/com"
+	"auto-deploy-go/src/typ"
 	"encoding/json"
 	"github.com/gin-contrib/i18n"
 	"github.com/gin-contrib/sessions"
@@ -33,7 +33,7 @@ func userPermMiddleware(pEngine *gin.Engine) {
 
 		// isLogin
 		isLogin := false
-		if user, r := session.Get(api.SessionKeyUser).(api.User); r && user.Id != 0 {
+		if user, r := session.Get(api.SessionKeyUser).(typ.User); r && user.Id != 0 {
 			isLogin = true
 		}
 
@@ -79,7 +79,7 @@ func userI18nMiddleware(pEngine *gin.Engine) {
 		func(pContext *gin.Context, defaultLang string) string {
 			// 从url中获取lang
 			lang := strings.ToLower(strings.TrimSpace(pContext.Query("lang")))
-			if lang != "" && !(lang == com.LocaleZh || lang == com.LocaleEn) {
+			if lang != "" && !(lang == typ.LocaleZh || lang == typ.LocaleEn) {
 				lang = ""
 			}
 
@@ -98,10 +98,10 @@ func userI18nMiddleware(pEngine *gin.Engine) {
 				// 从请求头获取 Accept-Language
 				acceptLanguage := pContext.GetHeader("Accept-Language")
 				// en,zh-CN;q=0.9,zh;q=0.8
-				if strings.HasPrefix(acceptLanguage, com.LocaleZh) {
-					lang = com.LocaleZh
-				} else if strings.HasPrefix(acceptLanguage, com.LocaleEn) {
-					lang = com.LocaleEn
+				if strings.HasPrefix(acceptLanguage, typ.LocaleZh) {
+					lang = typ.LocaleZh
+				} else if strings.HasPrefix(acceptLanguage, typ.LocaleEn) {
+					lang = typ.LocaleEn
 				}
 			}
 

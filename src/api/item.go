@@ -5,49 +5,14 @@ package api
 
 import (
 	"auto-deploy-go/src/db"
-	"bufio"
-	"bytes"
-	"encoding/gob"
+	"auto-deploy-go/src/typ"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
-	"io"
 	"log"
 	"net/http"
 	"strconv"
-	"strings"
 	"time"
 )
-
-const (
-	TagBuild  string = "[build]"
-	TagTarget        = "[target]"
-	TagDeploy        = "[deploy]"
-)
-
-// Item 项目
-type Item struct {
-	Abs
-	UserId     int64  `form:"userId"`                                              // 项目所属用户id
-	Name       string `form:"name" binding:"required,excludes= ,min=1,max=60"`     // 名称
-	GitId      int64  `form:"gitId" binding:"gte=0"`                               // 项目所属Git id
-	GitName    string `form:"gitName"`                                             // 项目所属Git Name
-	RepoUrl    string `form:"repoUrl" binding:"required,excludes= ,min=1,max=500"` // Git仓库地址
-	Branch     string `form:"branch" binding:"required,excludes= ,min=1,max=60"`   // 分支名
-	ServerId   int64  `form:"serverId" binding:"required,gt=0"`                    // 项目所属Server id
-	ServerName string `form:"serverName"`                                          // 项目所属Server Name
-	Ini        string `form:"ini" binding:"required,min=1,max=1000"`               // 脚本
-}
-
-type Ini struct {
-	Build  []string // [build]
-	Target []string // [target]
-	Deploy string   // [deploy]
-}
-
-func init() {
-	// 注册 Item 模型
-	gob.Register(Item{})
-}
 
 func ItemIndex(pContext *gin.Context) {
 	session := sessions.Default(pContext)
@@ -69,12 +34,12 @@ func ItemAddPage(pContext *gin.Context) {
 	session.Save()
 
 	if item == nil {
-		_item := Item{}
+		_item := typ.Item{}
 		idStr := pContext.Query("id")
 		id, err := strconv.ParseInt(idStr, 10, 64)
 		if err == nil && id > 0 {
 			user := GetUser(pContext)
-			err = db.Qry(&_item, "SELECT i.id, i.`name`, i.git_id, i.repo_url, i.branch, i.server_id, i.ini, i.rem FROM item i  WHERE i.del_flag = 0 AND i.user_id = ? AND i.id = ?", user.Id, id)
+			err = db.Qry(&_item, "SELECT i.id, i.`name`, i.git_id, i.repo_url, i.branch, i.server_id, i.script, i.rem FROM item i  WHERE i.del_flag = 0 AND i.user_id = ? AND i.id = ?", user.Id, id)
 			if err != nil {
 				log.Println(err)
 			}
@@ -97,8 +62,8 @@ func ItemAdd(pContext *gin.Context) {
 	}
 
 	user := GetUser(pContext)
-	db.Add("INSERT INTO `item` (`user_id`, `name`, `git_id`, `repo_url`, `branch`, `server_id`, `ini`, `rem`, `add_time`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-		user.Id, item.Name, item.GitId, item.RepoUrl, item.Branch, item.ServerId, item.Ini, item.Rem, time.Now().Unix())
+	db.Add("INSERT INTO `item` (`user_id`, `name`, `git_id`, `repo_url`, `branch`, `server_id`, `script`, `rem`, `add_time`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+		user.Id, item.Name, item.GitId, item.RepoUrl, item.Branch, item.ServerId, item.Script, item.Rem, time.Now().Unix())
 	pContext.Redirect(http.StatusMovedPermanently, "/item/index")
 }
 
@@ -109,8 +74,8 @@ func ItemUpd(pContext *gin.Context) {
 	}
 
 	user := GetUser(pContext)
-	db.Upd("UPDATE `item` SET `name` = ?, `git_id` = ?, `repo_url` = ?, `branch` = ?, `server_id` = ?, `ini` = ?, `rem` = ?, upd_time = ? WHERE del_flag = 0 AND user_id = ? AND id = ?",
-		item.Name, item.GitId, item.RepoUrl, item.Branch, item.ServerId, item.Ini, item.Rem, time.Now().Unix(), user.Id, item.Id)
+	db.Upd("UPDATE `item` SET `name` = ?, `git_id` = ?, `repo_url` = ?, `branch` = ?, `server_id` = ?, `script` = ?, `rem` = ?, upd_time = ? WHERE del_flag = 0 AND user_id = ? AND id = ?",
+		item.Name, item.GitId, item.RepoUrl, item.Branch, item.ServerId, item.Script, item.Rem, time.Now().Unix(), user.Id, item.Id)
 	pContext.Redirect(http.StatusMovedPermanently, "/item/index")
 }
 
@@ -124,8 +89,8 @@ func ItemDel(pContext *gin.Context) {
 	pContext.Redirect(http.StatusMovedPermanently, "/item/index")
 }
 
-func itemPreAddOrUpd(pContext *gin.Context) (Item, error) {
-	item := Item{}
+func itemPreAddOrUpd(pContext *gin.Context) (typ.Item, error) {
+	item := typ.Item{}
 	err := ShouldBind(pContext, &item)
 	if err != nil {
 		session := sessions.Default(pContext)
@@ -138,9 +103,9 @@ func itemPreAddOrUpd(pContext *gin.Context) (Item, error) {
 	return item, err
 }
 
-func Items(pContext *gin.Context) []Item {
+func Items(pContext *gin.Context) []typ.Item {
 	user := GetUser(pContext)
-	items := make([]Item, 1)
+	items := make([]typ.Item, 1)
 	err := db.Qry(&items, "SELECT i.id, i.`name`, i.git_id, IFNULL(g.`name`, '') AS 'git_name', i.repo_url, i.branch, i.server_id, IFNULL(s.`name`, '') AS 'server_name', i.rem, i.add_time, i.upd_time FROM item i LEFT JOIN git g ON g.del_flag = 0 AND g.id = i.git_id LEFT JOIN server s ON s.del_flag = 0 AND s.id = i.server_id WHERE i.del_flag = 0 AND i.user_id = ?", user.Id)
 	if err != nil {
 		log.Println(err)
@@ -152,73 +117,4 @@ func Items(pContext *gin.Context) []Item {
 	}
 
 	return items
-}
-
-func ParseIniText(iniTxt string) Ini {
-	ini := Ini{}
-	pReader := bufio.NewReader(bytes.NewBufferString(iniTxt))
-
-	set := func(slice []string, ty string) {
-		switch ty {
-		case TagBuild:
-			ini.Build = slice
-
-		case TagTarget:
-			ini.Target = slice
-
-		case TagDeploy:
-			str := ""
-			for _, v := range slice {
-				str += v + "\n"
-			}
-			ini.Deploy = str
-
-		default:
-		}
-	}
-
-	ty := ""
-	var slice []string
-	handleLine := func(line string) {
-		if line == "" || strings.HasPrefix(line, "#") {
-			return
-		}
-
-		switch line {
-		case TagBuild:
-			set(slice, ty)
-			slice = nil
-			ty = line
-
-		case TagTarget:
-			set(slice, ty)
-			slice = nil
-			ty = line
-
-		case TagDeploy:
-			set(slice, ty)
-			slice = nil
-			ty = line
-
-		default:
-			slice = append(slice, line)
-		}
-	}
-	for {
-		line, err := pReader.ReadString('\n')
-		line = strings.TrimSpace(line)
-		if err != nil {
-			if err == io.EOF {
-				handleLine(line)
-				break
-			}
-			log.Println(err)
-			continue
-		}
-
-		handleLine(line)
-	}
-	set(slice, ty)
-
-	return ini
 }

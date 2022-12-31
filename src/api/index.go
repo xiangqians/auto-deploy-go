@@ -5,77 +5,22 @@ package api
 
 import (
 	"auto-deploy-go/src/arg"
-	"auto-deploy-go/src/com"
 	"auto-deploy-go/src/db"
-	"bufio"
-	"errors"
+	"auto-deploy-go/src/depl"
+	"auto-deploy-go/src/typ"
+	"auto-deploy-go/src/util"
 	"fmt"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
-	"github.com/go-git/go-git/v5"
-	"github.com/go-git/go-git/v5/plumbing"
-	"github.com/go-git/go-git/v5/plumbing/transport"
-	"github.com/go-git/go-git/v5/plumbing/transport/http"
-	"github.com/pkg/sftp"
-	"golang.org/x/crypto/ssh"
-	"io"
 	"log"
 	netHttp "net/http"
-	"os"
 	"strconv"
 	"sync"
 	"time"
 )
 
-// Stage 自动化部署阶段
-type Stage int8
-
-const (
-	StagePull   Stage = iota + 1 // 拉取资源
-	StageBuild                   // 构建
-	StagePack                    // 打包
-	StageUl                      // upload上传
-	StageDeploy                  // 部署
-)
-
-const (
-	StatusInDeploy      byte = iota + 1 // 部署中
-	StatusDeployExc                     // 部署异常
-	StatusDeploySuccess                 // 部署成功
-)
-
-const PackName string = "target.zip"
-const DeployName string = "deploy.sh"
-
 // 互斥锁
 var lock sync.Mutex
-
-type ItemLastRecord struct {
-	Id          int64
-	ItemId      int64
-	ItemName    string // item
-	ItemRem     string
-	PullStime   int64 // pull
-	PullEtime   int64
-	PullRem     string
-	CommitId    string // commitId
-	RevMsg      string // revMsg
-	BuildStime  int64  // build
-	BuildEtime  int64
-	BuildRem    string
-	PackStime   int64 // pack
-	PackEtime   int64
-	PackRem     string
-	UlStime     int64 // ul
-	UlEtime     int64
-	UlRem       string
-	DeployStime int64 // deploy
-	DeployEtime int64
-	DeployRem   string
-	Status      byte   // status
-	Rem         string // Rem
-	AddTime     int64  // AddTime
-}
 
 func IndexPage(pContext *gin.Context) {
 	session := sessions.Default(pContext)
@@ -84,7 +29,7 @@ func IndexPage(pContext *gin.Context) {
 	session.Save()
 	pContext.HTML(netHttp.StatusOK, "index.html", gin.H{
 		"user":            GetUser(pContext),
-		"itemLastRecords": ItemLastRecords(pContext, 0),
+		"itemLastRecords": getItemLastRecords(pContext, 0),
 		"message":         message,
 	})
 }
@@ -112,7 +57,7 @@ func Deploy(pContext *gin.Context) {
 	defer lock.Unlock()
 
 	// itemLastRecords
-	itemLastRecords := ItemLastRecords(pContext, itemId)
+	itemLastRecords := getItemLastRecords(pContext, itemId)
 	if itemLastRecords == nil {
 		redirect("项目不存在")
 		return
@@ -120,385 +65,103 @@ func Deploy(pContext *gin.Context) {
 
 	// itemLastRecord
 	itemLastRecord := itemLastRecords[0]
-	if itemLastRecord.Status == StatusInDeploy {
+	if itemLastRecord.Status == typ.StatusInDeploy {
 		redirect("项目已在部署中")
 		return
 	}
 
 	// item
-	item := Item{}
-	err = db.Qry(&item, "SELECT i.id, i.`name`, i.git_id, i.repo_url, i.branch, i.server_id, i.ini, i.rem FROM item i  WHERE i.del_flag = 0 AND i.id = ?", itemId)
+	item := typ.Item{}
+	err = db.Qry(&item, "SELECT i.id, i.`name`, i.git_id, i.repo_url, i.branch, i.server_id, i.script, i.rem FROM item i  WHERE i.del_flag = 0 AND i.id = ?", itemId)
 	if err != nil {
 		redirect(err.Error())
 		return
 	}
 
 	// add record
-	recordId, err := db.Add("INSERT INTO record(item_id, `status`, `add_time`) VALUES(?, ?, ?)", itemId, StatusInDeploy, time.Now().Unix())
+	recordId, err := db.Add("INSERT INTO record(item_id, `status`, `add_time`) VALUES(?, ?, ?)", itemId, typ.StatusInDeploy, time.Now().Unix())
 	if err != nil {
 		redirect(err.Error())
 		return
 	}
 
-	go func() {
-		// updRecord func
-		updRecord := func(err error) {
-			status := StatusDeploySuccess
-			rem := ""
-			if err != nil {
-				status = StatusDeployExc
-				rem = err.Error()
-			}
-			// update record
-			db.Upd("UPDATE record SET `status` = ?, rem = ?, `upd_time` = ? where id = ?", status, rem, time.Now().Unix(), recordId)
-		}
-
-		delIfExist := func(path string) {
-			if com.IsExist(path) {
-				com.DelDir(path)
-			}
-			com.Mkdir(path)
-		}
-
-		// base path
-		basePath := fmt.Sprintf("%v/item%v", arg.TmpDir, item.Id)
-
-		// localRepoPath
-		resPath := fmt.Sprintf("%v/res", basePath)
-		delIfExist(resPath)
-
-		// pull
-		err = pull(item, recordId, resPath)
-		if err != nil {
-			updRecord(err)
-			return
-		}
-
-		// ini
-		ini := ParseIniText(item.Ini)
-
-		// build
-		err = build(ini, recordId, resPath)
-		if err != nil {
-			updRecord(err)
-			return
-		}
-
-		// pack
-		packPath := fmt.Sprintf("%v/pack", basePath)
-		delIfExist(packPath)
-		packName := fmt.Sprintf("%s/%s", packPath, PackName)
-		err = pack(ini, recordId, resPath, packName)
-		if err != nil {
-			updRecord(err)
-			return
-		}
-
-		// 上传路径
-		ulPath := fmt.Sprintf("auto-deploy/item%v", item.Id)
-
-		// ul and deploy
-		err = ulAndDeploy(item, recordId, packName, ulPath)
-		if err != nil {
-			updRecord(err)
-			return
-		}
-
-		// deploy success
-		updRecord(nil)
-	}()
+	// 异步部署
+	go asynDeploy(item, recordId)
 
 	redirect("")
 }
 
-func ulAndDeploy(item Item, recordId int64, packName, ulPath string) error {
-	updSTime(StageUl, recordId)
-
-	server := Server{}
-	err := db.Qry(&server, "SELECT s.id, s.`host`, s.`port`, s.`user`, s.passwd FROM server s WHERE s.del_flag = 0 AND s.id = ?", item.ServerId)
-	if err != nil {
-		updETime(StageUl, recordId, err)
-		return err
-	}
-
-	if server.Id == 0 {
-		err = errors.New("server does not exist")
-		updETime(StageUl, recordId, err)
-		return err
-	}
-
-	// 建立 ssh client
-	config := &ssh.ClientConfig{
-		User:            server.User,
-		Auth:            []ssh.AuthMethod{ssh.Password(server.Passwd)},
-		Timeout:         5 * time.Minute,
-		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
-	}
-	addr := fmt.Sprintf("%s:%d", server.Host, server.Port)
-	pSshClient, err := ssh.Dial("tcp", addr, config)
-	if err != nil {
-		updETime(StageUl, recordId, err)
-		return err
-	}
-	defer pSshClient.Close()
-
-	exec := func(cmd string) error {
-		// 开启一个 session，用于执行一个命令
-		session, eerr := pSshClient.NewSession()
-		if eerr != nil {
-			return eerr
+func asynDeploy(item typ.Item, recordId int64) {
+	// updRecord func
+	updRecord := func(err error) {
+		status := typ.StatusDeploySuccess
+		rem := ""
+		if err != nil {
+			status = typ.StatusDeployExc
+			rem = err.Error()
 		}
-		defer session.Close()
-		_, eerr = session.CombinedOutput(cmd)
-		return eerr
+		// update record
+		db.Upd("UPDATE record SET `status` = ?, rem = ?, `upd_time` = ? where id = ?", status, rem, time.Now().Unix(), recordId)
 	}
 
-	// 创建上传路径
-	err = exec(fmt.Sprintf("mkdir -p %s", ulPath))
-	if err != nil {
-		updETime(StageUl, recordId, err)
-		return err
-	}
-
-	// 基于ssh client, 创建 sftp 客户端
-	pSftpClient, err := sftp.NewClient(pSshClient)
-	if err != nil {
-		updETime(StageUl, recordId, err)
-		return err
-	}
-	defer pSftpClient.Close()
-
-	// 上传文件
-	pSrcFile, err := os.Open(packName)
-	if err != nil {
-		updETime(StageUl, recordId, err)
-		return err
-	}
-	defer pSrcFile.Close()
-	ulName := fmt.Sprintf("%s/%s", ulPath, PackName)
-	pDstFile, err := pSftpClient.Create(ulName)
-	if err != nil {
-		updETime(StageUl, recordId, err)
-		return err
-	}
-	defer pDstFile.Close()
-	buf := make([]byte, 100*1024*1024) // 100 MB
-	_, err = io.CopyBuffer(pDstFile, pSrcFile, buf)
-	//_, err = io.CopyN(pDstFile, pSrcFile, 100*1024*1024) // 100 MB -> EOF ?
-	if err != nil {
-		updETime(StageUl, recordId, err)
-		return err
-	}
-
-	// 解压
-	err = exec(fmt.Sprintf("unzip -o %s -d %s", ulName, ulPath))
-	if err != nil {
-		updETime(StageUl, recordId, err)
-		return err
-	}
-
-	updETime(StageUl, recordId, nil)
-
-	// #################### Deploy  ####################
-
-	updSTime(StageDeploy, recordId)
-	deployName := fmt.Sprintf("%s/%s", ulPath, DeployName)
-	err = exec(fmt.Sprintf("chmod +x %s && %s", deployName, deployName))
-	if err != nil {
-		updETime(StageDeploy, recordId, err)
-		return err
-	}
-	updETime(StageDeploy, recordId, nil)
-	return nil
-}
-
-func pack(ini Ini, recordId int64, resPath, packName string) error {
-	updSTime(StagePack, recordId)
-	target := ini.Target
-	var names []string
-	if target != nil && len(target) > 0 {
-		for _, v := range target {
-			path := fmt.Sprintf("%s/%s", resPath, v)
-			if !com.IsExist(path) {
-				err := errors.New(fmt.Sprintf("%s file does not exist", v))
-				updETime(StagePack, recordId, err)
-				return err
-			}
-			names = append(names, path)
+	// delete If Exist
+	delIfExist := func(path string) {
+		if util.IsExistOfPath(path) {
+			util.DelDir(path)
 		}
+		util.Mkdir(path)
 	}
 
-	deployName := fmt.Sprintf("%s/%s", resPath, DeployName)
-	pDeployFile, err := os.Create(deployName)
+	// base path
+	basePath := fmt.Sprintf("%v/item%v", arg.TmpDir, item.Id)
+
+	// localRepoPath
+	resPath := fmt.Sprintf("%v/res", basePath)
+	delIfExist(resPath)
+
+	// 1. pull
+	err := depl.Pull(item, recordId, resPath)
 	if err != nil {
-		updETime(StagePack, recordId, err)
-		return err
+		updRecord(err)
+		return
 	}
-	defer pDeployFile.Close()
-	pWriter := bufio.NewWriter(pDeployFile)
-	pWriter.WriteString(ini.Deploy)
-	pWriter.Flush()
-	names = append(names, deployName)
 
-	// zip
-	err = com.Zip("", packName, names...)
+	// script
+	script := depl.ParseScriptTxt(item.Script)
+
+	// 2. build
+	err = depl.Build(script, recordId, resPath)
 	if err != nil {
-		updETime(StagePack, recordId, err)
-		return err
+		updRecord(err)
+		return
 	}
 
-	updETime(StagePack, recordId, nil)
-	return nil
+	// 3. pack
+	packPath := fmt.Sprintf("%v/pack", basePath)
+	delIfExist(packPath)
+	packName := fmt.Sprintf("%s/%s", packPath, typ.PackName)
+	err = depl.Pack(script, recordId, resPath, packName)
+	if err != nil {
+		updRecord(err)
+		return
+	}
+
+	// 上传到服务路径
+	ulPath := fmt.Sprintf("auto-deploy/item%v", item.Id)
+
+	// 4&5. ul and deploy
+	err = depl.UlAndDeploy(item, recordId, packName, ulPath)
+	if err != nil {
+		updRecord(err)
+		return
+	}
+
+	// deploy success
+	updRecord(nil)
 }
 
-func build(ini Ini, recordId int64, resPath string) error {
-	updSTime(StageBuild, recordId)
-
-	_build := ini.Build
-	if _build != nil && len(_build) > 0 {
-		for _, cmd := range _build {
-			cd, err := com.Cd(resPath)
-			if err != nil {
-				updETime(StageBuild, recordId, err)
-				return err
-			}
-
-			cmd = fmt.Sprintf("%s && %s", cd, cmd)
-			pCmd, err := com.Command(cmd)
-			if err != nil {
-				updETime(StageBuild, recordId, err)
-				return err
-			}
-
-			_, err = pCmd.CombinedOutput()
-			if err != nil {
-				updETime(StageBuild, recordId, err)
-				return err
-			}
-		}
-	}
-
-	updETime(StageBuild, recordId, nil)
-	return nil
-}
-
-func pull(item Item, recordId int64, resPath string) error {
-	updSTime(StagePull, recordId)
-
-	_git := Git{}
-	err := db.Qry(&_git, "SELECT g.id, g.`user`, g.passwd FROM git g WHERE g.del_flag = 0 AND g.id = ?", item.GitId)
-	if err != nil {
-		updETime(StagePull, recordId, err)
-		return err
-	}
-
-	var auth transport.AuthMethod = nil
-	if _git.Id != 0 {
-		auth = &http.BasicAuth{
-			Username: _git.User,
-			Password: _git.Passwd,
-		}
-	}
-
-	// Clones the repository into the given dir, just as a normal git clone does
-	isBare := false
-	pRepository, err := git.PlainClone(resPath, isBare, &git.CloneOptions{
-		URL:           item.RepoUrl,
-		ReferenceName: plumbing.ReferenceName(fmt.Sprintf("refs/heads/%s", item.Branch)), // branchName, tagName, commitId
-		Progress:      os.Stdout,
-		Auth:          auth,
-	})
-	if err != nil {
-		updETime(StagePull, recordId, err)
-		return err
-	}
-
-	// 获取 HEAD 指向的分支
-	// ... retrieves the branch pointed by HEAD
-	pReference, err := pRepository.Head()
-	if err != nil {
-		updETime(StagePull, recordId, err)
-		return err
-	}
-
-	// ... retrieves the commit history
-	pCommitIter, err := pRepository.Log(&git.LogOptions{From: pReference.Hash()})
-	if err != nil {
-		updETime(StagePull, recordId, err)
-		return err
-	}
-
-	// 最近一次提交信息
-	pCommit, err := pCommitIter.Next()
-	if err != nil {
-		updETime(StagePull, recordId, err)
-		return err
-	}
-
-	db.Upd("UPDATE record SET commit_id = ?, rev_msg = ? WHERE id = ?", pCommit.ID().String(), pCommit.String(), recordId)
-
-	updETime(StagePull, recordId, nil)
-	return nil
-}
-
-func updETime(stage Stage, recordId int64, err error) {
-	etimeName := ""
-	remName := ""
-	switch stage {
-	case StagePull:
-		etimeName = "pull_etime"
-		remName = "pull_rem"
-
-	case StageBuild:
-		etimeName = "build_etime"
-		remName = "build_rem"
-
-	case StagePack:
-		etimeName = "pack_etime"
-		remName = "pack_rem"
-
-	case StageUl:
-		etimeName = "ul_etime"
-		remName = "ul_rem"
-
-	case StageDeploy:
-		etimeName = "deploy_etime"
-		remName = "deploy_rem"
-	}
-
-	var etime int64 = time.Now().Unix()
-	rem := ""
-	if err != nil {
-		etime = -1
-		rem = err.Error()
-	}
-	db.Upd(fmt.Sprintf("UPDATE record SET %s = ?, %s = ? WHERE id = ?", etimeName, remName), etime, rem, recordId)
-}
-
-func updSTime(stage Stage, recordId int64) {
-	stimeName := ""
-	switch stage {
-	case StagePull:
-		stimeName = "pull_stime"
-
-	case StageBuild:
-		stimeName = "build_stime"
-
-	case StagePack:
-		stimeName = "pack_stime"
-
-	case StageUl:
-		stimeName = "ul_stime"
-
-	case StageDeploy:
-		stimeName = "deploy_stime"
-	}
-
-	db.Upd(fmt.Sprintf("UPDATE record SET %s = ? WHERE id = ?", stimeName), time.Now().Unix(), recordId)
-}
-
-func ItemLastRecords(pContext *gin.Context, itemId int64) []ItemLastRecord {
-	itemLastRecords := make([]ItemLastRecord, 1)
+func getItemLastRecords(pContext *gin.Context, itemId int64) []typ.ItemLastRecord {
+	itemLastRecords := make([]typ.ItemLastRecord, 1)
 	user := GetUser(pContext)
 	sql := "SELECT IFNULL(r.id, 0) AS 'id', i.id AS 'item_id', i.`name` AS 'item_name', i.rem AS 'item_rem', " +
 		"IFNULL(r.pull_stime, 0) AS 'pull_stime', IFNULL(r.pull_etime, 0) AS 'pull_etime', IFNULL(r.pull_rem, '') AS 'pull_rem', " +

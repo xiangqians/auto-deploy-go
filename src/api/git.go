@@ -5,7 +5,7 @@ package api
 
 import (
 	"auto-deploy-go/src/db"
-	"encoding/gob"
+	"auto-deploy-go/src/typ"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"log"
@@ -14,19 +14,6 @@ import (
 	"strings"
 	"time"
 )
-
-type Git struct {
-	Abs
-	UserId int64  // Git所属用户id
-	Name   string `form:"name" binding:"required,min=1,max=60"`    // 名称
-	User   string `form:"user" binding:"required,min=1,max=60"`    // 用户
-	Passwd string `form:"passwd" binding:"required,min=1,max=100"` // 密码
-}
-
-func init() {
-	// 注册 Git 模型
-	gob.Register(Git{})
-}
 
 func GitIndex(pContext *gin.Context) {
 	pContext.HTML(http.StatusOK, "git/index.html", gin.H{
@@ -43,7 +30,7 @@ func GitAddPage(pContext *gin.Context) {
 	session.Save()
 
 	if git == nil {
-		_git := Git{}
+		_git := typ.Git{}
 		idStr := pContext.Query("id")
 		id, err := strconv.ParseInt(idStr, 10, 64)
 		if err == nil && id > 0 {
@@ -96,8 +83,8 @@ func GitDel(pContext *gin.Context) {
 	pContext.Redirect(http.StatusMovedPermanently, "/git/index")
 }
 
-func gitPreAddOrUpd(pContext *gin.Context) (Git, error) {
-	git := Git{}
+func gitPreAddOrUpd(pContext *gin.Context) (typ.Git, error) {
+	git := typ.Git{}
 	err := ShouldBind(pContext, &git)
 
 	git.Name = strings.TrimSpace(git.Name)
@@ -116,9 +103,9 @@ func gitPreAddOrUpd(pContext *gin.Context) (Git, error) {
 	return git, err
 }
 
-func Gits(pContext *gin.Context) []Git {
+func Gits(pContext *gin.Context) []typ.Git {
 	user := GetUser(pContext)
-	gits := make([]Git, 1)
+	gits := make([]typ.Git, 1)
 	err := db.Qry(&gits, "SELECT g.id, g.`name`, g.`user`, g.rem, g.add_time, g.upd_time FROM git g WHERE g.del_flag = 0 AND g.user_id = ?", user.Id)
 	if err != nil {
 		log.Println(err)
