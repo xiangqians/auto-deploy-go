@@ -21,6 +21,12 @@ const (
 	StepDeploy                 // 部署
 )
 
+// Env type
+const (
+	EnvDefault string = "default"
+	EnvDocker         = "docker:"
+)
+
 const PackName string = "target.zip"
 const DeployName string = "deploy.sh"
 

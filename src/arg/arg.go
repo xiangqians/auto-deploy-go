@@ -11,19 +11,19 @@ import (
 var Port int
 var Db string
 var TmpDir string
+var BuildEnv string
 
 func Parse() {
-	// -port
-	flag.IntVar(&Port, "port", 8080, "port")
-	// -db
-	flag.StringVar(&Db, "db", "./data/database.db", "database")
-	// -tmpdir
-	flag.StringVar(&TmpDir, "tmpdir", "./tmp", "tmpdir")
+	flag.IntVar(&Port, "port", 8080, "-port 8080")
+	flag.StringVar(&Db, "db", "./data/database.db", "-db ./data/database.db")
+	flag.StringVar(&TmpDir, "tmpdir", "./tmp", "-tmpdir ./tmp")
+	flag.StringVar(&BuildEnv, "buildenv", "default", "-buildenv default | docker:container")
 	flag.Parse()
 
 	log.Printf("Port: %v\n", Port)
 	log.Printf("Db: %v\n", Db)
 	log.Printf("TmpDir: %v\n", TmpDir)
+	log.Printf("BuildEnv: %v\n", BuildEnv)
 
 	// -db "C:\Users\xiangqian\Desktop\tmp\auto-deploy\data\database.db" -tmpdir "C:\Users\xiangqian\Desktop\tmp\auto-deploy\tmp"
 }
