@@ -57,6 +57,13 @@ func UlAndDeploy(item typ.Item, recordId int64, packName, ulPath string) error {
 		return eerr
 	}
 
+	// 删除上传路径
+	err = exec(fmt.Sprintf("rm -rf %s", ulPath))
+	if err != nil {
+		updETime(typ.StepUl, recordId, err)
+		return err
+	}
+
 	// 创建上传路径
 	err = exec(fmt.Sprintf("mkdir -p %s", ulPath))
 	if err != nil {
@@ -106,8 +113,8 @@ func UlAndDeploy(item typ.Item, recordId int64, packName, ulPath string) error {
 	// #################### Deploy  ####################
 
 	updSTime(typ.StepDeploy, recordId)
-	deployName := fmt.Sprintf("%s/%s", ulPath, typ.DeployName)
-	err = exec(fmt.Sprintf("chmod +x %s && %s", deployName, deployName))
+	cmd := fmt.Sprintf("cd %s && chmod +x %s && ./%s", ulPath, typ.DeployName, typ.DeployName)
+	err = exec(cmd)
 	if err != nil {
 		updETime(typ.StepDeploy, recordId, err)
 		return err

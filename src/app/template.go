@@ -33,21 +33,9 @@ func intHtmlTemplate(pEngine *gin.Engine) {
 			t := time.Unix(unix, 0)
 			return t.Format("2006/01/02 15:04:05")
 		},
-		"UnixToTime2": func(unix int64) string {
-			if unix == 0 {
-				return ""
-			}
-
-			if unix < 0 {
-				return strconv.FormatInt(unix, 10)
-			}
-
-			t := time.Unix(unix, 0)
-			return t.Format("2006/01/02 15:04:05")
-		},
 		"UnixDiff": func(unix1, unix2 int64) string {
 			if unix1 == -1 || unix2 == -1 {
-				return "-1s"
+				return "-1"
 			}
 
 			if unix1 == 0 || unix2 == 0 {
@@ -55,7 +43,7 @@ func intHtmlTemplate(pEngine *gin.Engine) {
 			}
 
 			r := math.Abs(float64(unix1 - unix2)) // s
-			return strconv.FormatFloat(r, 'f', 2, 64) + "s"
+			return fmt.Sprintf("%ss", strconv.FormatFloat(r, 'f', 2, 64))
 		},
 
 		// +1
