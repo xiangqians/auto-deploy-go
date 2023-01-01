@@ -16,12 +16,13 @@ mvn clean
 #mvn package
 
 [target]
-#./target/jenkins-test-1.0-SNAPSHOT.jar
+./target/jenkins-test-1.0-SNAPSHOT.jar
 target/jenkins-test-1.0-SNAPSHOT.jar.original
 #./target/classes
 #target/maven-archiver
 
 [deploy]
+#! /bin/bash
 #3
 
 4

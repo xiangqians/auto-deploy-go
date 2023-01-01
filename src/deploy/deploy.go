@@ -41,8 +41,10 @@ func ParseScriptTxt(scriptTxt string) typ.Script {
 	ty := ""
 	var slice []string
 	handleLine := func(line string) {
-		if line == "" || strings.HasPrefix(line, "#") {
-			return
+		if ty != typ.TagDeploy {
+			if line == "" || strings.HasPrefix(line, "#") {
+				return
+			}
 		}
 
 		switch line {
