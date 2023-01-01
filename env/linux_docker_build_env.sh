@@ -42,8 +42,6 @@ EOF
 cat>Dockerfile<<EOF
 # https://hub.docker.com/
 # https://hub.docker.com/_/debian
-# https://hub.docker.com/_/debian/tags?page=1&name=stable
-#FROM debian:stable
 FROM debian:buster
 
 # 以root执行
