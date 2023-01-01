@@ -66,5 +66,10 @@
   "i18n.codeHasBeenUsed": "Code has been used",
   "i18n.yourCodeCannotBeSharedByYourself": "Your code cannot be shared by yourself",
   "i18n.copy": "Copy",
-  "i18n.copied": "Copied"
+  "i18n.copied": "Copied",
+  "i18n.pull": "Pull",
+  "i18n.build": "Build",
+  "i18n.pack": "Pack",
+  "i18n.upload": "Upload",
+  "i18n.deploy": "Deploy"
 }

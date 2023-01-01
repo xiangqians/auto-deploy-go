@@ -66,5 +66,10 @@
   "i18n.codeHasBeenUsed": "code已被使用",
   "i18n.yourCodeCannotBeSharedByYourself": "自己的code无法被自己分享",
   "i18n.copy": "复制",
-  "i18n.copied": "已复制"
+  "i18n.copied": "已复制",
+  "i18n.pull": "拉取资源",
+  "i18n.build": "构建",
+  "i18n.pack": "打包",
+  "i18n.upload": "上传",
+  "i18n.deploy": "部署"
 }

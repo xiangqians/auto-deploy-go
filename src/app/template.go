@@ -34,10 +34,6 @@ func intHtmlTemplate(pEngine *gin.Engine) {
 			return t.Format("2006/01/02 15:04:05")
 		},
 		"UnixDiff": func(unix1, unix2 int64) string {
-			if unix1 == -1 || unix2 == -1 {
-				return "-1"
-			}
-
 			if unix1 == 0 || unix2 == 0 {
 				return "-"
 			}
