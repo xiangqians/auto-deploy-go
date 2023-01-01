@@ -21,7 +21,7 @@ func Pack(script typ.Script, recordId int64, resPath, packName string) error {
 			path := fmt.Sprintf("%s/%s", resPath, v)
 			if !util.IsExistOfPath(path) {
 				err := errors.New(fmt.Sprintf("%s file does not exist", v))
-				updETime(typ.StepPack, recordId, err)
+				updETime(typ.StepPack, recordId, err, nil)
 				return err
 			}
 			names = append(names, path)
@@ -31,7 +31,7 @@ func Pack(script typ.Script, recordId int64, resPath, packName string) error {
 	deployName := fmt.Sprintf("%s/%s", resPath, typ.DeployName)
 	pDeployFile, err := os.Create(deployName)
 	if err != nil {
-		updETime(typ.StepPack, recordId, err)
+		updETime(typ.StepPack, recordId, err, nil)
 		return err
 	}
 	defer pDeployFile.Close()
@@ -43,10 +43,10 @@ func Pack(script typ.Script, recordId int64, resPath, packName string) error {
 	// zip
 	err = util.Zip("", packName, names...)
 	if err != nil {
-		updETime(typ.StepPack, recordId, err)
+		updETime(typ.StepPack, recordId, err, nil)
 		return err
 	}
 
-	updETime(typ.StepPack, recordId, nil)
+	updETime(typ.StepPack, recordId, nil, nil)
 	return nil
 }

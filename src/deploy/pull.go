@@ -20,7 +20,7 @@ func Pull(item typ.Item, recordId int64, resPath string) error {
 	_git := typ.Git{}
 	err := db.Qry(&_git, "SELECT g.id, g.`user`, g.passwd FROM git g WHERE g.del_flag = 0 AND g.id = ?", item.GitId)
 	if err != nil {
-		updETime(typ.StepPull, recordId, err)
+		updETime(typ.StepPull, recordId, err, nil)
 		return err
 	}
 
@@ -41,7 +41,7 @@ func Pull(item typ.Item, recordId int64, resPath string) error {
 		Auth:          auth,
 	})
 	if err != nil {
-		updETime(typ.StepPull, recordId, err)
+		updETime(typ.StepPull, recordId, err, nil)
 		return err
 	}
 
@@ -49,30 +49,30 @@ func Pull(item typ.Item, recordId int64, resPath string) error {
 	// ... retrieves the branch pointed by HEAD
 	pReference, err := pRepository.Head()
 	if err != nil {
-		updETime(typ.StepPull, recordId, err)
+		updETime(typ.StepPull, recordId, err, nil)
 		return err
 	}
 
 	// ... retrieves the commit history
 	pCommitIter, err := pRepository.Log(&git.LogOptions{From: pReference.Hash()})
 	if err != nil {
-		updETime(typ.StepPull, recordId, err)
+		updETime(typ.StepPull, recordId, err, nil)
 		return err
 	}
 
 	// 最近一次提交信息
 	pCommit, err := pCommitIter.Next()
 	if err != nil {
-		updETime(typ.StepPull, recordId, err)
+		updETime(typ.StepPull, recordId, err, nil)
 		return err
 	}
 
 	_, err = db.Upd("UPDATE record SET commit_id = ?, rev_msg = ? WHERE id = ?", pCommit.ID().String(), pCommit.String(), recordId)
 	if err != nil {
-		updETime(typ.StepPull, recordId, err)
+		updETime(typ.StepPull, recordId, err, nil)
 		return err
 	}
 
-	updETime(typ.StepPull, recordId, nil)
+	updETime(typ.StepPull, recordId, nil, nil)
 	return nil
 }

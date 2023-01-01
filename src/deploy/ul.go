@@ -21,13 +21,13 @@ func UlAndDeploy(item typ.Item, recordId int64, packName, ulPath string) error {
 	server := typ.Server{}
 	err := db.Qry(&server, "SELECT s.id, s.`host`, s.`port`, s.`user`, s.passwd FROM server s WHERE s.del_flag = 0 AND s.id = ?", item.ServerId)
 	if err != nil {
-		updETime(typ.StepUl, recordId, err)
+		updETime(typ.StepUl, recordId, err, nil)
 		return err
 	}
 
 	if server.Id == 0 {
 		err = errors.New("server does not exist")
-		updETime(typ.StepUl, recordId, err)
+		updETime(typ.StepUl, recordId, err, nil)
 		return err
 	}
 
@@ -41,40 +41,40 @@ func UlAndDeploy(item typ.Item, recordId int64, packName, ulPath string) error {
 	addr := fmt.Sprintf("%s:%d", server.Host, server.Port)
 	pSshClient, err := ssh.Dial("tcp", addr, config)
 	if err != nil {
-		updETime(typ.StepUl, recordId, err)
+		updETime(typ.StepUl, recordId, err, nil)
 		return err
 	}
 	defer pSshClient.Close()
 
-	exec := func(cmd string) error {
+	exec := func(cmd string) ([]byte, error) {
 		// 开启一个 session，用于执行一个命令
 		session, eerr := pSshClient.NewSession()
 		if eerr != nil {
-			return eerr
+			return nil, eerr
 		}
 		defer session.Close()
-		_, eerr = session.CombinedOutput(cmd)
-		return eerr
+		buf, eerr := session.CombinedOutput(cmd)
+		return buf, eerr
 	}
 
 	// 删除上传路径
-	err = exec(fmt.Sprintf("rm -rf %s", ulPath))
+	buf, err := exec(fmt.Sprintf("rm -rf %s", ulPath))
 	if err != nil {
-		updETime(typ.StepUl, recordId, err)
+		updETime(typ.StepUl, recordId, err, buf)
 		return err
 	}
 
 	// 创建上传路径
-	err = exec(fmt.Sprintf("mkdir -p %s", ulPath))
+	buf, err = exec(fmt.Sprintf("mkdir -p %s", ulPath))
 	if err != nil {
-		updETime(typ.StepUl, recordId, err)
+		updETime(typ.StepUl, recordId, err, buf)
 		return err
 	}
 
 	// 基于ssh client, 创建 sftp 客户端
 	pSftpClient, err := sftp.NewClient(pSshClient)
 	if err != nil {
-		updETime(typ.StepUl, recordId, err)
+		updETime(typ.StepUl, recordId, err, nil)
 		return err
 	}
 	defer pSftpClient.Close()
@@ -82,43 +82,43 @@ func UlAndDeploy(item typ.Item, recordId int64, packName, ulPath string) error {
 	// 上传文件
 	pSrcFile, err := os.Open(packName)
 	if err != nil {
-		updETime(typ.StepUl, recordId, err)
+		updETime(typ.StepUl, recordId, err, nil)
 		return err
 	}
 	defer pSrcFile.Close()
 	ulName := fmt.Sprintf("%s/%s", ulPath, typ.PackName)
 	pDstFile, err := pSftpClient.Create(ulName)
 	if err != nil {
-		updETime(typ.StepUl, recordId, err)
+		updETime(typ.StepUl, recordId, err, nil)
 		return err
 	}
 	defer pDstFile.Close()
-	buf := make([]byte, 100*1024*1024) // 100 MB
-	_, err = io.CopyBuffer(pDstFile, pSrcFile, buf)
-	//_, err = io.CopyN(pDstFile, pSrcFile, 100*1024*1024) // 100 MB -> EOF ?
+	_buf := make([]byte, 1024*1024*100) // 100 MB
+	_, err = io.CopyBuffer(pDstFile, pSrcFile, _buf)
+	//_, err = io.CopyN(pDstFile, pSrcFile, 1024*1024*100) // 100 MB -> EOF ?
 	if err != nil {
-		updETime(typ.StepUl, recordId, err)
+		updETime(typ.StepUl, recordId, err, nil)
 		return err
 	}
 
 	// 解压
-	err = exec(fmt.Sprintf("unzip -o %s -d %s", ulName, ulPath))
+	buf, err = exec(fmt.Sprintf("unzip -o %s -d %s", ulName, ulPath))
 	if err != nil {
-		updETime(typ.StepUl, recordId, err)
+		updETime(typ.StepUl, recordId, err, buf)
 		return err
 	}
 
-	updETime(typ.StepUl, recordId, nil)
+	updETime(typ.StepUl, recordId, nil, nil)
 
 	// #################### Deploy  ####################
 
 	updSTime(typ.StepDeploy, recordId)
 	cmd := fmt.Sprintf("cd %s && chmod +x %s && ./%s", ulPath, typ.DeployName, typ.DeployName)
-	err = exec(cmd)
+	buf, err = exec(cmd)
 	if err != nil {
-		updETime(typ.StepDeploy, recordId, err)
+		updETime(typ.StepDeploy, recordId, err, buf)
 		return err
 	}
-	updETime(typ.StepDeploy, recordId, nil)
+	updETime(typ.StepDeploy, recordId, nil, nil)
 	return nil
 }

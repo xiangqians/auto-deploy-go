@@ -36,26 +36,26 @@ func defaultBuild(script typ.Script, recordId int64, resPath string) error {
 		for _, cmd := range build {
 			cd, err := util.Cd(resPath)
 			if err != nil {
-				updETime(typ.StepBuild, recordId, err)
+				updETime(typ.StepBuild, recordId, err, nil)
 				return err
 			}
 
 			cmd = fmt.Sprintf("%s && %s", cd, cmd)
 			pCmd, err := util.Command(cmd)
 			if err != nil {
-				updETime(typ.StepBuild, recordId, err)
+				updETime(typ.StepBuild, recordId, err, nil)
 				return err
 			}
 
 			_, err = pCmd.CombinedOutput()
 			if err != nil {
-				updETime(typ.StepBuild, recordId, err)
+				updETime(typ.StepBuild, recordId, err, nil)
 				return err
 			}
 		}
 	}
 
-	updETime(typ.StepBuild, recordId, nil)
+	updETime(typ.StepBuild, recordId, nil, nil)
 	return nil
 }
 
@@ -102,12 +102,12 @@ func dockerBuild(script typ.Script, recordId int64, resPath string, container st
 		}
 		pCmd, err = util.Command(cmd)
 		if err != nil {
-			updETime(typ.StepBuild, recordId, err)
+			updETime(typ.StepBuild, recordId, err, nil)
 			return err
 		}
 		_, err = pCmd.CombinedOutput()
 		if err != nil {
-			updETime(typ.StepBuild, recordId, err)
+			updETime(typ.StepBuild, recordId, err, nil)
 			return err
 		}
 
@@ -135,13 +135,13 @@ func dockerBuild(script typ.Script, recordId int64, resPath string, container st
 			}
 			pCmd, err = util.Command(cmd)
 			if err != nil {
-				updETime(typ.StepBuild, recordId, err)
+				updETime(typ.StepBuild, recordId, err, nil)
 				return err
 			}
 
 			_, err = pCmd.CombinedOutput()
 			if err != nil {
-				updETime(typ.StepBuild, recordId, err)
+				updETime(typ.StepBuild, recordId, err, nil)
 				return err
 			}
 		}
@@ -155,16 +155,16 @@ func dockerBuild(script typ.Script, recordId int64, resPath string, container st
 		}
 		pCmd, err = util.Command(cmd)
 		if err != nil {
-			updETime(typ.StepBuild, recordId, err)
+			updETime(typ.StepBuild, recordId, err, nil)
 			return err
 		}
 		_, err = pCmd.CombinedOutput()
 		if err != nil {
-			updETime(typ.StepBuild, recordId, err)
+			updETime(typ.StepBuild, recordId, err, nil)
 			return err
 		}
 	}
 
-	updETime(typ.StepBuild, recordId, nil)
+	updETime(typ.StepBuild, recordId, nil, nil)
 	return nil
 }

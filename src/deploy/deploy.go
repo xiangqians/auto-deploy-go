@@ -86,7 +86,7 @@ func ParseScriptTxt(scriptTxt string) typ.Script {
 	return script
 }
 
-func updETime(Step typ.Step, recordId int64, err error) {
+func updETime(Step typ.Step, recordId int64, err error, buf []byte) {
 	etimeName := ""
 	remName := ""
 	switch Step {
@@ -115,7 +115,11 @@ func updETime(Step typ.Step, recordId int64, err error) {
 	rem := ""
 	if err != nil {
 		etime = -1
-		rem = err.Error()
+		if buf != nil {
+			rem = fmt.Sprintf("%s\n%s", err.Error(), string(buf))
+		} else {
+			rem = err.Error()
+		}
 	}
 	db.Upd(fmt.Sprintf("UPDATE record SET %s = ?, %s = ? WHERE id = ?", etimeName, remName), etime, rem, recordId)
 }
