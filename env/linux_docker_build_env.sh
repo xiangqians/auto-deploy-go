@@ -111,5 +111,16 @@ $ apt install net-tools
 
 // ssh server
 $ apt install openssh-server
+$ vim /etc/ssh/sshd_config
+#PermitRootLogin prohibit-password
+PermitRootLogin yes
+#UsePAM yes
+UsePAM no
+$ service ssh restart
+$ whoami
+root
+$ id
+uid=0(root) gid=0(root) groups=0(root)
+$ passwd
 
 !
