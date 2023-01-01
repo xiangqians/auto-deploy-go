@@ -16,6 +16,7 @@ func initRoute(pEngine *gin.Engine) {
 	pEngine.NoRoute(func(pContext *gin.Context) {
 		// pContext.HTML() 返回HTML
 		pContext.HTML(http.StatusOK, "404.html", gin.H{
+			"user":       api.GetUser(pContext),
 			"goVersion":  runtime.Version(),
 			"ginVersion": gin.Version,
 			"time":       time.Now(),

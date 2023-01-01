@@ -28,7 +28,8 @@
         <td colspan="2">{{ Localize "i18n.op" }}</td>
     </tr>
     {{ range $index,$value := .items }}
-    <tr>
+    <tr onmouseover="this.style.backgroundColor='#D3D3D3'"
+        onmouseout="this.style.backgroundColor='#FFFFFF'">
         <td>{{ Add1 $index }}</td>
         <td>{{ $value.Name }}</td>
         <td>{{ $value.GitName }}</td>
