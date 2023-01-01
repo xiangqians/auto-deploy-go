@@ -65,30 +65,35 @@ type User struct {
 }
 
 type ItemLastRecord struct {
-	Id          int64
-	ItemId      int64
-	ItemName    string // item
-	ItemRem     string
-	PullStime   int64 // pull
-	PullEtime   int64
-	PullRem     string
-	CommitId    string // commitId
-	RevMsg      string // revMsg
-	BuildStime  int64  // build
-	BuildEtime  int64
-	BuildRem    string
-	PackStime   int64 // pack
-	PackEtime   int64
-	PackRem     string
-	UlStime     int64 // ul
-	UlEtime     int64
-	UlRem       string
-	DeployStime int64 // deploy
-	DeployEtime int64
-	DeployRem   string
-	Status      byte   // status
-	Rem         string // Rem
-	AddTime     int64  // AddTime
+	Id           int64
+	ItemId       int64
+	ItemName     string // item
+	ItemRem      string
+	PullStime    int64 // pull
+	PullEtime    int64
+	PullStatus   byte
+	PullRem      string
+	CommitId     string // commitId
+	RevMsg       string // revMsg
+	BuildStime   int64  // build
+	BuildEtime   int64
+	BuildStatus  byte
+	BuildRem     string
+	PackStime    int64 // pack
+	PackEtime    int64
+	PackStatus   byte
+	PackRem      string
+	UlStime      int64 // ul
+	UlEtime      int64
+	UlStatus     byte
+	UlRem        string
+	DeployStime  int64 // deploy
+	DeployEtime  int64
+	DeployStatus byte
+	DeployRem    string
+	Status       byte   // status
+	Rem          string // Rem
+	AddTime      int64  // AddTime
 }
 
 const (

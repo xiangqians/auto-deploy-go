@@ -43,7 +43,7 @@ $. 引用模板中的根级上下文
     <tr>
         <td>{{ Localize "i18n.no." }}</td>
         <td>{{ Localize "i18n.name" }}</td>
-        <td>{{ Localize "i18n.stageView" }}</td>
+        <td>{{ Localize "i18n.step" }}</td>
         <!-- 鼠标悬停在此标签上时，title = lastRevMessage -->
         <td>{{ Localize "i18n.lastDeployTime" }}</td>
         <td>{{ Localize "i18n.status" }}</td>
@@ -53,12 +53,27 @@ $. 引用模板中的根级上下文
     <tr>
         <td>{{ Add1 $index }}</td>
         <td title="{{ $value.ItemRem }}"><a href="javascript:void(0);">{{ $value.ItemName }}</a></td>
-        <td title="pull ({{ UnixDiff $value.PullStime $value.PullEtime }}): {{ $value.PullRem }}
-        build ({{ UnixDiff $value.BuildStime $value.BuildEtime }}): {{ $value.BuildRem }}
-        pack ({{ UnixDiff $value.PackStime $value.PackEtime }}): {{ $value.PackRem }}
-        ul ({{ UnixDiff $value.UlStime $value.UlEtime }}): {{ $value.UlRem }}
-        deploy ({{ UnixDiff $value.DeployStime $value.DeployEtime }}): {{ $value.DeployRem }}">
-            -
+        <td title="
+------------------------- pull ({{ UnixDiff $value.PullStime $value.PullEtime }}) {{ if gt $value.PullStatus 0 }}error{{ end }}
+{{ if gt $value.PullStatus 0 }}
+{{ $value.PullRem }}
+{{ end }}
+------------------------- build ({{ UnixDiff $value.BuildStime $value.BuildEtime }}) {{ if gt $value.BuildStatus 0 }}error{{ end }}
+{{ if gt $value.BuildStatus 0 }}
+{{ $value.BuildRem }}
+{{ end }}
+------------------------- pack ({{ UnixDiff $value.PackStime $value.PackEtime }}) {{ if gt $value.PackStatus 0 }}error{{ end }}
+{{ if gt $value.PackStatus 0 }}
+{{ $value.PackRem }}
+{{ end }}
+------------------------- ul ({{ UnixDiff $value.UlStime $value.UlEtime }}) {{ if gt $value.UlStatus 0 }}error{{ end }}
+{{ if gt $value.UlStatus 0 }}
+{{ $value.UlRem }}
+{{ end }}
+------------------------- deploy ({{ UnixDiff $value.DeployStime $value.DeployEtime }}) {{ if gt $value.DeployStatus 0 }}error{{ end }}
+{{ if gt $value.DeployStatus 0 }}
+{{ $value.DeployRem }}
+{{ end }}">-
         </td>
         <td title="{{ $value.RevMsg }}">{{ UnixToTime $value.AddTime }}</td>
         <td>{{ DeployStatusText $value.Status }}</td>

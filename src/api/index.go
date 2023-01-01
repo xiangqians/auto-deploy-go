@@ -188,12 +188,12 @@ func getItemLastRecords(pContext *gin.Context, itemId int64) []typ.ItemLastRecor
 	itemLastRecords := make([]typ.ItemLastRecord, 1)
 	user := GetUser(pContext)
 	sql := "SELECT IFNULL(r.id, 0) AS 'id', i.id AS 'item_id', i.`name` AS 'item_name', i.rem AS 'item_rem', " +
-		"IFNULL(r.pull_stime, 0) AS 'pull_stime', IFNULL(r.pull_etime, 0) AS 'pull_etime', IFNULL(r.pull_rem, '') AS 'pull_rem', " +
+		"IFNULL(r.pull_stime, 0) AS 'pull_stime', IFNULL(r.pull_etime, 0) AS 'pull_etime', IFNULL(r.pull_status, 0) AS 'pull_status', IFNULL(r.pull_rem, '') AS 'pull_rem', " +
 		"IFNULL(r.commit_id, '') AS 'commit_id', IFNULL(r.rev_msg, '') AS 'rev_msg', " +
-		"IFNULL(r.build_stime, 0) AS 'build_stime', IFNULL(r.build_etime, 0) AS 'build_etime', IFNULL(r.build_rem, '') AS 'build_rem', " +
-		"IFNULL(r.pack_stime, 0) AS 'pack_stime', IFNULL(r.pack_etime, 0) AS 'pack_etime', IFNULL(r.pack_rem, '') AS 'pack_rem', " +
-		"IFNULL(r.ul_stime, 0) AS 'ul_stime', IFNULL(r.ul_etime, 0) AS 'ul_etime', IFNULL(r.ul_rem, '') AS 'ul_rem', " +
-		"IFNULL(r.deploy_stime, 0) AS 'deploy_stime', IFNULL(r.deploy_etime, 0) AS 'deploy_etime', IFNULL(r.deploy_rem, '') AS 'deploy_rem', " +
+		"IFNULL(r.build_stime, 0) AS 'build_stime', IFNULL(r.build_etime, 0) AS 'build_etime', IFNULL(r.build_status, 0) AS 'build_status', IFNULL(r.build_rem, '') AS 'build_rem', " +
+		"IFNULL(r.pack_stime, 0) AS 'pack_stime', IFNULL(r.pack_etime, 0) AS 'pack_etime', IFNULL(r.pack_status, 0) AS 'pack_status', IFNULL(r.pack_rem, '') AS 'pack_rem', " +
+		"IFNULL(r.ul_stime, 0) AS 'ul_stime', IFNULL(r.ul_etime, 0) AS 'ul_etime', IFNULL(r.ul_status, 0) AS 'ul_status', IFNULL(r.ul_rem, '') AS 'ul_rem', " +
+		"IFNULL(r.deploy_stime, 0) AS 'deploy_stime', IFNULL(r.deploy_etime, 0) AS 'deploy_etime', IFNULL(r.deploy_status, 0) AS 'deploy_status', IFNULL(r.deploy_rem, '') AS 'deploy_rem', " +
 		"IFNULL(r.status, 0) AS 'status', " +
 		"IFNULL(r.rem, '') AS 'rem', " +
 		"IFNULL(r.add_time, 0) AS 'add_time' " +

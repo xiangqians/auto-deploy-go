@@ -88,40 +88,48 @@ func ParseScriptTxt(scriptTxt string) typ.Script {
 
 func updETime(Step typ.Step, recordId int64, err error, buf []byte) {
 	etimeName := ""
+	statusName := ""
 	remName := ""
 	switch Step {
 	case typ.StepPull:
 		etimeName = "pull_etime"
+		statusName = "pull_status"
 		remName = "pull_rem"
 
 	case typ.StepBuild:
 		etimeName = "build_etime"
+		statusName = "build_status"
 		remName = "build_rem"
 
 	case typ.StepPack:
 		etimeName = "pack_etime"
+		statusName = "pack_status"
 		remName = "pack_rem"
 
 	case typ.StepUl:
 		etimeName = "ul_etime"
+		statusName = "ul_status"
 		remName = "ul_rem"
 
 	case typ.StepDeploy:
 		etimeName = "deploy_etime"
+		statusName = "deploy_status"
 		remName = "deploy_rem"
 	}
 
 	var etime int64 = time.Now().Unix()
+	var status byte = 0
 	rem := ""
 	if err != nil {
-		etime = -1
+		etime = time.Now().Unix()
+		status = 1
 		if buf != nil {
 			rem = fmt.Sprintf("%s\n%s", err.Error(), string(buf))
 		} else {
 			rem = err.Error()
 		}
 	}
-	db.Upd(fmt.Sprintf("UPDATE record SET %s = ?, %s = ? WHERE id = ?", etimeName, remName), etime, rem, recordId)
+	db.Upd(fmt.Sprintf("UPDATE record SET %s = ?, %s = ?, %s = ? WHERE id = ?", etimeName, statusName, remName), etime, status, rem, recordId)
 }
 
 func updSTime(Step typ.Step, recordId int64) {
