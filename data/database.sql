@@ -13,8 +13,8 @@ CREATE TABLE `user` -- 用户信息表
     `add_time` INTEGER      DEFAULT 0,            -- 创建时间（时间戳，s）
     `upd_time` INTEGER      DEFAULT 0             -- 修改时间（时间戳，s）
 );
-INSERT INTO `user` (`name`, `nickname`, `passwd`, `add_time`) VALUES ('admin', 'admin', '64f7156950d2bb280b9459a114361f4b', 1671614960);
-INSERT INTO `user` (`name`, `nickname`, `passwd`, `add_time`) VALUES ('demo', 'demo', '28bd95214db32d1cd10a8301bacbd588', 1671614960);
+INSERT INTO `user` (`name`, `nickname`, `passwd`, `add_time`) VALUES ('admin', 'admin', '75b17d369a5ce9b50e1a608bee111cac', 1671614960);
+INSERT INTO `user` (`name`, `nickname`, `passwd`, `add_time`) VALUES ('demo', 'demo', 'aadc089a65eb613b708a4db4462afc08', 1671614960);
 -- admin, demo
 -- prod, test, dev
 

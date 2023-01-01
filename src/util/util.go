@@ -45,9 +45,9 @@ func VerifyUserName(username string) error {
 }
 
 // VerifyPasswd 校验密码
-// 8-16位长度（字母，数字，特殊字符）
+// 1-16位长度（字母，数字，特殊字符）
 func VerifyPasswd(passwd string) error {
-	matched, err := regexp.MatchString("^[a-zA-Z0-9!@#$%^&*()-_=+]{8,16}$", passwd)
+	matched, err := regexp.MatchString("^[a-zA-Z0-9!@#$%^&*()-_=+]{1,16}$", passwd)
 	if err == nil && matched {
 		return nil
 	}

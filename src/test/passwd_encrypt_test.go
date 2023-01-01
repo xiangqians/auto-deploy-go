@@ -10,13 +10,13 @@ import (
 )
 
 func TestPasswdEncrypt(t *testing.T) {
-	passwd := "autodeployadmin"
+	passwd := "admin"
 	str := api.PasswdEncrypt(passwd)
 	log.Printf("%v\n", str)
-	// 64f7156950d2bb280b9459a114361f4b
+	// 75b17d369a5ce9b50e1a608bee111cac
 
-	passwd = "autodeploydemo"
+	passwd = "demo"
 	str = api.PasswdEncrypt(passwd)
 	log.Printf("%v\n", str)
-	// 28bd95214db32d1cd10a8301bacbd588
+	// aadc089a65eb613b708a4db4462afc08
 }
