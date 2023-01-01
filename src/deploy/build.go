@@ -31,9 +31,9 @@ func Build(script typ.Script, recordId int64, resPath string) error {
 func defaultBuild(script typ.Script, recordId int64, resPath string) error {
 	updSTime(typ.StepBuild, recordId)
 
-	_build := script.Build
-	if _build != nil && len(_build) > 0 {
-		for _, cmd := range _build {
+	build := script.Build
+	if build != nil && len(build) > 0 {
+		for _, cmd := range build {
 			cd, err := util.Cd(resPath)
 			if err != nil {
 				updETime(typ.StepBuild, recordId, err)
@@ -65,8 +65,8 @@ func defaultBuild(script typ.Script, recordId int64, resPath string) error {
 func dockerBuild(script typ.Script, recordId int64, resPath string, container string) error {
 	updSTime(typ.StepBuild, recordId)
 
-	_build := script.Build
-	if _build != nil && len(_build) > 0 {
+	build := script.Build
+	if build != nil && len(build) > 0 {
 		// 判断是否支持 sudo 命令
 		sudo := true
 		pCmd, err := util.Command("sudo")
@@ -81,14 +81,28 @@ func dockerBuild(script typ.Script, recordId int64, resPath string, container st
 		}
 		log.Printf("sudo: %v\n", sudo)
 
-		containerResPath := fmt.Sprintf("/tmp/%v", resPath[strings.LastIndex(resPath, "item"):])
+		// 容器资源路径
+		containerResPath := fmt.Sprintf("/tmp/%s", resPath[strings.LastIndex(resPath, "item"):])
 		log.Printf("containerResPath: %v\n", containerResPath)
 
+		// newbuild
+		newbuild := make([]string, len(build)+2)
+		index := 0
+		newbuild[index] = fmt.Sprintf("rm -rf %s", containerResPath) // 删除容器资源路径
+		index++
+		newbuild[index] = fmt.Sprintf("mkdir -p %s", containerResPath) // 创建容器资源路径
+		index++
+		for _, cmd := range build {
+			newbuild[index] = cmd
+			index++
+		}
+		build = newbuild
+
 		// 执行 build 命令集
-		for _, cmd := range _build {
+		for _, cmd := range build {
 			// linux在宿主机执行docker容器环境内命令
 			// $ sudo docker exec -it -u root auto-deploy-build-env /bin/bash -c "cd /root && ./test.sh"
-			cmd = fmt.Sprintf("docker exec -it -u root %v /bin/bash -c \"cd %v && %v\"",
+			cmd = fmt.Sprintf("docker exec -it -u root %s /bin/bash -c \"cd %s && %s\"",
 				container, containerResPath, cmd)
 			if sudo {
 				cmd = "sudo " + cmd
