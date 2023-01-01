@@ -3,9 +3,11 @@ sudo docker stop auto-deploy-build-env
 sudo docker rm auto-deploy-build-env
 sudo docker rmi org/auto-deploy-build-env:latest
 
+
 # Debian apt源
 # https://mirrors.tuna.tsinghua.edu.cn/help/debian/
-cat>sources.list<<EOF
+# https
+cat>sources_https.list<<EOF
 # 选择你的 Debian 版本: buster
 # 默认注释了源码镜像以提高 apt update 速度，如有需要可自行取消注释
 deb https://mirrors.tuna.tsinghua.edu.cn/debian/ buster main contrib non-free
@@ -19,13 +21,30 @@ deb https://mirrors.tuna.tsinghua.edu.cn/debian/ buster-backports main contrib n
 deb https://mirrors.tuna.tsinghua.edu.cn/debian-security buster/updates main contrib non-free
 # deb-src https://mirrors.tuna.tsinghua.edu.cn/debian-security buster/updates main contrib non-free
 EOF
+# http
+cat>sources_http.list<<EOF
+# 选择你的 Debian 版本: buster
+# 默认注释了源码镜像以提高 apt update 速度，如有需要可自行取消注释
+deb http://mirrors.tuna.tsinghua.edu.cn/debian/ buster main contrib non-free
+# deb-src http://mirrors.tuna.tsinghua.edu.cn/debian/ buster main contrib non-free
+deb http://mirrors.tuna.tsinghua.edu.cn/debian/ buster-updates main contrib non-free
+# deb-src http://mirrors.tuna.tsinghua.edu.cn/debian/ buster-updates main contrib non-free
+
+deb http://mirrors.tuna.tsinghua.edu.cn/debian/ buster-backports main contrib non-free
+# deb-src http://mirrors.tuna.tsinghua.edu.cn/debian/ buster-backports main contrib non-free
+
+deb http://mirrors.tuna.tsinghua.edu.cn/debian-security buster/updates main contrib non-free
+# deb-src http://mirrors.tuna.tsinghua.edu.cn/debian-security buster/updates main contrib non-free
+EOF
+
 
 # Dockerfile
 cat>Dockerfile<<EOF
 # https://hub.docker.com/
 # https://hub.docker.com/_/debian
 # https://hub.docker.com/_/debian/tags?page=1&name=stable
-FROM debian:stable
+#FROM debian:stable
+FROM debian:buster
 
 # 以root执行
 USER root
@@ -39,22 +58,27 @@ RUN cp -f /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 RUN echo "alias ll='ls -l'" >> ~/.bashrc
 
 # Debian apt源
-#COPY sources.list /etc/apt/sources.list
+COPY sources_http.list /etc/apt/sources.list
 EOF
+
 
 # docker build --tag, -t
 # 镜像的名字及标签，通常 name:tag 或者 name 格式。
 sudo docker build -f Dockerfile -t org/auto-deploy-build-env:latest .
+
 
 # docker run
 # https://docs.docker.com/engine/reference/commandline/run/
 # -i: 以交互模式运行容器，通常与 -t 同时使用；
 # -d: 后台运行容器，并返回容器ID；
 # --name [name] 为容器指定一个名称，后续可以通过名字进行容器管理
+# -p [host port]:[container port]，指定端口映射，格式为: 主机(宿主)端口:容器端口
 sudo docker run \
 -id \
 --name auto-deploy-build-env \
+-p 18022:22 \
 -t org/auto-deploy-build-env:latest
+
 
 # exec.sh
 cat>exec.sh<<EOF
@@ -84,5 +108,8 @@ $ apt install telnet
 
 # ifconfig
 $ apt install net-tools
+
+// ssh server
+$ apt install openssh-server
 
 !
