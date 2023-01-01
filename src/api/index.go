@@ -15,12 +15,17 @@ import (
 	"log"
 	netHttp "net/http"
 	"strconv"
-	"sync"
 	"time"
 )
 
-// 互斥锁
-var lock sync.Mutex
+var _itemIdMap map[int64]int8
+var itemIdMapChan chan map[int64]int8
+
+func init() {
+	_itemIdMap = make(map[int64]int8, 16)
+	itemIdMapChan = make(chan map[int64]int8, 1)
+	itemIdMapChan <- _itemIdMap
+}
 
 func IndexPage(pContext *gin.Context) {
 	session := sessions.Default(pContext)
@@ -51,11 +56,6 @@ func Deploy(pContext *gin.Context) {
 		return
 	}
 
-	// 加锁
-	lock.Lock()
-	// 解锁
-	defer lock.Unlock()
-
 	// itemLastRecords
 	itemLastRecords := getItemLastRecords(pContext, itemId)
 	if itemLastRecords == nil {
@@ -64,11 +64,26 @@ func Deploy(pContext *gin.Context) {
 	}
 
 	// itemLastRecord
-	itemLastRecord := itemLastRecords[0]
-	if itemLastRecord.Status == typ.StatusInDeploy {
+	//itemLastRecord := itemLastRecords[0]
+	//if itemLastRecord.Status == typ.StatusInDeploy {
+	//	redirect("项目已在部署中")
+	//	return
+	//}
+
+	// 阻塞获取 chanel 中的 map
+	itemIdMap := <-itemIdMapChan
+	// 再将 map 添加到 channel
+	defer func() {
+		itemIdMapChan <- itemIdMap
+	}()
+	// get
+	_, r := itemIdMap[itemId]
+	if r {
 		redirect("项目已在部署中")
 		return
 	}
+	// put
+	itemIdMap[itemId] = 1
 
 	// item
 	item := typ.Item{}
@@ -102,6 +117,15 @@ func asynDeploy(item typ.Item, recordId int64) {
 		}
 		// update record
 		db.Upd("UPDATE record SET `status` = ?, rem = ?, `upd_time` = ? where id = ?", status, rem, time.Now().Unix(), recordId)
+
+		// 阻塞获取 chanel 中的 map
+		itemIdMap := <-itemIdMapChan
+		// 再将 map 添加到 channel
+		defer func() {
+			itemIdMapChan <- itemIdMap
+		}()
+		// 删除key
+		delete(itemIdMap, item.Id)
 	}
 
 	// delete If Exist
