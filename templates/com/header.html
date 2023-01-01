@@ -21,10 +21,15 @@ $. 引用模板中的根级上下文
 <br>
 
 <div style="text-align: left; padding-left: 50px;">
-    <a style="padding: 8px;" href="/">{{ Localize "i18n.index" }}</a>
-    <a style="padding: 8px;" href="/git/index">{{ Localize "i18n.git" }}</a>
-    <a style="padding: 8px;" href="/server/index">{{ Localize "i18n.server" }}</a>
-    <a style="padding: 8px;" href="/item/index">{{ Localize "i18n.item" }}</a>
-    <a style="padding: 8px;" href="/rx/index">{{ Localize "i18n.rx" }}</a>
+    <a style="padding: 8px; {{if .itemLastRecords }}background-color: lightgray;{{ end }}"
+       href="/">{{ Localize "i18n.index" }}</a>
+    <a style="padding: 8px; {{if .gits }}background-color: lightgray;{{ end }}"
+       href="/git/index">{{ Localize "i18n.git" }}</a>
+    <a style="padding: 8px; {{if .servers }}background-color: lightgray;{{ end }}"
+       href="/server/index">{{ Localize "i18n.server" }}</a>
+    <a style="padding: 8px; {{if .items }}background-color: lightgray;{{ end }}"
+       href="/item/index">{{ Localize "i18n.item" }}</a>
+    <a style="padding: 8px; {{if .rxs }}background-color: lightgray;{{ end }}"
+       href="/rx/index">{{ Localize "i18n.rx" }}</a>
 </div>
 {{ end }}
