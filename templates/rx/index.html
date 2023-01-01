@@ -11,7 +11,10 @@
     <title>{{ Localize "i18n.rx" }}</title>
 </head>
 <body>
+{{ template "com/header.html" }}
 
+<br>
+<br>
 <p class="message">{{ .message }}</p>
 
 <table border="1" cellspacing="0" cellpadding="10" align="center">
@@ -61,11 +64,6 @@
 <br>
 <div>
     <a name="join" href="/rx/join" method="POST">{{ Localize "i18n.join" }}</a>
-</div>
-
-<br>
-<div>
-    <a href="/">{{ Localize "i18n.index" }}</a>
 </div>
 
 {{ template "com/footer.html" }}

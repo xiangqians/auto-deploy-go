@@ -11,7 +11,10 @@
     <title>{{ Localize "i18n.server" }}</title>
 </head>
 <body>
+{{ template "com/header.html" }}
 
+<br>
+<br>
 <table border="1" cellspacing="0" cellpadding="10" align="center">
     <tr>
         <td>{{ Localize "i18n.no." }}</td>
@@ -48,11 +51,6 @@
 <br>
 <div>
     <a href="/server/addpage">{{ Localize "i18n.add" }}</a>
-</div>
-
-<br>
-<div>
-    <a href="/">{{ Localize "i18n.index" }}</a>
 </div>
 
 {{ template "com/footer.html" }}

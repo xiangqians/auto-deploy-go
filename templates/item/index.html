@@ -10,7 +10,10 @@
     <link rel="stylesheet" href="/static/css/com.css" type="text/css"/>
     <title>{{ Localize "i18n.item" }}</title></head>
 <body>
+{{ template "com/header.html" }}
 
+<br>
+<br>
 <table border="1" cellspacing="0" cellpadding="10" align="center">
     <tr>
         <td>{{ Localize "i18n.no." }}</td>
@@ -47,11 +50,6 @@
 <br>
 <div>
     <a href="/item/addpage">{{ Localize "i18n.add" }}</a>
-</div>
-
-<br>
-<div>
-    <a href="/">{{ Localize "i18n.index" }}</a>
 </div>
 
 {{ template "com/footer.html" }}
