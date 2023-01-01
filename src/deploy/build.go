@@ -9,6 +9,7 @@ import (
 	"auto-deploy-go/src/util"
 	"errors"
 	"fmt"
+	"log"
 	"strings"
 )
 
@@ -64,8 +65,47 @@ func defaultBuild(script typ.Script, recordId int64, resPath string) error {
 func dockerBuild(script typ.Script, recordId int64, resPath string, container string) error {
 	updSTime(typ.StepBuild, recordId)
 
-	// linux在宿主机执行docker容器环境内命令
-	// sudo docker exec -it -u root auto-deploy-build-env /bin/bash -c "./test.sh"
+	_build := script.Build
+	if _build != nil && len(_build) > 0 {
+		// 判断是否支持 sudo 命令
+		sudo := true
+		pCmd, err := util.Command("sudo")
+		if err != nil {
+			log.Println(err)
+			sudo = false
+		}
+		_, err = pCmd.CombinedOutput()
+		if err != nil {
+			log.Println(err)
+			sudo = false
+		}
+		log.Printf("sudo: %v\n", sudo)
+
+		containerResPath := fmt.Sprintf("/tmp/%v", resPath[strings.LastIndex(resPath, "item"):])
+		log.Printf("containerResPath: %v\n", containerResPath)
+
+		// 执行 build 命令集
+		for _, cmd := range _build {
+			// linux在宿主机执行docker容器环境内命令
+			// $ sudo docker exec -it -u root auto-deploy-build-env /bin/bash -c "cd /root && ./test.sh"
+			cmd = fmt.Sprintf("docker exec -it -u root %v /bin/bash -c \"cd %v && %v\"",
+				container, containerResPath, cmd)
+			if sudo {
+				cmd = "sudo " + cmd
+			}
+			pCmd, err = util.Command(cmd)
+			if err != nil {
+				updETime(typ.StepBuild, recordId, err)
+				return err
+			}
+
+			_, err = pCmd.CombinedOutput()
+			if err != nil {
+				updETime(typ.StepBuild, recordId, err)
+				return err
+			}
+		}
+	}
 
 	updETime(typ.StepBuild, recordId, nil)
 	return nil
