@@ -17,6 +17,7 @@ import (
 
 func GitIndex(pContext *gin.Context) {
 	pContext.HTML(http.StatusOK, "git/index.html", gin.H{
+		"user": GetUser(pContext),
 		"gits": Gits(pContext),
 	})
 }

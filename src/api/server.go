@@ -17,6 +17,7 @@ import (
 
 func ServerIndex(pContext *gin.Context) {
 	pContext.HTML(http.StatusOK, "server/index.html", gin.H{
+		"user":    GetUser(pContext),
 		"servers": Servers(pContext),
 	})
 }

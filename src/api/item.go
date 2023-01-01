@@ -20,6 +20,7 @@ func ItemIndex(pContext *gin.Context) {
 	session.Delete("message")
 	session.Save()
 	pContext.HTML(http.StatusOK, "item/index.html", gin.H{
+		"user":    GetUser(pContext),
 		"items":   Items(pContext),
 		"message": message,
 	})
