@@ -64,6 +64,9 @@ func defaultBuild(script typ.Script, recordId int64, resPath string) error {
 func dockerBuild(script typ.Script, recordId int64, resPath string, container string) error {
 	updSTime(typ.StepBuild, recordId)
 
+	// linux在宿主机执行docker容器环境内命令
+	// sudo docker exec -it -u root auto-deploy-build-env /bin/bash -c "./test.sh"
+
 	updETime(typ.StepBuild, recordId, nil)
 	return nil
 }

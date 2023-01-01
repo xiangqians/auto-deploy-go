@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # rm
 sudo docker stop auto-deploy-build-env
 sudo docker rm auto-deploy-build-env
@@ -80,6 +82,7 @@ sudo docker run \
 
 # exec.sh
 cat>exec.sh<<EOF
+#!/bin/bash
 # \$ docker inspect [CONTAINER ID]
 # \$ cd [\${MergedDir}]
 
