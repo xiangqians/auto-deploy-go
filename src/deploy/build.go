@@ -85,6 +85,32 @@ func dockerBuild(script typ.Script, recordId int64, resPath string, container st
 		containerResPath := fmt.Sprintf("/tmp/%s", resPath[strings.LastIndex(resPath, "item"):])
 		log.Printf("containerResPath: %v\n", containerResPath)
 
+		// 容器文件拷贝（容器启动与否，拷贝命令都会生效）
+		// 1、从宿主机拷贝文件到容器
+		// $ docker cp [OPTIONS] SRC_PATH|- CONTAINER:DEST_PATH
+		// $ docker cp [宿主机（外部主机）文件/文件夹路径] [容器名]:[容器文件/文件夹路径]
+		// 2、从容器拷贝文件到宿主机
+		// $ docker cp [OPTIONS] CONTAINER:SRC_PATH DEST_PATH|-
+		// $ docker cp [容器ID/名称]:[容器文件/文件夹路径] [宿主机（外部主机）文件/文件夹路径]
+
+		// 将源码cp到docker容器内
+		// 将 test 目录下所有文件cp到容器 /tmp/test 目录下
+		// $ docker cp test/. auto-deploy-build-env:/tmp/test/
+		cmd := fmt.Sprintf("docker cp %s/. %s:%s/", resPath, container, containerResPath)
+		if sudo {
+			cmd = "sudo " + cmd
+		}
+		pCmd, err = util.Command(cmd)
+		if err != nil {
+			updETime(typ.StepBuild, recordId, err)
+			return err
+		}
+		_, err = pCmd.CombinedOutput()
+		if err != nil {
+			updETime(typ.StepBuild, recordId, err)
+			return err
+		}
+
 		// newbuild
 		newbuild := make([]string, len(build)+2)
 		index := 0
@@ -92,14 +118,14 @@ func dockerBuild(script typ.Script, recordId int64, resPath string, container st
 		index++
 		newbuild[index] = fmt.Sprintf("mkdir -p %s", containerResPath) // 创建容器资源路径
 		index++
-		for _, cmd := range build {
+		for _, cmd = range build {
 			newbuild[index] = cmd
 			index++
 		}
 		build = newbuild
 
 		// 执行 build 命令集
-		for _, cmd := range build {
+		for _, cmd = range build {
 			// linux在宿主机执行docker容器环境内命令
 			// $ sudo docker exec -it -u root auto-deploy-build-env /bin/bash -c "cd /root && ./test.sh"
 			cmd = fmt.Sprintf("docker exec -it -u root %s /bin/bash -c \"cd %s && %s\"",
@@ -118,6 +144,24 @@ func dockerBuild(script typ.Script, recordId int64, resPath string, container st
 				updETime(typ.StepBuild, recordId, err)
 				return err
 			}
+		}
+
+		// 将docker容器内编译结果cp到 auto-deploy-go 应用所在的服务器上
+		// 将 /tmp/test 目录下所有文件cp到宿主机 test 目录下
+		// $ docker cp auto-deploy-build-env:/tmp/test/. ./test/
+		cmd = fmt.Sprintf("docker cp %s:%s/. %s/", resPath, container, containerResPath)
+		if sudo {
+			cmd = "sudo " + cmd
+		}
+		pCmd, err = util.Command(cmd)
+		if err != nil {
+			updETime(typ.StepBuild, recordId, err)
+			return err
+		}
+		_, err = pCmd.CombinedOutput()
+		if err != nil {
+			updETime(typ.StepBuild, recordId, err)
+			return err
 		}
 	}
 
