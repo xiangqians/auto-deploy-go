@@ -34,7 +34,7 @@ type Item struct {
 	Branch     string `form:"branch" binding:"required,excludes= ,min=1,max=60"`   // 分支名
 	ServerId   int64  `form:"serverId" binding:"required,gt=0"`                    // 项目所属Server id
 	ServerName string `form:"serverName"`                                          // 项目所属Server Name
-	Script     string `form:"script" binding:"required,min=1,max=1000"`            // 脚本
+	Script     string `form:"script" binding:"required,min=1,max=100000"`          // 脚本
 }
 
 type Rx struct {
