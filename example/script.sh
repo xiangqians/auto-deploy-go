@@ -1,5 +1,5 @@
 [build]
-mvn clean
+#mvn clean
 mvn package
 
 [target]
@@ -10,6 +10,8 @@ mvn package
 
 [deploy]
 #! /bin/bash
+
+./clean.sh
 
 # Dockerfile
 cat>Dockerfile<<EOF
@@ -41,7 +43,7 @@ WORKDIR /opt/appl
 
 # 容器入口
 # 设置JVM栈内存、最小堆内存、最大堆内存
-ENTRYPOINT [ "java", "-Dfile.encoding=utf-8", "-Xss4096K", "-Xms256M", "-Xmx256M", "-jar", "/opt/appl/test-1.0-SNAPSHOT.jar" ]
+ENTRYPOINT [ "java", "-Dfile.encoding=utf-8", "-Xss4096K", "-Xms512M", "-Xmx512M", "-jar", "/opt/appl/test-1.0-SNAPSHOT.jar" ]
 EOF
 
 # docker build
@@ -53,3 +55,12 @@ sudo docker run \
 --name test \
 -p 8088:8080 \
 -t org/test:1.0
+
+# clean.sh
+cat>clean.sh<<EOF
+#!/bin/bash
+docker stop test
+docker rm test
+docker rmi org/test:1.0
+EOF
+chmod +x clean.sh
