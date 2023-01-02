@@ -110,4 +110,19 @@
         }
     }
 
+    // header.html -> nav
+    let $html = $('html')
+    // console.log('$html', $html)
+    let url = $html.attr('url')
+    // console.log('url', url)
+    let $navs = $('a[name="nav"]')
+    // console.log('$navs', $navs)
+    for (let i = 0, length = $navs.length; i < length; i++) {
+        let $nav = $($navs[i])
+        let navUrl = $nav.attr("href")
+        if (url === navUrl) {
+            // console.log('navUrl', navUrl)
+            $nav.css('background-color', 'lightgray');
+        }
+    }
 })()

@@ -35,22 +35,5 @@ $. 引用模板中的根级上下文
     </div>
     <br>
     <br>
-    <script type="text/javascript">
-        let html = document.querySelector('html')
-        // console.log('html', html)
-        let url = html.getAttribute('url')
-        // console.log('url', url)
-        let navs = document.querySelectorAll('a[name="nav"]')
-        // console.log('navs', navs)
-        for (let i = 0, length = navs.length; i < length; i++) {
-            let nav = navs[i]
-            let navUrl = nav.getAttribute("href")
-            if (url === navUrl) {
-                // console.log('navUrl', navUrl)
-                // console.log('navStyle', nav.style)
-                nav.style['background-color'] = 'lightgray'
-            }
-        }
-    </script>
 </header>
 {{ end }}
