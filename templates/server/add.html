@@ -18,42 +18,44 @@
     </title>
 <body>
 
-<form action="/server" method="{{ if gt .server.Id 0 }}PUT{{else}}POST{{end}}">
-    <p style="color: red;">{{ .message }}</p>
-    <input type="hidden" name="id" value="{{ .server.Id }}">
+<content>
+    <form action="/server" method="{{ if gt .server.Id 0 }}PUT{{else}}POST{{end}}">
+        <p style="color: red;">{{ .message }}</p>
+        <input type="hidden" name="id" value="{{ .server.Id }}">
+        <div>
+            *<label>{{ Localize "i18n.name" }}:</label>
+            <input name="name" type="text" value="{{ .server.Name }}">
+        </div>
+        <div>
+            *<label>{{ Localize "i18n.host" }}:</label>
+            <input name="host" type="text" value="{{ .server.Host }}">
+        </div>
+        <div>
+            *<label>{{ Localize "i18n.port" }}:</label>
+            <input name="port" type="number" value="{{ .server.Port }}">
+        </div>
+        <div>
+            *<label>{{ Localize "i18n.user" }}:</label>
+            <input name="user" type="text" value="{{ .server.User }}">
+        </div>
+        <div>
+            *<label>{{ Localize "i18n.passwd" }}:</label>
+            <input name="passwd" type="password">
+        </div>
+        <div>
+            <label>{{ Localize "i18n.rem" }}:</label>
+            <input name="rem" type="text" value="{{ .server.Rem }}">
+        </div>
+        <div>
+            <input type="submit"
+                   value='{{ if gt .server.Id 0 }} {{ Localize "i18n.upd" }} {{else}} {{ Localize "i18n.add" }} {{end}}'>
+        </div>
+    </form>
+    <br>
     <div>
-        *<label>{{ Localize "i18n.name" }}:</label>
-        <input name="name" type="text" value="{{ .server.Name }}">
+        <a href="/server/index">{{ Localize "i18n.server" }}</a>
     </div>
-    <div>
-        *<label>{{ Localize "i18n.host" }}:</label>
-        <input name="host" type="text" value="{{ .server.Host }}">
-    </div>
-    <div>
-        *<label>{{ Localize "i18n.port" }}:</label>
-        <input name="port" type="number" value="{{ .server.Port }}">
-    </div>
-    <div>
-        *<label>{{ Localize "i18n.user" }}:</label>
-        <input name="user" type="text" value="{{ .server.User }}">
-    </div>
-    <div>
-        *<label>{{ Localize "i18n.passwd" }}:</label>
-        <input name="passwd" type="password">
-    </div>
-    <div>
-        <label>{{ Localize "i18n.rem" }}:</label>
-        <input name="rem" type="text" value="{{ .server.Rem }}">
-    </div>
-    <div>
-        <input type="submit"
-               value='{{ if gt .server.Id 0 }} {{ Localize "i18n.upd" }} {{else}} {{ Localize "i18n.add" }} {{end}}'>
-    </div>
-</form>
-<br>
-<div>
-    <a href="/server/index">{{ Localize "i18n.server" }}</a>
-</div>
+</content>
 
 {{ template "com/footer.html" . }}
 

@@ -19,26 +19,28 @@
 </head>
 <body>
 
-<form action="/rx" method="{{ if gt .rx.Id 0 }}PUT{{else}}POST{{end}}">
-    <p style="color: red;">{{ .message }}</p>
-    <input type="hidden" name="id" value="{{ .rx.Id }}">
+<content>
+    <form action="/rx" method="{{ if gt .rx.Id 0 }}PUT{{else}}POST{{end}}">
+        <p style="color: red;">{{ .message }}</p>
+        <input type="hidden" name="id" value="{{ .rx.Id }}">
+        <div>
+            *<label>{{ Localize "i18n.name" }}:</label>
+            <input name="name" type="text" value="{{ .rx.Name }}">
+        </div>
+        <div>
+            <label>{{ Localize "i18n.rem" }}:</label>
+            <input name="rem" type="text" value="{{ .rx.Rem }}">
+        </div>
+        <div>
+            <input type="submit"
+                   value='{{ if gt .rx.Id 0 }} {{ Localize "i18n.upd" }} {{else}} {{ Localize "i18n.add" }} {{end}}'>
+        </div>
+    </form>
+    <br>
     <div>
-        *<label>{{ Localize "i18n.name" }}:</label>
-        <input name="name" type="text" value="{{ .rx.Name }}">
+        <a href="/rx/index">{{ Localize "i18n.rx" }}</a>
     </div>
-    <div>
-        <label>{{ Localize "i18n.rem" }}:</label>
-        <input name="rem" type="text" value="{{ .rx.Rem }}">
-    </div>
-    <div>
-        <input type="submit"
-               value='{{ if gt .rx.Id 0 }} {{ Localize "i18n.upd" }} {{else}} {{ Localize "i18n.add" }} {{end}}'>
-    </div>
-</form>
-<br>
-<div>
-    <a href="/rx/index">{{ Localize "i18n.rx" }}</a>
-</div>
+</content>
 
 {{ template "com/footer.html" . }}
 
