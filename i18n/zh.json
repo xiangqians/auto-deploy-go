@@ -71,5 +71,6 @@
   "i18n.build": "构建",
   "i18n.pack": "打包",
   "i18n.upload": "上传",
-  "i18n.deploy": "部署"
+  "i18n.deploy": "部署",
+  "i18n.noData": "无数据"
 }

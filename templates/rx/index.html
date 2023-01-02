@@ -32,6 +32,7 @@
     </tr>
     </thead>
     <tbody>
+    {{ if .rxs }}
     {{ range $index,$value := .rxs }}
     <tr>
         <td>{{ Add1 $index }}</td>
@@ -57,6 +58,11 @@
                 {{ Localize "i18n.del" }}
             </a>
         </td>
+    </tr>
+    {{ end }}
+    {{ else }}
+    <tr>
+        <td colspan="9">{{ Localize "i18n.noData" }}</td>
     </tr>
     {{ end }}
     </tbody>

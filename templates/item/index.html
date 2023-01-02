@@ -30,6 +30,7 @@
     </tr>
     </thead>
     <tbody>
+    {{ if .items }}
     {{ range $index,$value := .items }}
     <tr>
         <td>{{ Add1 $index }}</td>
@@ -47,6 +48,11 @@
                 {{ Localize "i18n.del" }}
             </a>
         </td>
+    </tr>
+    {{ end }}
+    {{ else }}
+    <tr>
+        <td colspan="10">{{ Localize "i18n.noData" }}</td>
     </tr>
     {{ end }}
     </tbody>
