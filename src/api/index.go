@@ -198,6 +198,7 @@ func getItemLastRecords(pContext *gin.Context, itemId int64) []typ.ItemLastRecor
 		"IFNULL(r.build_stime, 0) AS 'build_stime', IFNULL(r.build_etime, 0) AS 'build_etime', IFNULL(r.build_status, 0) AS 'build_status', IFNULL(r.build_rem, '') AS 'build_rem', " +
 		"IFNULL(r.pack_stime, 0) AS 'pack_stime', IFNULL(r.pack_etime, 0) AS 'pack_etime', IFNULL(r.pack_status, 0) AS 'pack_status', IFNULL(r.pack_rem, '') AS 'pack_rem', " +
 		"IFNULL(r.ul_stime, 0) AS 'ul_stime', IFNULL(r.ul_etime, 0) AS 'ul_etime', IFNULL(r.ul_status, 0) AS 'ul_status', IFNULL(r.ul_rem, '') AS 'ul_rem', " +
+		"IFNULL(r.unpack_stime, 0) AS 'unpack_stime', IFNULL(r.unpack_etime, 0) AS 'unpack_etime', IFNULL(r.unpack_status, 0) AS 'unpack_status', IFNULL(r.unpack_rem, '') AS 'unpack_rem', " +
 		"IFNULL(r.deploy_stime, 0) AS 'deploy_stime', IFNULL(r.deploy_etime, 0) AS 'deploy_etime', IFNULL(r.deploy_status, 0) AS 'deploy_status', IFNULL(r.deploy_rem, '') AS 'deploy_rem', " +
 		"IFNULL(r.status, 0) AS 'status', " +
 		"IFNULL(r.rem, '') AS 'rem', " +

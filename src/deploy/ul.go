@@ -101,17 +101,22 @@ func UlAndDeploy(item typ.Item, recordId int64, packName, ulPath string) error {
 		return err
 	}
 
+	updETime(typ.StepUl, recordId, nil, nil)
+
+	// #################### Unpack  ####################
+
+	updSTime(typ.StepUnpack, recordId)
+
 	// 解压
 	// $ unzip --help
 	// -o  overwrite files WITHOUT prompting
 	// -d  extract files into exdir
 	buf, err = exec(fmt.Sprintf("unzip -o %s -d %s", ulName, ulPath))
 	if err != nil {
-		updETime(typ.StepUl, recordId, err, buf)
+		updETime(typ.StepUnpack, recordId, err, buf)
 		return err
 	}
-
-	updETime(typ.StepUl, recordId, nil, nil)
+	updETime(typ.StepUnpack, recordId, nil, nil)
 
 	// #################### Deploy  ####################
 

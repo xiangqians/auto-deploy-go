@@ -48,6 +48,9 @@
             <span style="padding-left: 10px; {{ if gt $value.UlStatus 0 }}color: red;{{ end }}"
                   title="{{ $value.UlRem }}">{{ Localize "i18n.upload" }} ({{ UnixDiff $value.UlStime $value.UlEtime }})</span>
             →
+            <span style="padding-left: 10px; {{ if gt $value.UnpackStatus 0 }}color: red;{{ end }}"
+                  title="{{ $value.UnpackRem }}">{{ Localize "i18n.unpack" }} ({{ UnixDiff $value.UnpackStime $value.UnpackEtime }})</span>
+            →
             <span style="padding-left: 10px; {{ if gt $value.DeployStatus 0 }}color: red;{{ end }}"
                   title="{{ $value.DeployRem }}">{{ Localize "i18n.deploy" }} ({{ UnixDiff $value.DeployStime $value.DeployEtime }})</span>
         </td>

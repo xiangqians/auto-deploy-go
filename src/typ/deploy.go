@@ -18,6 +18,7 @@ const (
 	StepBuild                  // 构建
 	StepPack                   // 打包
 	StepUl                     // upload上传
+	StepUnpack                 // 解包
 	StepDeploy                 // 部署
 )
 

@@ -71,6 +71,7 @@
   "i18n.build": "Build",
   "i18n.pack": "Pack",
   "i18n.upload": "Upload",
+  "i18n.unpack": "Unpack",
   "i18n.deploy": "Deploy",
   "i18n.noData": "No data",
   "i18n.itemNotExist": "Item does not exist",

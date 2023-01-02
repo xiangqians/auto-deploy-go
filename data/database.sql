@@ -121,6 +121,10 @@ CREATE TABLE `record` -- 项目部署记录信息表
     `ul_etime`      INTEGER      DEFAULT 0,            -- upload结束时间（时间戳，s）
     `ul_status`     TINYINT      DEFAULT 0,            -- upload状态，非0表示异常
     `ul_rem`        TEXT         DEFAULT NULL,         -- upload备注信息
+    `unpack_stime`  INTEGER      DEFAULT 0,            -- unpack开始时间（时间戳，s）
+    `unpack_etime`  INTEGER      DEFAULT 0,            -- unpack结束时间（时间戳，s）
+    `unpack_status` TINYINT      DEFAULT 0,            -- unpack状态，非0表示异常
+    `unpack_rem`    TEXT         DEFAULT NULL,         -- unpack备注信息
     `deploy_stime`  INTEGER      DEFAULT 0,            -- deploy开始时间（时间戳，s）
     `deploy_etime`  INTEGER      DEFAULT 0,            -- deploy结束时间（时间戳，s）
     `deploy_status` TINYINT      DEFAULT 0,            -- deploy状态，非0表示异常

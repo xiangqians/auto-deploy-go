@@ -111,6 +111,11 @@ func updETime(Step typ.Step, recordId int64, err error, buf []byte) {
 		statusName = "ul_status"
 		remName = "ul_rem"
 
+	case typ.StepUnpack:
+		etimeName = "unpack_etime"
+		statusName = "unpack_status"
+		remName = "unpack_rem"
+
 	case typ.StepDeploy:
 		etimeName = "deploy_etime"
 		statusName = "deploy_status"
@@ -146,6 +151,9 @@ func updSTime(Step typ.Step, recordId int64) {
 
 	case typ.StepUl:
 		stimeName = "ul_stime"
+
+	case typ.StepUnpack:
+		stimeName = "unpack_stime"
 
 	case typ.StepDeploy:
 		stimeName = "deploy_stime"

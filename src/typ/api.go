@@ -87,6 +87,10 @@ type ItemLastRecord struct {
 	UlEtime      int64
 	UlStatus     byte
 	UlRem        string
+	UnpackStime  int64 // unpack
+	UnpackEtime  int64
+	UnpackStatus byte
+	UnpackRem    string
 	DeployStime  int64 // deploy
 	DeployEtime  int64
 	DeployStatus byte
