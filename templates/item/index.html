@@ -10,59 +10,60 @@
     <link rel="stylesheet" href="/static/css/com.css" type="text/css"/>
     <title>{{ Localize "i18n.item" }}</title></head>
 <body>
+
 {{ template "com/header.html" . }}
 
-<br>
-<br>
-<table border="1" cellspacing="0" cellpadding="10" align="center">
-    <thead>
-    <tr>
-        <td>{{ Localize "i18n.no." }}</td>
-        <td>{{ Localize "i18n.name" }}</td>
-        <td>{{ Localize "i18n.git" }}</td>
-        <td>{{ Localize "i18n.repoUrl" }}</td>
-        <td>{{ Localize "i18n.branch" }}</td>
-        <td>{{ Localize "i18n.server" }}</td>
-        <td>{{ Localize "i18n.rem" }}</td>
-        <td>{{ Localize "i18n.addTime" }}</td>
-        <td>{{ Localize "i18n.updTime" }}</td>
-        <td colspan="2">{{ Localize "i18n.op" }}</td>
-    </tr>
-    </thead>
-    <tbody>
-    {{ if .items }}
-    {{ range $index,$value := .items }}
-    <tr>
-        <td>{{ Add1 $index }}</td>
-        <td>{{ $value.Name }}</td>
-        <td>{{ $value.GitName }}</td>
-        <td>{{ $value.RepoUrl }}</td>
-        <td>{{ $value.Branch }}</td>
-        <td>{{ $value.ServerName }}</td>
-        <td>{{ $value.Rem }}</td>
-        <td>{{ UnixToTime $value.AddTime }}</td>
-        <td>{{ UnixToTime $value.UpdTime }}</td>
-        <td><a href="/item/addpage?id={{ $value.Id }}">{{ Localize "i18n.upd" }}</a></td>
-        <td>
-            <a href="/item/{{ $value.Id }}" method="DELETE" confirm='{{ Localize "i18n.del" }} {{ $value.Name }}?'>
-                {{ Localize "i18n.del" }}
-            </a>
-        </td>
-    </tr>
-    {{ end }}
-    {{ else }}
-    <tr>
-        <td colspan="10">{{ Localize "i18n.noData" }}</td>
-    </tr>
-    {{ end }}
-    </tbody>
-</table>
-<br>
-<div>
-    <a href="/item/addpage">{{ Localize "i18n.add" }}</a>
-</div>
+<content>
+    <table border="1" cellspacing="0" cellpadding="10" align="center">
+        <thead>
+        <tr>
+            <td>{{ Localize "i18n.no." }}</td>
+            <td>{{ Localize "i18n.name" }}</td>
+            <td>{{ Localize "i18n.git" }}</td>
+            <td>{{ Localize "i18n.repoUrl" }}</td>
+            <td>{{ Localize "i18n.branch" }}</td>
+            <td>{{ Localize "i18n.server" }}</td>
+            <td>{{ Localize "i18n.rem" }}</td>
+            <td>{{ Localize "i18n.addTime" }}</td>
+            <td>{{ Localize "i18n.updTime" }}</td>
+            <td colspan="2">{{ Localize "i18n.op" }}</td>
+        </tr>
+        </thead>
+        <tbody>
+        {{ if .items }}
+        {{ range $index,$value := .items }}
+        <tr>
+            <td>{{ Add1 $index }}</td>
+            <td>{{ $value.Name }}</td>
+            <td>{{ $value.GitName }}</td>
+            <td>{{ $value.RepoUrl }}</td>
+            <td>{{ $value.Branch }}</td>
+            <td>{{ $value.ServerName }}</td>
+            <td>{{ $value.Rem }}</td>
+            <td>{{ UnixToTime $value.AddTime }}</td>
+            <td>{{ UnixToTime $value.UpdTime }}</td>
+            <td><a href="/item/addpage?id={{ $value.Id }}">{{ Localize "i18n.upd" }}</a></td>
+            <td>
+                <a href="/item/{{ $value.Id }}" method="DELETE" confirm='{{ Localize "i18n.del" }} {{ $value.Name }}?'>
+                    {{ Localize "i18n.del" }}
+                </a>
+            </td>
+        </tr>
+        {{ end }}
+        {{ else }}
+        <tr>
+            <td colspan="10">{{ Localize "i18n.noData" }}</td>
+        </tr>
+        {{ end }}
+        </tbody>
+    </table>
+    <br>
+    <div>
+        <a href="/item/addpage">{{ Localize "i18n.add" }}</a>
+    </div>
+</content>
 
-{{ template "com/footer.html" }}
+{{ template "com/footer.html" . }}
 
 </body>
 </html>

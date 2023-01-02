@@ -20,7 +20,7 @@
 <body>
 
 <form action="/rx" method="{{ if gt .rx.Id 0 }}PUT{{else}}POST{{end}}">
-    <p class="errMessage">{{ .message }}</p>
+    <p style="color: red;">{{ .message }}</p>
     <input type="hidden" name="id" value="{{ .rx.Id }}">
     <div>
         *<label>{{ Localize "i18n.name" }}:</label>
@@ -40,7 +40,7 @@
     <a href="/rx/index">{{ Localize "i18n.rx" }}</a>
 </div>
 
-{{ template "com/footer.html" }}
+{{ template "com/footer.html" . }}
 
 </body>
 </html>

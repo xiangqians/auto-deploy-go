@@ -20,7 +20,7 @@
 <body>
 
 <form action="/item" method="{{ if gt .item.Id 0 }}PUT{{else}}POST{{end}}">
-    <p class="errMessage">{{ .message }}</p>
+    <p style="color: red;">{{ .message }}</p>
     <input type="hidden" name="id" value="{{ .item.Id }}">
     <div>
         *<label>{{ Localize "i18n.name" }}:</label>
@@ -73,7 +73,7 @@
     <a href="/item/index">{{ Localize "i18n.item" }}</a>
 </div>
 
-{{ template "com/footer.html" }}
+{{ template "com/footer.html" . }}
 
 </body>
 </html>

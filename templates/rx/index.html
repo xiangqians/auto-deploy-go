@@ -11,72 +11,72 @@
     <title>{{ Localize "i18n.rx" }}</title>
 </head>
 <body>
+
 {{ template "com/header.html" . }}
 
-<br>
-<br>
-<p class="errMessage">{{ .message }}</p>
+<content>
+    <p style="color: red;">{{ .message }}</p>
+    <table border="1" cellspacing="0" cellpadding="10" align="center">
+        <thead>
+        <tr>
+            <td>{{ Localize "i18n.no." }}</td>
+            <td>{{ Localize "i18n.name" }}</td>
+            <td>{{ Localize "i18n.owner" }}</td>
+            <td>{{ Localize "i18n.sharer" }}</td>
+            <td>{{ Localize "i18n.rem" }}</td>
+            <td>{{ Localize "i18n.addTime" }}</td>
+            <td>{{ Localize "i18n.updTime" }}</td>
+            <td>{{ Localize "i18n.code" }}</td>
+            <td colspan="2">{{ Localize "i18n.op" }}</td>
+        </tr>
+        </thead>
+        <tbody>
+        {{ if .rxs }}
+        {{ range $index,$value := .rxs }}
+        <tr>
+            <td>{{ Add1 $index }}</td>
+            <td>{{ $value.Name }}</td>
+            <td>{{ $value.OwnerName }}</td>
+            <td>{{ $value.SharerName }}</td>
+            <td>{{ $value.Rem }}</td>
+            <td>{{ UnixToTime $value.AddTime }}</td>
+            <td>{{ UnixToTime $value.UpdTime }}</td>
+            <td><span id="code{{ $value.Id }}" style="display: none">{{ $value.Id }}</span>
+                <button name="copy" {{ if ne $value.SharerId 0 }} disabled="disabled" {{ end }}>
+                    {{ Localize "i18n.copy" }}
+                </button>
+            </td>
+            <td>
+                {{ if ne $value.OwnerId $.user.Id }}
+                <span>{{ Localize "i18n.upd" }}</span>
+                {{ else }}
+                <a href="/rx/addpage?id={{ $value.Id }}">{{ Localize "i18n.upd" }}</a>
+                {{ end }}
+            <td>
+                <a href="/rx/{{ $value.Id }}" method="DELETE" confirm='{{ Localize "i18n.del" }} {{ $value.Name }}?'>
+                    {{ Localize "i18n.del" }}
+                </a>
+            </td>
+        </tr>
+        {{ end }}
+        {{ else }}
+        <tr>
+            <td colspan="9">{{ Localize "i18n.noData" }}</td>
+        </tr>
+        {{ end }}
+        </tbody>
+    </table>
+    <br>
+    <div>
+        <a href="/rx/addpage">{{ Localize "i18n.add" }}</a>
+    </div>
+    <br>
+    <div>
+        <a name="join" href="/rx/join" method="POST">{{ Localize "i18n.join" }}</a>
+    </div>
+</content>
 
-<table border="1" cellspacing="0" cellpadding="10" align="center">
-    <thead>
-    <tr>
-        <td>{{ Localize "i18n.no." }}</td>
-        <td>{{ Localize "i18n.name" }}</td>
-        <td>{{ Localize "i18n.owner" }}</td>
-        <td>{{ Localize "i18n.sharer" }}</td>
-        <td>{{ Localize "i18n.rem" }}</td>
-        <td>{{ Localize "i18n.addTime" }}</td>
-        <td>{{ Localize "i18n.updTime" }}</td>
-        <td>{{ Localize "i18n.code" }}</td>
-        <td colspan="2">{{ Localize "i18n.op" }}</td>
-    </tr>
-    </thead>
-    <tbody>
-    {{ if .rxs }}
-    {{ range $index,$value := .rxs }}
-    <tr>
-        <td>{{ Add1 $index }}</td>
-        <td>{{ $value.Name }}</td>
-        <td>{{ $value.OwnerName }}</td>
-        <td>{{ $value.SharerName }}</td>
-        <td>{{ $value.Rem }}</td>
-        <td>{{ UnixToTime $value.AddTime }}</td>
-        <td>{{ UnixToTime $value.UpdTime }}</td>
-        <td><span id="code{{ $value.Id }}" style="display: none">{{ $value.Id }}</span>
-            <button name="copy" {{ if ne $value.SharerId 0 }} disabled="disabled" {{ end }}>
-                {{ Localize "i18n.copy" }}
-            </button>
-        </td>
-        <td>
-            {{ if ne $value.OwnerId $.user.Id }}
-            <span>{{ Localize "i18n.upd" }}</span>
-            {{ else }}
-            <a href="/rx/addpage?id={{ $value.Id }}">{{ Localize "i18n.upd" }}</a>
-            {{ end }}
-        <td>
-            <a href="/rx/{{ $value.Id }}" method="DELETE" confirm='{{ Localize "i18n.del" }} {{ $value.Name }}?'>
-                {{ Localize "i18n.del" }}
-            </a>
-        </td>
-    </tr>
-    {{ end }}
-    {{ else }}
-    <tr>
-        <td colspan="9">{{ Localize "i18n.noData" }}</td>
-    </tr>
-    {{ end }}
-    </tbody>
-</table>
-<br>
-<div>
-    <a href="/rx/addpage">{{ Localize "i18n.add" }}</a>
-</div>
-<br>
-<div>
-    <a name="join" href="/rx/join" method="POST">{{ Localize "i18n.join" }}</a>
-</div>
-
-{{ template "com/footer.html" }}
+{{ template "com/footer.html" . }}
 
 </body>
 </html>

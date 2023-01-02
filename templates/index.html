@@ -11,68 +11,68 @@
     <title>{{ Localize "i18n.index" }}</title>
 </head>
 <body>
+
 {{ template "com/header.html" . }}
 
-<br>
-<br>
-<p class="{{ if ne .status 0 }}errMessage{{ end }}">{{ .message }}</p>
-
-<table border="1" cellspacing="0" cellpadding="10" align="center">
-    <thead>
-    <tr>
-        <td>{{ Localize "i18n.no." }}</td>
-        <td>{{ Localize "i18n.name" }}</td>
-        <td>{{ Localize "i18n.step" }}</td>
-        <!-- 鼠标悬停在此标签上时，title = lastRevMessage -->
-        <td>{{ Localize "i18n.lastDeployTime" }}</td>
-        <td>{{ Localize "i18n.status" }}</td>
-        <td colspan="1">{{ Localize "i18n.op" }}</td>
-    </tr>
-    </thead>
-    <tbody>
-    {{ if .itemLastRecords }}
-    {{ range $index,$value := .itemLastRecords }}
-    <tr>
-        <td>{{ Add1 $index }}</td>
-        <td title="{{ $value.ItemRem }}"><a href="javascript:void(0);">{{ $value.ItemName }}</a></td>
-        <td title="{{ ItemTime $value }}">
+<content>
+    <p style="{{ if ne .status 0 }}color: red;{{ end }}">{{ .message }}</p>
+    <table border="1" cellspacing="0" cellpadding="10" align="center">
+        <thead>
+        <tr>
+            <td>{{ Localize "i18n.no." }}</td>
+            <td>{{ Localize "i18n.name" }}</td>
+            <td>{{ Localize "i18n.step" }}</td>
+            <!-- 鼠标悬停在此标签上时，title = lastRevMessage -->
+            <td>{{ Localize "i18n.lastDeployTime" }}</td>
+            <td>{{ Localize "i18n.status" }}</td>
+            <td colspan="1">{{ Localize "i18n.op" }}</td>
+        </tr>
+        </thead>
+        <tbody>
+        {{ if .itemLastRecords }}
+        {{ range $index,$value := .itemLastRecords }}
+        <tr>
+            <td>{{ Add1 $index }}</td>
+            <td title="{{ $value.ItemRem }}"><a href="javascript:void(0);">{{ $value.ItemName }}</a></td>
+            <td title="{{ ItemTime $value }}">
             <span style="padding-left: 10px; {{ if gt $value.PullStatus 0 }}color: red;{{ end }}"
                   title="{{ $value.PullRem }}">{{ Localize "i18n.pull" }} ({{ UnixDiff $value.PullStime $value.PullEtime }})</span>
-            →
-            <span style="padding-left: 10px; {{ if gt $value.BuildStatus 0 }}color: red;{{ end }}"
-                  title="{{ $value.BuildRem }}">{{ Localize "i18n.build" }} ({{ UnixDiff $value.BuildStime $value.BuildEtime }})</span>
-            →
-            <span style="padding-left: 10px; {{ if gt $value.PackStatus 0 }}color: red;{{ end }}"
-                  title="{{ $value.PackRem }}">{{ Localize "i18n.pack" }} ({{ UnixDiff $value.PackStime $value.PackEtime }})</span>
-            →
-            <span style="padding-left: 10px; {{ if gt $value.UlStatus 0 }}color: red;{{ end }}"
-                  title="{{ $value.UlRem }}">{{ Localize "i18n.upload" }} ({{ UnixDiff $value.UlStime $value.UlEtime }})</span>
-            →
-            <span style="padding-left: 10px; {{ if gt $value.UnpackStatus 0 }}color: red;{{ end }}"
-                  title="{{ $value.UnpackRem }}">{{ Localize "i18n.unpack" }} ({{ UnixDiff $value.UnpackStime $value.UnpackEtime }})</span>
-            →
-            <span style="padding-left: 10px; {{ if gt $value.DeployStatus 0 }}color: red;{{ end }}"
-                  title="{{ $value.DeployRem }}">{{ Localize "i18n.deploy" }} ({{ UnixDiff $value.DeployStime $value.DeployEtime }})</span>
-        </td>
-        <td title="{{ $value.RevMsg }}">{{ UnixToTime $value.AddTime }}</td>
-        <td title="{{ $value.Rem }}">{{ DeployStatusText $value.Status }}</td>
-        <td>
-            <a href="/deploy/{{ $value.ItemId }}" method="POST"
-               confirm='{{ Localize "i18n.deploy" }} {{ $value.ItemName }}?'>
-                {{ Localize "i18n.deploy" }}
-            </a>
-        </td>
-    </tr>
-    {{ end }}
-    {{ else }}
-    <tr>
-        <td colspan="6">{{ Localize "i18n.noData" }}</td>
-    </tr>
-    {{ end }}
-    </tbody>
-</table>
+                →
+                <span style="padding-left: 10px; {{ if gt $value.BuildStatus 0 }}color: red;{{ end }}"
+                      title="{{ $value.BuildRem }}">{{ Localize "i18n.build" }} ({{ UnixDiff $value.BuildStime $value.BuildEtime }})</span>
+                →
+                <span style="padding-left: 10px; {{ if gt $value.PackStatus 0 }}color: red;{{ end }}"
+                      title="{{ $value.PackRem }}">{{ Localize "i18n.pack" }} ({{ UnixDiff $value.PackStime $value.PackEtime }})</span>
+                →
+                <span style="padding-left: 10px; {{ if gt $value.UlStatus 0 }}color: red;{{ end }}"
+                      title="{{ $value.UlRem }}">{{ Localize "i18n.upload" }} ({{ UnixDiff $value.UlStime $value.UlEtime }})</span>
+                →
+                <span style="padding-left: 10px; {{ if gt $value.UnpackStatus 0 }}color: red;{{ end }}"
+                      title="{{ $value.UnpackRem }}">{{ Localize "i18n.unpack" }} ({{ UnixDiff $value.UnpackStime $value.UnpackEtime }})</span>
+                →
+                <span style="padding-left: 10px; {{ if gt $value.DeployStatus 0 }}color: red;{{ end }}"
+                      title="{{ $value.DeployRem }}">{{ Localize "i18n.deploy" }} ({{ UnixDiff $value.DeployStime $value.DeployEtime }})</span>
+            </td>
+            <td title="{{ $value.RevMsg }}">{{ UnixToTime $value.AddTime }}</td>
+            <td title="{{ $value.Rem }}">{{ DeployStatusText $value.Status }}</td>
+            <td>
+                <a href="/deploy/{{ $value.ItemId }}" method="POST"
+                   confirm='{{ Localize "i18n.deploy" }} {{ $value.ItemName }}?'>
+                    {{ Localize "i18n.deploy" }}
+                </a>
+            </td>
+        </tr>
+        {{ end }}
+        {{ else }}
+        <tr>
+            <td colspan="6">{{ Localize "i18n.noData" }}</td>
+        </tr>
+        {{ end }}
+        </tbody>
+    </table>
+</content>
 
-{{ template "com/footer.html" }}
+{{ template "com/footer.html" . }}
 
 </body>
 </html>

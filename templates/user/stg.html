@@ -13,7 +13,7 @@
 <body>
 
 <form action="/user" method="PUT">
-    <p class="errMessage">{{ .message }}</p>
+    <p style="color: red;">{{ .message }}</p>
     <div>
         *<label>{{ Localize "i18n.user" }}:</label>
         <input name="name" type="text" value="{{ .user.Name }}">
@@ -43,7 +43,7 @@
     <a href="/">{{ Localize "i18n.index" }}</a>
 </div>
 
-{{ template "com/footer.html" }}
+{{ template "com/footer.html" . }}
 
 </body>
 </html>

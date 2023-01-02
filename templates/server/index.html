@@ -11,59 +11,61 @@
     <title>{{ Localize "i18n.server" }}</title>
 </head>
 <body>
+
 {{ template "com/header.html" . }}
 
-<br>
-<br>
-<table border="1" cellspacing="0" cellpadding="10" align="center">
-    <thead>
-    <tr>
-        <td>{{ Localize "i18n.no." }}</td>
-        <td>{{ Localize "i18n.name" }}</td>
-        <td>{{ Localize "i18n.host" }}</td>
-        <td>{{ Localize "i18n.port" }}</td>
-        <td>{{ Localize "i18n.user" }}</td>
-        <td>{{ Localize "i18n.passwd" }}</td>
-        <td>{{ Localize "i18n.rem" }}</td>
-        <td>{{ Localize "i18n.addTime" }}</td>
-        <td>{{ Localize "i18n.updTime" }}</td>
-        <td colspan="2">{{ Localize "i18n.op" }}</td>
-    </tr>
-    </thead>
-    <tbody>
-    {{ if .servers }}
-    {{ range $index,$value := .servers }}
-    <tr>
-        <td>{{ Add1 $index }}</td>
-        <td>{{ $value.Name }}</td>
-        <td>{{ $value.Host }}</td>
-        <td>{{ $value.Port }}</td>
-        <td>{{ $value.User }}</td>
-        <td>******</td>
-        <td>{{ $value.Rem }}</td>
-        <td>{{ UnixToTime $value.AddTime }}</td>
-        <td>{{ UnixToTime $value.UpdTime }}</td>
-        <td><a href="/server/addpage?id={{ $value.Id }}">{{ Localize "i18n.upd" }}</a></td>
-        <td>
-            <a href="/server/{{ $value.Id }}" method="DELETE" confirm='{{ Localize "i18n.del" }} {{ $value.Name }}?'>
-                {{ Localize "i18n.del" }}
-            </a>
-        </td>
-    </tr>
-    {{ end }}
-    {{ else }}
-    <tr>
-        <td colspan="10">{{ Localize "i18n.noData" }}</td>
-    </tr>
-    {{ end }}
-    </tbody>
-</table>
-<br>
-<div>
-    <a href="/server/addpage">{{ Localize "i18n.add" }}</a>
-</div>
+<content>
+    <table border="1" cellspacing="0" cellpadding="10" align="center">
+        <thead>
+        <tr>
+            <td>{{ Localize "i18n.no." }}</td>
+            <td>{{ Localize "i18n.name" }}</td>
+            <td>{{ Localize "i18n.host" }}</td>
+            <td>{{ Localize "i18n.port" }}</td>
+            <td>{{ Localize "i18n.user" }}</td>
+            <td>{{ Localize "i18n.passwd" }}</td>
+            <td>{{ Localize "i18n.rem" }}</td>
+            <td>{{ Localize "i18n.addTime" }}</td>
+            <td>{{ Localize "i18n.updTime" }}</td>
+            <td colspan="2">{{ Localize "i18n.op" }}</td>
+        </tr>
+        </thead>
+        <tbody>
+        {{ if .servers }}
+        {{ range $index,$value := .servers }}
+        <tr>
+            <td>{{ Add1 $index }}</td>
+            <td>{{ $value.Name }}</td>
+            <td>{{ $value.Host }}</td>
+            <td>{{ $value.Port }}</td>
+            <td>{{ $value.User }}</td>
+            <td>******</td>
+            <td>{{ $value.Rem }}</td>
+            <td>{{ UnixToTime $value.AddTime }}</td>
+            <td>{{ UnixToTime $value.UpdTime }}</td>
+            <td><a href="/server/addpage?id={{ $value.Id }}">{{ Localize "i18n.upd" }}</a></td>
+            <td>
+                <a href="/server/{{ $value.Id }}" method="DELETE"
+                   confirm='{{ Localize "i18n.del" }} {{ $value.Name }}?'>
+                    {{ Localize "i18n.del" }}
+                </a>
+            </td>
+        </tr>
+        {{ end }}
+        {{ else }}
+        <tr>
+            <td colspan="10">{{ Localize "i18n.noData" }}</td>
+        </tr>
+        {{ end }}
+        </tbody>
+    </table>
+    <br>
+    <div>
+        <a href="/server/addpage">{{ Localize "i18n.add" }}</a>
+    </div>
+</content>
 
-{{ template "com/footer.html" }}
+{{ template "com/footer.html" . }}
 
 </body>
 </html>

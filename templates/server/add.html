@@ -19,7 +19,7 @@
 <body>
 
 <form action="/server" method="{{ if gt .server.Id 0 }}PUT{{else}}POST{{end}}">
-    <p class="errMessage">{{ .message }}</p>
+    <p style="color: red;">{{ .message }}</p>
     <input type="hidden" name="id" value="{{ .server.Id }}">
     <div>
         *<label>{{ Localize "i18n.name" }}:</label>
@@ -55,7 +55,7 @@
     <a href="/server/index">{{ Localize "i18n.server" }}</a>
 </div>
 
-{{ template "com/footer.html" }}
+{{ template "com/footer.html" . }}
 
 </body>
 </html>

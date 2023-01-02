@@ -20,7 +20,7 @@
 <body>
 
 <form action="/git" method="{{ if gt .git.Id 0 }}PUT{{else}}POST{{end}}">
-    <p class="errMessage">{{ .message }}</p>
+    <p style="color: red;">{{ .message }}</p>
     <input type="hidden" name="id" value="{{ .git.Id }}">
     <div>
         *<label>{{ Localize "i18n.name" }}:</label>
@@ -48,7 +48,7 @@
     <a href="/git/index">{{ Localize "i18n.git" }}</a>
 </div>
 
-{{ template "com/footer.html" }}
+{{ template "com/footer.html" . }}
 
 </body>
 </html>
