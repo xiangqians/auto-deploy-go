@@ -4,14 +4,16 @@
 package arg
 
 import (
+	"auto-deploy-go/src/util"
 	"flag"
 	"log"
+	"path/filepath"
 	"strings"
 )
 
 var Port int
 var Db string
-var TmpDir string
+var TmpDir string // 临时目录(绝对路径)
 var BuildEnv string
 
 func Parse() {
@@ -23,8 +25,15 @@ func Parse() {
 	flag.Parse()
 
 	// trim
+	// Db
 	Db = strings.TrimSpace(Db)
+	// TmpDir
 	TmpDir = strings.TrimSpace(TmpDir)
+	if !util.IsExistOfPath(TmpDir) {
+		util.Mkdir(TmpDir)
+	}
+	TmpDir, _ = filepath.Abs(TmpDir) // 获取 TmpDir 绝对路径
+	// BuildEnv
 	BuildEnv = strings.TrimSpace(BuildEnv)
 
 	// log

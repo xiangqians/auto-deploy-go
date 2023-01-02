@@ -147,7 +147,7 @@ func dockerBuild(script typ.Script, recordId int64, resPath string, container st
 		// 将docker容器内编译结果cp到 auto-deploy-go 应用所在的服务器上
 		// 将 /tmp/test 目录下所有文件cp到宿主机 test 目录下
 		// $ docker cp auto-deploy-build-env:/tmp/test/. ./test/
-		cmd := fmt.Sprintf("docker cp %s:%s/. %s/", resPath, container, containerResPath)
+		cmd := fmt.Sprintf("docker cp %s:%s/. %s/", container, containerResPath, resPath)
 		if sudo {
 			cmd = "sudo " + cmd
 		}
