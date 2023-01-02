@@ -11,7 +11,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/render"
 	"html/template"
-	"math"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -38,8 +37,14 @@ func intHtmlTemplate(pEngine *gin.Engine) {
 				return "-"
 			}
 
-			r := math.Abs(float64(unix1 - unix2)) // s
-			return fmt.Sprintf("%ss", strconv.FormatFloat(r, 'f', 2, 64))
+			//r := math.Abs(float64(unix1 - unix2)) // s
+			//return fmt.Sprintf("%ss", strconv.FormatFloat(r, 'f', 2, 64))
+
+			r := unix1 - unix2
+			if r < 0 {
+				r = -r
+			}
+			return fmt.Sprintf("%ss", strconv.FormatInt(r, 10))
 		},
 
 		// +1
@@ -65,6 +70,35 @@ func intHtmlTemplate(pEngine *gin.Engine) {
 			default:
 				return "-"
 			}
+		},
+
+		"ItemTime": func(itemLastRecord typ.ItemLastRecord) string {
+			unixDiff := func(stime, etime int64, status byte) int64 {
+				if stime == 0 {
+					return 0
+				}
+
+				if etime == 0 {
+					etime = time.Now().Unix()
+				}
+				return etime - stime
+			}
+
+			var r int64 = 0
+
+			// pull
+			r += unixDiff(itemLastRecord.PullStime, itemLastRecord.PullEtime, itemLastRecord.PullStatus)
+			// build
+			r += unixDiff(itemLastRecord.BuildStime, itemLastRecord.BuildEtime, itemLastRecord.BuildStatus)
+			// pack
+			r += unixDiff(itemLastRecord.PackStime, itemLastRecord.PackEtime, itemLastRecord.PackStatus)
+			// ul
+			r += unixDiff(itemLastRecord.UlStime, itemLastRecord.UlEtime, itemLastRecord.UlStatus)
+			// unpack
+			r += unixDiff(itemLastRecord.UnpackStime, itemLastRecord.UnpackEtime, itemLastRecord.UnpackStatus)
+			// deploy
+			r += unixDiff(itemLastRecord.DeployStime, itemLastRecord.DeployEtime, itemLastRecord.DeployStatus)
+			return fmt.Sprintf("%ss", strconv.FormatInt(r, 10))
 		},
 
 		//"Template": func(name string) string {
