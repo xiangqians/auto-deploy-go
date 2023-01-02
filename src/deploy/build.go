@@ -82,7 +82,7 @@ func dockerBuild(script typ.Script, recordId int64, resPath string, container st
 		log.Printf("sudo: %v\n", sudo)
 
 		// 容器资源路径
-		containerResPath := fmt.Sprintf("/tmp/%s", resPath[strings.LastIndex(resPath, "item"):])
+		containerResPath := fmt.Sprintf("/tmp/auto-deploy/%s", resPath[strings.LastIndex(resPath, "item"):])
 		log.Printf("containerResPath: %v\n", containerResPath)
 
 		// 容器文件拷贝（容器启动与否，拷贝命令都会生效）
