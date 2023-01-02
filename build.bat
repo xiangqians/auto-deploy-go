@@ -15,7 +15,6 @@ xcopy i18n "%outputDir%/i18n" /s /e /h /i /y
 xcopy static "%outputDir%/static" /s /e /h /i /y
 xcopy templates "%outputDir%/templates" /s /e /h /i /y
 xcopy data "%outputDir%/data" /s /e /h /i /y
-xcopy env "%outputDir%/env" /s /e /h /i /y
 
 :: pkgName
 for /F %%i in ('go env GOOS') do (set os=%%i)
