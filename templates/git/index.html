@@ -16,6 +16,7 @@
 <br>
 <br>
 <table border="1" cellspacing="0" cellpadding="10" align="center">
+    <thead>
     <tr>
         <td>{{ Localize "i18n.no." }}</td>
         <td>{{ Localize "i18n.name" }}</td>
@@ -26,9 +27,10 @@
         <td>{{ Localize "i18n.updTime" }}</td>
         <td colspan="2">{{ Localize "i18n.op" }}</td>
     </tr>
+    </thead>
+    <tbody>
     {{ range $index,$value := .gits }}
-    <tr onmouseover="this.style.backgroundColor='#D3D3D3'"
-        onmouseout="this.style.backgroundColor='#FFFFFF'">
+    <tr>
         <td>{{ Add1 $index }}</td>
         <td>{{ $value.Name }}</td>
         <td>{{ $value.User }}</td>
@@ -44,6 +46,7 @@
         </td>
     </tr>
     {{ end }}
+    </tbody>
 </table>
 <br>
 <div>

@@ -10,3 +10,15 @@ body {
 .message {
     color: red;
 }
+
+table thead tr {
+    background-color: #EEEEEE;
+}
+
+/*
+onmouseover: "this.style.backgroundColor='#D3D3D3'";
+onmouseout: "this.style.backgroundColor='#FFFFFF'";
+ */
+table tbody tr:hover {
+    background-color: #D3D3D3;
+}
