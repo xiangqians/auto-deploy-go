@@ -22,18 +22,35 @@ $. 引用模板中的根级上下文
     <br>
 
     <div style="text-align: left; padding-left: 50px;">
-        <a style="padding: 8px; {{if .itemLastRecords }}background-color: lightgray;{{ end }}"
+        <a name="nav" style="padding: 8px;"
            href="/">{{ Localize "i18n.index" }}</a>
-        <a style="padding: 8px; {{if .gits }}background-color: lightgray;{{ end }}"
+        <a name="nav" style="padding: 8px;"
            href="/git/index">{{ Localize "i18n.git" }}</a>
-        <a style="padding: 8px; {{if .servers }}background-color: lightgray;{{ end }}"
+        <a name="nav" style="padding: 8px;"
            href="/server/index">{{ Localize "i18n.server" }}</a>
-        <a style="padding: 8px; {{if .items }}background-color: lightgray;{{ end }}"
+        <a name="nav" style="padding: 8px;"
            href="/item/index">{{ Localize "i18n.item" }}</a>
-        <a style="padding: 8px; {{if .rxs }}background-color: lightgray;{{ end }}"
+        <a name="nav" style="padding: 8px;"
            href="/rx/index">{{ Localize "i18n.rx" }}</a>
     </div>
     <br>
     <br>
+    <script type="text/javascript">
+        let html = document.querySelector('html')
+        // console.log('html', html)
+        let url = html.getAttribute('url')
+        // console.log('url', url)
+        let navs = document.querySelectorAll('a[name="nav"]')
+        // console.log('navs', navs)
+        for (let i = 0, length = navs.length; i < length; i++) {
+            let nav = navs[i]
+            let navUrl = nav.getAttribute("href")
+            if (url === navUrl) {
+                // console.log('navUrl', navUrl)
+                // console.log('navStyle', nav.style)
+                nav.style['background-color'] = 'lightgray'
+            }
+        }
+    </script>
 </header>
 {{ end }}
