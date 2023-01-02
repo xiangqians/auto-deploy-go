@@ -60,6 +60,10 @@ func Deploy(pContext *gin.Context) {
 		redirect(1, err.Error())
 		return
 	}
+	if itemId <= 0 {
+		redirect(1, i18n.MustGetMessage("i18n.itemNotExist"))
+		return
+	}
 
 	// itemLastRecords
 	itemLastRecords := getItemLastRecords(pContext, itemId)
@@ -81,20 +85,22 @@ func Deploy(pContext *gin.Context) {
 	defer func() {
 		itemIdMapChan <- itemIdMap
 	}()
-	// get
+	// get <- itemIdMap
 	_, r := itemIdMap[itemId]
 	if r {
 		redirect(1, i18n.MustGetMessage("i18n.itemInDeploy"))
 		return
 	}
-	// put
-	itemIdMap[itemId] = 1
 
 	// item
 	item := typ.Item{}
 	err = db.Qry(&item, "SELECT i.id, i.`name`, i.git_id, i.repo_url, i.branch, i.server_id, i.script, i.rem FROM item i  WHERE i.del_flag = 0 AND i.id = ?", itemId)
 	if err != nil {
 		redirect(1, err.Error())
+		return
+	}
+	if item.Id == 0 {
+		redirect(1, fmt.Sprintf("Item does not exist, %v", itemId))
 		return
 	}
 
@@ -105,10 +111,14 @@ func Deploy(pContext *gin.Context) {
 		return
 	}
 
+	// put -> itemIdMap
+	itemIdMap[itemId] = 1
+
 	// 异步部署
 	go asynDeploy(item, recordId)
 
 	redirect(0, i18n.MustGetMessage("i18n.itemDeployStarted"))
+	return
 }
 
 func asynDeploy(item typ.Item, recordId int64) {
