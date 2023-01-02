@@ -39,11 +39,13 @@ type Item struct {
 
 type Rx struct {
 	Abs
-	Name       string `form:"name" binding:"required,min=1,max=60"` // 名称
-	OwnerId    int64  // 拥有者id
-	OwnerName  string // 拥有者名称
-	SharerId   int64  // 共享者id
-	SharerName string // 共享者名称
+	Name           string `form:"name" binding:"required,min=1,max=60"` // 名称
+	OwnerId        int64  // 拥有者id
+	OwnerName      string // 拥有者名称
+	OwnerNickname  string // 拥有者昵称
+	SharerId       int64  // 共享者id
+	SharerName     string // 共享者名称
+	SharerNickname string // 共享者昵称
 }
 
 type Server struct {
