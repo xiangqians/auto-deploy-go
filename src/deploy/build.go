@@ -101,21 +101,33 @@ func dockerBuild(script typ.Script, recordId int64, resPath string, container st
 			CmdTypCdExc
 		)
 
-		buildmap := make(map[string]CmdTyp, len(build)+3)
+		type CmdInfo struct {
+			Cmd    string
+			CmdTyp CmdTyp
+		}
+
+		cmdInfos := make([]CmdInfo, len(build)+3)
+		index := 0
 		// 删除容器资源路径
-		buildmap[fmt.Sprintf("rm -rf %s", containerResPath)] = CmdTypExc
+		cmdInfos[index] = CmdInfo{Cmd: fmt.Sprintf("rm -rf %s", containerResPath), CmdTyp: CmdTypExc}
+		index++
 		// 创建容器资源路径
-		buildmap[fmt.Sprintf("mkdir -p %s", containerResPath)] = CmdTypExc
+		cmdInfos[index] = CmdInfo{Cmd: fmt.Sprintf("mkdir -p %s", containerResPath), CmdTyp: CmdTypExc}
+		index++
 		// 将源码cp到docker容器内
 		// 将 test 目录下所有文件cp到容器 /tmp/test 目录下
 		// $ docker cp test/. auto-deploy-build-env:/tmp/test/
-		buildmap[fmt.Sprintf("docker cp %s/. %s:%s/", resPath, container, containerResPath)] = CmdTypDef
+		cmdInfos[index] = CmdInfo{Cmd: fmt.Sprintf("docker cp %s/. %s:%s/", resPath, container, containerResPath), CmdTyp: CmdTypDef}
+		index++
 		for _, cmd := range build {
-			buildmap[cmd] = CmdTypCdExc
+			cmdInfos[index] = CmdInfo{Cmd: cmd, CmdTyp: CmdTypCdExc}
+			index++
 		}
 
 		// 执行 build 命令集
-		for cmd, cmdTyp := range buildmap {
+		for _, cmdInfo := range cmdInfos {
+			cmd := cmdInfo.Cmd
+			cmdTyp := cmdInfo.CmdTyp
 			switch cmdTyp {
 			case CmdTypDef:
 
@@ -151,6 +163,7 @@ func dockerBuild(script typ.Script, recordId int64, resPath string, container st
 		if sudo {
 			cmd = "sudo " + cmd
 		}
+		log.Printf("%s\n", cmd)
 		pCmd, err = util.Command(cmd)
 		if err != nil {
 			updETime(typ.StepBuild, recordId, err, nil)
