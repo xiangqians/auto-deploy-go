@@ -58,14 +58,14 @@ func UlAndDeploy(item typ.Item, recordId int64, packName, ulPath string) error {
 	}
 
 	// 删除上传路径
-	buf, err := exec(fmt.Sprintf("rm -rf %s", ulPath))
-	if err != nil {
-		updETime(typ.StepUl, recordId, err, buf)
-		return err
-	}
+	//buf, err := exec(fmt.Sprintf("rm -rf %s", ulPath))
+	//if err != nil {
+	//	updETime(typ.StepUl, recordId, err, buf)
+	//	return err
+	//}
 
 	// 创建上传路径
-	buf, err = exec(fmt.Sprintf("mkdir -p %s", ulPath))
+	buf, err := exec(fmt.Sprintf("mkdir -p %s", ulPath))
 	if err != nil {
 		updETime(typ.StepUl, recordId, err, buf)
 		return err
@@ -102,6 +102,9 @@ func UlAndDeploy(item typ.Item, recordId int64, packName, ulPath string) error {
 	}
 
 	// 解压
+	// $ unzip --help
+	// -o  overwrite files WITHOUT prompting
+	// -d  extract files into exdir
 	buf, err = exec(fmt.Sprintf("unzip -o %s -d %s", ulName, ulPath))
 	if err != nil {
 		updETime(typ.StepUl, recordId, err, buf)
