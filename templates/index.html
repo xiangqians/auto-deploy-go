@@ -54,7 +54,10 @@
                       title="{{ $value.DeployRem }}">{{ Localize "i18n.deploy" }} ({{ UnixDiff $value.DeployStime $value.DeployEtime }})</span>
             </td>
             <td title="{{ $value.RevMsg }}">{{ UnixToTime $value.AddTime }}</td>
-            <td title="{{ $value.Rem }}">{{ DeployStatusText $value.Status }}</td>
+            <td title="{{ $value.Rem }}"
+                style="{{ if eq $value.Status 1 }}color: blue;{{ else }}{{ if eq $value.Status 2 }}color: red;{{ else }}{{ if eq $value.Status 3 }}color: green;{{ end }}{{ end }}{{ end }}">
+                {{ DeployStatusText $value.Status }}
+            </td>
             <td>
                 <a href="/deploy/{{ $value.ItemId }}" method="POST"
                    confirm='{{ Localize "i18n.deploy" }} {{ $value.ItemName }}?'>
