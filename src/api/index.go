@@ -10,6 +10,7 @@ import (
 	"auto-deploy-go/src/typ"
 	"auto-deploy-go/src/util"
 	"fmt"
+	"github.com/gin-contrib/i18n"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"log"
@@ -29,20 +30,24 @@ func init() {
 
 func IndexPage(pContext *gin.Context) {
 	session := sessions.Default(pContext)
+	status := session.Get("status")
 	message := session.Get("message")
+	session.Delete("status")
 	session.Delete("message")
 	session.Save()
 	pContext.HTML(netHttp.StatusOK, "index.html", gin.H{
 		"user":            GetUser(pContext),
 		"itemLastRecords": getItemLastRecords(pContext, 0),
+		"status":          status, // 非0表示异常
 		"message":         message,
 	})
 }
 
 func Deploy(pContext *gin.Context) {
 	// redirect func
-	redirect := func(message string) {
+	redirect := func(status int8, message string) {
 		session := sessions.Default(pContext)
+		session.Set("status", status)
 		session.Set("message", message)
 		session.Save()
 		pContext.Redirect(netHttp.StatusMovedPermanently, "/")
@@ -52,14 +57,14 @@ func Deploy(pContext *gin.Context) {
 	itemIdStr := pContext.Param("itemId")
 	itemId, err := strconv.ParseInt(itemIdStr, 10, 64)
 	if err != nil {
-		redirect(err.Error())
+		redirect(1, err.Error())
 		return
 	}
 
 	// itemLastRecords
 	itemLastRecords := getItemLastRecords(pContext, itemId)
 	if itemLastRecords == nil {
-		redirect("项目不存在")
+		redirect(1, i18n.MustGetMessage("i18n.itemNotExist"))
 		return
 	}
 
@@ -79,7 +84,7 @@ func Deploy(pContext *gin.Context) {
 	// get
 	_, r := itemIdMap[itemId]
 	if r {
-		redirect("项目已在部署中")
+		redirect(1, i18n.MustGetMessage("i18n.itemInDeploy"))
 		return
 	}
 	// put
@@ -89,21 +94,21 @@ func Deploy(pContext *gin.Context) {
 	item := typ.Item{}
 	err = db.Qry(&item, "SELECT i.id, i.`name`, i.git_id, i.repo_url, i.branch, i.server_id, i.script, i.rem FROM item i  WHERE i.del_flag = 0 AND i.id = ?", itemId)
 	if err != nil {
-		redirect(err.Error())
+		redirect(1, err.Error())
 		return
 	}
 
 	// add record
 	recordId, err := db.Add("INSERT INTO record(item_id, `status`, `add_time`) VALUES(?, ?, ?)", itemId, typ.StatusInDeploy, time.Now().Unix())
 	if err != nil {
-		redirect(err.Error())
+		redirect(1, err.Error())
 		return
 	}
 
 	// 异步部署
 	go asynDeploy(item, recordId)
 
-	redirect("")
+	redirect(0, i18n.MustGetMessage("i18n.itemDeployStarted"))
 }
 
 func asynDeploy(item typ.Item, recordId int64) {

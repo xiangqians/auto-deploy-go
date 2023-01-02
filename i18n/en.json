@@ -72,5 +72,8 @@
   "i18n.pack": "Pack",
   "i18n.upload": "Upload",
   "i18n.deploy": "Deploy",
-  "i18n.noData": "No data"
+  "i18n.noData": "No data",
+  "i18n.itemNotExist": "Item does not exist",
+  "i18n.itemDeployStarted": "Item deployment started",
+  "i18n.itemInDeploy": "Item is already in deployment"
 }

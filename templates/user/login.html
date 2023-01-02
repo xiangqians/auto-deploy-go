@@ -13,7 +13,7 @@
 <body>
 
 <form action="/user/login" method="post">
-    <p class="message">{{ .message }}</p>
+    <p class="errMessage">{{ .message }}</p>
     <div>
         *<label for="name">{{ Localize "i18n.user" }}</label>
         <input id="name" name="name" type="text" value="{{ .username }}">

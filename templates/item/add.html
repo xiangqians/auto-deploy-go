@@ -20,7 +20,7 @@
 <body>
 
 <form action="/item" method="{{ if gt .item.Id 0 }}PUT{{else}}POST{{end}}">
-    <p class="message">{{ .message }}</p>
+    <p class="errMessage">{{ .message }}</p>
     <input type="hidden" name="id" value="{{ .item.Id }}">
     <div>
         *<label>{{ Localize "i18n.name" }}:</label>
