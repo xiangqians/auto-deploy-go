@@ -55,7 +55,7 @@
                   title="{{ $value.DeployRem }}">{{ Localize "i18n.deploy" }} ({{ UnixDiff $value.DeployStime $value.DeployEtime }})</span>
         </td>
         <td title="{{ $value.RevMsg }}">{{ UnixToTime $value.AddTime }}</td>
-        <td>{{ DeployStatusText $value.Status }}</td>
+        <td title="{{ $value.Rem }}">{{ DeployStatusText $value.Status }}</td>
         <td>
             <a href="/deploy/{{ $value.ItemId }}" method="POST"
                confirm='{{ Localize "i18n.deploy" }} {{ $value.ItemName }}?'>
