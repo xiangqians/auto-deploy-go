@@ -135,7 +135,7 @@ $ apt install telnet
 # ifconfig
 $ apt install net-tools
 
-// ssh server
+# ssh server
 $ apt install openssh-server
 $ vim /etc/ssh/sshd_config
 #PermitRootLogin prohibit-password
@@ -148,5 +148,33 @@ root
 $ id
 uid=0(root) gid=0(root) groups=0(root)
 $ passwd
+
+# ca
+$ apt install --no-install-recommends ca-certificates curl
+
+# 设置开机自启 auto-deploy 应用
+$ cd /etc/init.d/
+$ cat>autodeploy<<EOF
+#!/bin/sh
+### BEGIN INIT INFO
+# Provides:          autodeploy
+# Required-Start:    \$local_fs \$syslog \$network
+# Required-Stop:     \$local_fs \$syslog \$network
+# Default-Start:     1 2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Auto deploy.
+# Description:       Auto deploy.
+### END INIT INFO
+cd /opt/auto-deploy && ./startup.sh
+exit 0
+EOF
+# 授予脚本可执行权限
+$ chmod +x autodeploy
+# 将启动脚本加入开机启动项
+$ update-rc.d autodeploy defaults
+#$ runlevel
+#$ ll /etc/rc1.d
+#$ update-rc.d -f autodeploy remove
+
 
 !
