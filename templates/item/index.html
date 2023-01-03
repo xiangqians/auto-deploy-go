@@ -3,7 +3,9 @@
  | @date 13:48 2022/12/23
  |-->
 <!DOCTYPE html>
-<html lang="en" url="/item/index">
+<!-- url -->
+{{ Put . "url" "/item/index" }}
+<html lang="en" url="{{ .url }}">
 <head>
     <meta charset="UTF-8">
     <link rel="shortcut icon" rel="external nofollow" href="/static/favicon.ico">

@@ -101,6 +101,11 @@ func intHtmlTemplate(pEngine *gin.Engine) {
 			return fmt.Sprintf("%ss", strconv.FormatInt(r, 10))
 		},
 
+		"Put": func(h gin.H, key string, value any) string {
+			h[key] = value
+			return ""
+		},
+
 		//"Template": func(name string) string {
 		//	var data any = nil
 		//	re := pEngine.HTMLRender.Instance(name, data)
