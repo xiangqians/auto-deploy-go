@@ -33,7 +33,7 @@ func initRoute(pEngine *gin.Engine) {
 		userRouterGroup.Any("/regpage", api.UserRegPage)
 		userRouterGroup.Any("/loginpage", api.UserLoginPage)
 		userRouterGroup.POST("/login", api.UserLogin)
-		userRouterGroup.Any("/logout", api.UserLogout)
+		userRouterGroup.POST("/logout", api.UserLogout)
 		userRouterGroup.Any("/stgpage", api.UserStgPage)
 	}
 	pEngine.POST("/user", api.UserAdd)

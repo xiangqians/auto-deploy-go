@@ -80,7 +80,6 @@ WORKDIR /opt/auto-deploy
 
 # 容器入口
 #ENTRYPOINT [ "./startup.sh" ]
-
 EOF
 
 
