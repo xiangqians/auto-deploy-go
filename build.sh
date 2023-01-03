@@ -22,7 +22,7 @@ cp -r data "${outputDir}/"
 # pkgName
 os=`go env GOOS`
 arch=`go env GOARCH`
-pkgName=o_${os}_${arch}
+pkgName=auto_deploy_${os}_${arch}
 echo pkgName: ${pkgName}
 
 # go

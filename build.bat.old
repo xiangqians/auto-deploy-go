@@ -18,20 +18,20 @@ xcopy data "%outputDir%/data" /s /e /h /i /y
 ::cd ./src && go build -ldflags="-s -w" -o %outputPkg% && upx -9 --brute %outputPkg%
 
 :: gox
-set outputPkg="%outputDir%/o_{{.OS}}_{{.Arch}}"
+set outputPkg="%outputDir%/auto_deploy_{{.OS}}_{{.Arch}}"
 ::cd ./src && gox -os="windows linux" -output %outputPkg%
 cd ./src && gox -osarch "windows/amd64 linux/amd64" -ldflags="-s -w" -output %outputPkg%
 
 :: startup.bat
 set startupName=%outputDir%/startup.bat
 echo :: startup.bat > %startupName%
-echo o_windows_amd64.exe >> %startupName%
+echo auto_deploy_windows_amd64.exe >> %startupName%
 echo pause >> %startupName%
 
 :: startup.sh
 set startupName=%outputDir%/startup.sh
 echo # startup.sh > %startupName%
-echo # \$ chmod +x o_linux_amd64 startup.sh >> %startupName%
-echo ./o_linux_amd64 >> %startupName%
+echo # \$ chmod +x auto_deploy_linux_amd64 startup.sh >> %startupName%
+echo ./auto_deploy_linux_amd64 >> %startupName%
 
 pause

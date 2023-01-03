@@ -19,7 +19,7 @@ xcopy data "%outputDir%/data" /s /e /h /i /y
 :: pkgName
 for /F %%i in ('go env GOOS') do (set os=%%i)
 for /F %%i in ('go env GOARCH') do (set arch=%%i)
-set pkgName=o_%os%_%arch%.exe
+set pkgName=auto_deploy_%os%_%arch%.exe
 echo pkgName: %pkgName%
 
 :: go
