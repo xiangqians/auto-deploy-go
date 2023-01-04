@@ -44,7 +44,7 @@
         </div>
         <div>
             <label>{{ Localize "i18n.rem" }}:</label>
-            <textarea name="rem" type="text" style="width: 300px; height: 100px">{{ .server.Rem }}</textarea>
+            <textarea name="rem" type="text">{{ .server.Rem }}</textarea>
         </div>
         <div>
             <input type="submit"
@@ -52,8 +52,9 @@
         </div>
     </form>
     <br>
+    <br>
     <div>
-        <a href="/server/index">{{ Localize "i18n.server" }}</a>
+        <a href="/server/index">{{ Localize "i18n.server" }} →</a>
     </div>
 </content>
 

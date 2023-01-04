@@ -53,3 +53,9 @@ button {
 [type="submit"] {
     cursor: pointer
 }
+
+textarea[name="rem"] {
+    width: 300px;
+    height: 100px;
+}
+

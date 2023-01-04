@@ -37,17 +37,17 @@
         </div>
         <div>
             <label>{{ Localize "i18n.rem" }}:</label>
-            <textarea name="rem" type="text" style="width: 300px; height: 100px">{{ .git.Rem }}</textarea>
+            <textarea name="rem" type="text">{{ .git.Rem }}</textarea>
         </div>
         <div>
             <input type="submit"
                    value='{{ if gt .git.Id 0 }} {{ Localize "i18n.upd" }} {{else}} {{ Localize "i18n.add" }} {{end}}'>
         </div>
     </form>
-
+    <br>
     <br>
     <div style="padding-right: -10px">
-        <a href="/git/index">{{ Localize "i18n.git" }}</a>
+        <a href="/git/index">{{ Localize "i18n.git" }} →</a>
     </div>
 </content>
 

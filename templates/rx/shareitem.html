@@ -50,15 +50,16 @@
         {{ end }}
         </tbody>
     </table>
+    <br>
     {{ if eq .ownerId .user.Id }}
     <br>
     <div>
-        <a name="add" href="/rx/shareitem" method="POST">{{ Localize "i18n.add" }}</a>
+        <a name="add" href="/rx/shareitem" method="POST">{{ Localize "i18n.add" }} →</a>
     </div>
     {{ end }}
     <br>
     <div>
-        <a href="/rx/index">{{ Localize "i18n.rx" }}</a>
+        <a href="/rx/index">{{ Localize "i18n.rx" }} →</a>
     </div>
 </content>
 
