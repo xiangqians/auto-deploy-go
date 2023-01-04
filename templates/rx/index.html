@@ -51,22 +51,22 @@
                 </button>
             </td>
             <td>
-                {{ if ne $value.OwnerId $.user.Id }}
-                <span>{{ Localize "i18n.shareItem" }}</span>
-                {{ else }}
-                <a href="/rx/shareitempage?id={{ $value.Id }}">{{ Localize "i18n.shareItem" }}</a>
-                {{ end }}
+                <a href="/rx/shareitempage?id={{ $value.Id }}">
+                    <button {{ if ne $value.OwnerId $.user.Id }}disabled="disabled" {{ end }}>
+                        {{ Localize "i18n.shareItem" }}
+                    </button>
+                </a>
             </td>
             <td>
-                {{ if ne $value.OwnerId $.user.Id }}
-                <span>{{ Localize "i18n.upd" }}</span>
-                {{ else }}
-                <a href="/rx/addpage?id={{ $value.Id }}">{{ Localize "i18n.upd" }}</a>
-                {{ end }}
+                <a href="/rx/addpage?id={{ $value.Id }}">
+                    <button {{ if ne $value.OwnerId $.user.Id }}disabled="disabled" {{ end }}>
+                        {{ Localize "i18n.upd" }}
+                    </button>
+                </a>
             </td>
             <td>
                 <a href="/rx/{{ $value.Id }}" method="DELETE" confirm='{{ Localize "i18n.del" }} {{ $value.Name }}?'>
-                    {{ Localize "i18n.del" }}
+                    <button>{{ Localize "i18n.del" }}</button>
                 </a>
             </td>
         </tr>

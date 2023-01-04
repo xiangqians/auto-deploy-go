@@ -34,12 +34,14 @@
             <td>{{ UnixToTime $value.AddTime }}</td>
             <td>{{ UnixToTime $value.UpdTime }}</td>
             <td>
-                <a href="/rx/shareitem/{{ $value.RxId }}/{{ $value.Id }}" method="DELETE"
-                   confirm='{{ Localize "i18n.del" }} {{ $value.Name }}?'>
+                <button action="/rx/shareitem/{{ $value.RxId }}/{{ $value.Id }}" method="DELETE"
+                        confirm='{{ Localize "i18n.del" }} {{ $value.Name }}?'
+                        name="copy" {{ if ne $value.OwnerId $.user.Id }}disabled="disabled" {{ end }}>
                     {{ Localize "i18n.del" }}
-                </a>
+                </button>
             </td>
         </tr>
+        {{ Put $ "ownerId" $value.OwnerId }}
         {{ end }}
         {{ else }}
         <tr>
@@ -48,10 +50,12 @@
         {{ end }}
         </tbody>
     </table>
+    {{ if eq .ownerId .user.Id }}
     <br>
     <div>
-        <a href="/rx/shareitem">{{ Localize "i18n.add" }}</a>
+        <a name="add" href="/rx/shareitem" method="POST">{{ Localize "i18n.add" }}</a>
     </div>
+    {{ end }}
     <br>
     <div>
         <a href="/rx/index">{{ Localize "i18n.rx" }}</a>
@@ -64,3 +68,17 @@
 </html>
 <script type="text/javascript" src="/static/js/jquery-3.6.2.min.js"></script>
 <script type="text/javascript" src="/static/js/com.js"></script>
+<script type="text/javascript">
+    let $add = $('a[name="add"]')
+    if ($add.length > 0) {
+        $add[0]['_pre_'] = function () {
+            let r = false
+            let code = prompt('{{ Localize "i18n.pleaseEnterSharedCode" }}', '')
+            if (code && code !== "") {
+                code = code.trim()
+                r = true
+            }
+            return [r, {"code": code}]
+        }
+    }
+</script>

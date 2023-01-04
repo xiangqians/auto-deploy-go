@@ -35,50 +35,59 @@
         })
     }
 
+    let request = function ($e) {
+        let formData = null
+        let flag = true
+
+        // pre func
+        let pre = $e[0]._pre_
+        if (pre) {
+            let r = pre()
+            let rarr = null
+            let rl = 0
+            if (Object.prototype.toString.call(r) === '[object Boolean]') {
+                flag = r
+            } else if (Object.prototype.toString.call(r) === '[object Array]' && (rl = (rarr = r).length) > 0) {
+                flag = rarr[0] ? true : false
+                if (flag && rl > 1) {
+                    formData = new FormData()
+                    for (let ri = 1; ri < rl; ri++) {
+                        let robj = rarr[ri]
+                        for (let name in robj) {
+                            formData.append(name, robj[name])
+                        }
+                    }
+                }
+            }
+        }
+        // confirm
+        else {
+            let message = $e.attr("confirm")
+            if (message) {
+                flag = confirm(message)
+            }
+        }
+
+        // ajax
+        if (flag) {
+            let url = $e.attr("href")
+            // console.log(url)
+            if (!(url)) {
+                url = $e.attr("action")
+            }
+            // console.log(url)
+            let method = $e.attr("method").trim().toUpperCase()
+            ajax(url, method, formData)
+        }
+    }
+
     // <a></a>
     let aarr = $('a[method]')
     for (let i = 0, l = aarr.length; i < l; i++) {
         let $a = $(aarr[i])
         // console.log($a)
         $a.click(function () {
-            let formData = null
-            let flag = true
-
-            // pre func
-            let pre = $a[0]._pre_
-            if (pre) {
-                let r = pre()
-                let rarr = null
-                let rl = 0
-                if (Object.prototype.toString.call(r) === '[object Boolean]') {
-                    flag = r
-                } else if (Object.prototype.toString.call(r) === '[object Array]' && (rl = (rarr = r).length) > 0) {
-                    flag = rarr[0] ? true : false
-                    if (flag && rl > 1) {
-                        formData = new FormData()
-                        for (let ri = 1; ri < rl; ri++) {
-                            let robj = rarr[ri]
-                            for (let name in robj) {
-                                formData.append(name, robj[name])
-                            }
-                        }
-                    }
-                }
-            }
-            // confirm
-            else {
-                let message = $a.attr("confirm")
-                if (message) {
-                    flag = confirm(message)
-                }
-            }
-
-            // ajax
-            if (flag) {
-                let url = $a.attr("href")
-                let method = $a.attr("method").trim().toUpperCase()
-                ajax(url, method, formData)
-            }
+            request($a)
 
             // 取消 <a></a> 默认行为
             return false

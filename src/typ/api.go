@@ -37,7 +37,8 @@ type Item struct {
 	Script     string `form:"script" binding:"required,min=1,max=100000"`          // 脚本
 
 	//
-	RxId int64
+	RxId    int64 // rx id
+	OwnerId int64 // 拥有者id
 }
 
 type Rx struct {

@@ -140,6 +140,7 @@ func RxShareItemPage(pContext *gin.Context) {
 	}
 
 	pContext.HTML(http.StatusOK, "rx/shareitem.html", gin.H{
+		"user":       GetUser(pContext),
 		"shareItems": shareItems,
 		"message":    message,
 	})
@@ -225,8 +226,8 @@ func RxShareItems(pContext *gin.Context, id int64) []typ.Item {
 	}
 
 	user := GetUser(pContext)
-	shareItems := make([]typ.Item, 1)
-	err := db.Qry(&shareItems, "SELECT i.id, i.`name`, r.id AS 'rx_id', i.rem, i.add_time, i.upd_time FROM item i JOIN rx r ON r.del_flag = 0 AND r.item_ids LIKE ('%,' || i.id || ',%') WHERE i.del_flag = 0 AND( r.owner_id = ? OR r.sharer_id = ?) AND r.id = ? GROUP BY i.id", user.Id, user.Id, id)
+	shareItems := make([]typ.Item, 1) //OwnerId
+	err := db.Qry(&shareItems, "SELECT i.id, i.`name`, r.id AS 'rx_id', r.owner_id, i.rem, i.add_time, i.upd_time FROM item i JOIN rx r ON r.del_flag = 0 AND r.item_ids LIKE ('%,' || i.id || ',%') WHERE i.del_flag = 0 AND( r.owner_id = ? OR r.sharer_id = ?) AND r.id = ? GROUP BY i.id", user.Id, user.Id, id)
 	if err != nil {
 		log.Println(err)
 		return nil
