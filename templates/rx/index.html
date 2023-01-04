@@ -41,7 +41,7 @@
             <td>{{ $value.Name }}</td>
             <td>{{ if ne $value.OwnerName "" }}{{ $value.OwnerName }}, {{ $value.OwnerNickname }}{{ end }}</td>
             <td>{{ if ne $value.SharerName "" }}{{ $value.SharerName }}, {{ $value.SharerNickname }}{{ end }}</td>
-            <td>{{ RxShareItemCount $value }}</td>
+            <td>{{ $value.ShareItemCount }}</td>
             <td>{{ $value.Rem }}</td>
             <td>{{ UnixToTime $value.AddTime }}</td>
             <td>{{ UnixToTime $value.UpdTime }}</td>

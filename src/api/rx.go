@@ -140,7 +140,6 @@ func RxShareItemPage(pContext *gin.Context) {
 	}
 
 	pContext.HTML(http.StatusOK, "rx/shareitem.html", gin.H{
-		"rxId":       id,
 		"shareItems": shareItems,
 		"message":    message,
 	})
@@ -226,24 +225,24 @@ func RxShareItems(pContext *gin.Context, id int64) []typ.Item {
 	}
 
 	user := GetUser(pContext)
-	items := make([]typ.Item, 1)
-	err := db.Qry(&items, "SELECT i.id, i.`name`, i.rem, i.add_time, i.upd_time FROM item i JOIN rx r ON r.del_flag = 0 AND r.item_ids LIKE ('%,' || i.id || ',%') WHERE i.del_flag = 0 AND( r.owner_id = ? OR r.sharer_id = ?) AND r.id = ? GROUP BY i.id", user.Id, user.Id, id)
+	shareItems := make([]typ.Item, 1)
+	err := db.Qry(&shareItems, "SELECT i.id, i.`name`, r.id AS 'rx_id', i.rem, i.add_time, i.upd_time FROM item i JOIN rx r ON r.del_flag = 0 AND r.item_ids LIKE ('%,' || i.id || ',%') WHERE i.del_flag = 0 AND( r.owner_id = ? OR r.sharer_id = ?) AND r.id = ? GROUP BY i.id", user.Id, user.Id, id)
 	if err != nil {
 		log.Println(err)
 		return nil
 	}
 
-	if items[0].Id == 0 {
-		items = nil
+	if shareItems[0].Id == 0 {
+		shareItems = nil
 	}
 
-	return items
+	return shareItems
 }
 
 func Rxs(pContext *gin.Context) []typ.Rx {
 	user := GetUser(pContext)
 	rxs := make([]typ.Rx, 1)
-	err := db.Qry(&rxs, "SELECT r.id, r.`name`, r.owner_id, IFNULL(ou.`name`, '') AS 'owner_name', IFNULL(ou.nickname, '') AS 'owner_nickname', r.sharer_id, IFNULL(su.`name`, '') AS 'sharer_name', IFNULL(su.nickname, '') AS 'sharer_nickname', r.item_ids, r.rem, r.add_time, r.upd_time FROM rx r LEFT JOIN user ou ON ou.del_flag = 0 AND ou.id = r.owner_id LEFT JOIN user su ON su.del_flag = 0 AND su.id = r.sharer_id WHERE r.del_flag = 0 AND( r.owner_id = ? OR r.sharer_id = ?) GROUP BY r.id", user.Id, user.Id)
+	err := db.Qry(&rxs, "SELECT r.id, r.`name`, r.owner_id, IFNULL(ou.`name`, '') AS 'owner_name', IFNULL(ou.nickname, '') AS 'owner_nickname', r.sharer_id, IFNULL(su.`name`, '') AS 'sharer_name', IFNULL(su.nickname, '') AS 'sharer_nickname', r.item_ids, COUNT(DISTINCT i.id) AS 'share_item_count', r.rem, r.add_time, r.upd_time FROM rx r LEFT JOIN user ou ON ou.del_flag = 0 AND ou.id = r.owner_id LEFT JOIN user su ON su.del_flag = 0 AND su.id = r.sharer_id LEFT JOIN item i ON i.del_flag = 0 AND r.item_ids LIKE ('%,' || i.id || ',%') WHERE r.del_flag = 0 AND( r.owner_id = ? OR r.sharer_id = ?) GROUP BY r.id", user.Id, user.Id)
 	if err != nil {
 		log.Println(err)
 		return nil

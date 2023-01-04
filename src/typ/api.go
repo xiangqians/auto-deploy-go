@@ -35,6 +35,9 @@ type Item struct {
 	ServerId   int64  `form:"serverId" binding:"required,gt=0"`                    // 项目所属Server id
 	ServerName string `form:"serverName"`                                          // 项目所属Server Name
 	Script     string `form:"script" binding:"required,min=1,max=100000"`          // 脚本
+
+	//
+	RxId int64
 }
 
 type Rx struct {
@@ -47,6 +50,9 @@ type Rx struct {
 	SharerName     string // 共享者名称
 	SharerNickname string // 共享者昵称
 	ItemIds        string // 共享item_id集合
+
+	//
+	ShareItemCount int64 // 共享项目个数
 }
 
 type Server struct {
