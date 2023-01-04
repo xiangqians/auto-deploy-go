@@ -32,7 +32,7 @@
         </div>
         <div>
             *<label>{{ Localize "i18n.port" }}:</label>
-            <input name="port" type="number" value="{{ .server.Port }}">
+            <input name="port" type="number" value="{{ if gt .server.Id 0 }}{{ .server.Port }}{{ else }}22{{ end }}">
         </div>
         <div>
             *<label>{{ Localize "i18n.user" }}:</label>

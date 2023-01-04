@@ -52,9 +52,7 @@
             </td>
             <td>
                 <a href="/rx/shareitempage?id={{ $value.Id }}">
-                    <button {{ if ne $value.OwnerId $.user.Id }}disabled="disabled" {{ end }}>
-                        {{ Localize "i18n.shareItem" }}
-                    </button>
+                    <button>{{ Localize "i18n.shareItem" }}</button>
                 </a>
             </td>
             <td>

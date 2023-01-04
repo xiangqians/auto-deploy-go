@@ -41,10 +41,14 @@
             <td>{{ $value.Rem }}</td>
             <td>{{ UnixToTime $value.AddTime }}</td>
             <td>{{ UnixToTime $value.UpdTime }}</td>
-            <td><a href="/git/addpage?id={{ $value.Id }}">{{ Localize "i18n.upd" }}</a></td>
+            <td>
+                <a href="/git/addpage?id={{ $value.Id }}">
+                    <button>{{ Localize "i18n.upd" }}</button>
+                </a>
+            </td>
             <td>
                 <a href="/git/{{ $value.Id }}" method="DELETE" confirm='{{ Localize "i18n.del" }} {{ $value.Name }}?'>
-                    {{ Localize "i18n.del" }}
+                    <button>{{ Localize "i18n.del" }}</button>
                 </a>
             </td>
         </tr>
