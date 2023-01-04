@@ -8,7 +8,7 @@
     <meta charset="UTF-8">
     <link rel="shortcut icon" rel="external nofollow" href="/static/favicon.ico">
     <link rel="stylesheet" href="/static/css/com.css" type="text/css"/>
-    <title>{{ Localize "i18n.relItem" }}</title>
+    <title>{{ Localize "i18n.shareItem" }}</title>
 </head>
 <body>
 
@@ -25,8 +25,8 @@
         </tr>
         </thead>
         <tbody>
-        {{ if .relItems }}
-        {{ range $index,$value := .relItems }}
+        {{ if .shareItems }}
+        {{ range $index,$value := .shareItems }}
         <tr>
             <td>{{ Add1 $index }}</td>
             <td>{{ $value.Name }}</td>
@@ -34,7 +34,8 @@
             <td>{{ UnixToTime $value.AddTime }}</td>
             <td>{{ UnixToTime $value.UpdTime }}</td>
             <td>
-                <a href="/item1/{{ $value.Id }}" method="DELETE" confirm='{{ Localize "i18n.del" }} {{ $value.Name }}?'>
+                <a href="/rx/shareitem/{{ $value.Id }}" method="DELETE"
+                   confirm='{{ Localize "i18n.del" }} {{ $value.Name }}?'>
                     {{ Localize "i18n.del" }}
                 </a>
             </td>
@@ -49,7 +50,7 @@
     </table>
     <br>
     <div>
-        <a href="/rx/relitem">{{ Localize "i18n.add" }}</a>
+        <a href="/rx/shareitem">{{ Localize "i18n.add" }}</a>
     </div>
     <br>
     <div>

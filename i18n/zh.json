@@ -77,6 +77,6 @@
   "i18n.itemNotExist": "项目不存在",
   "i18n.itemDeployStarted": "项目已开始部署",
   "i18n.itemInDeploy": "项目已在部署中",
-  "i18n.relItem": "关联项目",
-  "i18n.relItemCount": "关联项目个数"
+  "i18n.shareItem": "共享项目",
+  "i18n.shareItemCount": "共享项目个数"
 }

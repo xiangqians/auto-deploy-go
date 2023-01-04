@@ -14,6 +14,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -104,6 +105,17 @@ func intHtmlTemplate(pEngine *gin.Engine) {
 		"Put": func(h gin.H, key string, value any) string {
 			h[key] = value
 			return ""
+		},
+
+		"RxShareItemCount": func(rx typ.Rx) int {
+			arr := strings.Split(rx.ItemIds, ",")
+			var count int
+			for _, e := range arr {
+				if strings.TrimSpace(e) != "" {
+					count++
+				}
+			}
+			return count
 		},
 
 		//"Template": func(name string) string {

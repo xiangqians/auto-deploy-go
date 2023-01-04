@@ -46,6 +46,7 @@ type Rx struct {
 	SharerId       int64  // 共享者id
 	SharerName     string // 共享者名称
 	SharerNickname string // 共享者昵称
+	ItemIds        string // 共享item_id集合
 }
 
 type Server struct {

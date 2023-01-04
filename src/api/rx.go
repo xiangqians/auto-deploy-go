@@ -122,24 +122,32 @@ func RxDel(pContext *gin.Context) {
 	pContext.Redirect(http.StatusMovedPermanently, "/rx/index")
 }
 
-func RxRelItemPage(pContext *gin.Context) {
+func RxShareItemPage(pContext *gin.Context) {
 	session := sessions.Default(pContext)
 	message := session.Get("message")
 	session.Delete("message")
 	session.Save()
 
-	var relItems []typ.Item
+	var shareItems []typ.Item
 
 	idStr := pContext.Query("id")
 	id, err := strconv.ParseInt(idStr, 10, 64)
 	if err == nil && id > 0 {
-		relItems = RxRelItems(pContext, id)
+		shareItems = RxShareItems(pContext, id)
 	}
 
-	pContext.HTML(http.StatusOK, "rx/relitem.html", gin.H{
-		"relItems": relItems,
-		"message":  message,
+	pContext.HTML(http.StatusOK, "rx/shareitem.html", gin.H{
+		"shareItems": shareItems,
+		"message":    message,
 	})
+}
+
+func RxShareItemAdd(pContext *gin.Context) {
+
+}
+
+func RxShareItemDel(pContext *gin.Context) {
+
 }
 
 func rxPreAddOrUpd(pContext *gin.Context) (typ.Rx, error) {
@@ -160,9 +168,9 @@ func rxPreAddOrUpd(pContext *gin.Context) (typ.Rx, error) {
 	return rx, err
 }
 
-// RxRelItems
+// RxShareItems
 // id: rx id
-func RxRelItems(pContext *gin.Context, id int64) []typ.Item {
+func RxShareItems(pContext *gin.Context, id int64) []typ.Item {
 	if id <= 0 {
 		return nil
 	}
@@ -185,7 +193,7 @@ func RxRelItems(pContext *gin.Context, id int64) []typ.Item {
 func Rxs(pContext *gin.Context) []typ.Rx {
 	user := GetUser(pContext)
 	rxs := make([]typ.Rx, 1)
-	err := db.Qry(&rxs, "SELECT r.id, r.`name`, r.owner_id, IFNULL(ou.`name`, '') AS 'owner_name', IFNULL(ou.nickname, '') AS 'owner_nickname', r.sharer_id, IFNULL(su.`name`, '') AS 'sharer_name', IFNULL(su.nickname, '') AS 'sharer_nickname', r.rem, r.add_time, r.upd_time FROM rx r LEFT JOIN user ou ON ou.del_flag = 0 AND ou.id = r.owner_id LEFT JOIN user su ON su.del_flag = 0 AND su.id = r.sharer_id WHERE r.del_flag = 0 AND( r.owner_id = ? OR r.sharer_id = ?) GROUP BY r.id", user.Id, user.Id)
+	err := db.Qry(&rxs, "SELECT r.id, r.`name`, r.owner_id, IFNULL(ou.`name`, '') AS 'owner_name', IFNULL(ou.nickname, '') AS 'owner_nickname', r.sharer_id, IFNULL(su.`name`, '') AS 'sharer_name', IFNULL(su.nickname, '') AS 'sharer_nickname', r.item_ids, r.rem, r.add_time, r.upd_time FROM rx r LEFT JOIN user ou ON ou.del_flag = 0 AND ou.id = r.owner_id LEFT JOIN user su ON su.del_flag = 0 AND su.id = r.sharer_id WHERE r.del_flag = 0 AND( r.owner_id = ? OR r.sharer_id = ?) GROUP BY r.id", user.Id, user.Id)
 	if err != nil {
 		log.Println(err)
 		return nil

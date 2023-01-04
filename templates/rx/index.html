@@ -25,7 +25,7 @@
             <td>{{ Localize "i18n.name" }}</td>
             <td>{{ Localize "i18n.owner" }}</td>
             <td>{{ Localize "i18n.sharer" }}</td>
-            <td>{{ Localize "i18n.relItemCount" }}</td>
+            <td>{{ Localize "i18n.shareItemCount" }}</td>
             <td>{{ Localize "i18n.rem" }}</td>
             <td>{{ Localize "i18n.addTime" }}</td>
             <td>{{ Localize "i18n.updTime" }}</td>
@@ -41,7 +41,7 @@
             <td>{{ $value.Name }}</td>
             <td>{{ if ne $value.OwnerName "" }}{{ $value.OwnerName }}, {{ $value.OwnerNickname }}{{ end }}</td>
             <td>{{ if ne $value.SharerName "" }}{{ $value.SharerName }}, {{ $value.SharerNickname }}{{ end }}</td>
-            <td>0</td>
+            <td>{{ RxShareItemCount $value }}</td>
             <td>{{ $value.Rem }}</td>
             <td>{{ UnixToTime $value.AddTime }}</td>
             <td>{{ UnixToTime $value.UpdTime }}</td>
@@ -52,9 +52,9 @@
             </td>
             <td>
                 {{ if ne $value.OwnerId $.user.Id }}
-                <span>{{ Localize "i18n.relItem" }}</span>
+                <span>{{ Localize "i18n.shareItem" }}</span>
                 {{ else }}
-                <a href="/rx/relitempage?id={{ $value.Id }}">{{ Localize "i18n.relItem" }}</a>
+                <a href="/rx/shareitempage?id={{ $value.Id }}">{{ Localize "i18n.shareItem" }}</a>
                 {{ end }}
             </td>
             <td>
@@ -73,7 +73,7 @@
         {{ end }}
         {{ else }}
         <tr>
-            <td colspan="9">{{ Localize "i18n.noData" }}</td>
+            <td colspan="10">{{ Localize "i18n.noData" }}</td>
         </tr>
         {{ end }}
         </tbody>
