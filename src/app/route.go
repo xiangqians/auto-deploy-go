@@ -75,6 +75,7 @@ func initRoute(pEngine *gin.Engine) {
 		rxRouterGroup.Any("/index", api.RxIndex)
 		rxRouterGroup.Any("/addpage", api.RxAddPage)
 		rxRouterGroup.POST("/join", api.RxJoin)
+		rxRouterGroup.Any("/relitempage", api.RxRelItemPage)
 	}
 	pEngine.POST("/rx", api.RxAdd)
 	pEngine.PUT("/rx", api.RxUpd)

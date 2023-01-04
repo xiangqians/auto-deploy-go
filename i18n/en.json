@@ -76,5 +76,7 @@
   "i18n.noData": "No data",
   "i18n.itemNotExist": "Item does not exist",
   "i18n.itemDeployStarted": "Item deployment started",
-  "i18n.itemInDeploy": "Item is already in deployment"
+  "i18n.itemInDeploy": "Item is already in deployment",
+  "i18n.relItem": "Relation Item",
+  "i18n.relItemCount": "Relation Item Count"
 }

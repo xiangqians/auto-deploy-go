@@ -122,6 +122,26 @@ func RxDel(pContext *gin.Context) {
 	pContext.Redirect(http.StatusMovedPermanently, "/rx/index")
 }
 
+func RxRelItemPage(pContext *gin.Context) {
+	session := sessions.Default(pContext)
+	message := session.Get("message")
+	session.Delete("message")
+	session.Save()
+
+	var relItems []typ.Item
+
+	idStr := pContext.Query("id")
+	id, err := strconv.ParseInt(idStr, 10, 64)
+	if err == nil && id > 0 {
+		relItems = RxRelItems(pContext, id)
+	}
+
+	pContext.HTML(http.StatusOK, "rx/relitem.html", gin.H{
+		"relItems": relItems,
+		"message":  message,
+	})
+}
+
 func rxPreAddOrUpd(pContext *gin.Context) (typ.Rx, error) {
 	rx := typ.Rx{}
 	err := ShouldBind(pContext, &rx)
@@ -138,6 +158,28 @@ func rxPreAddOrUpd(pContext *gin.Context) (typ.Rx, error) {
 	}
 
 	return rx, err
+}
+
+// RxRelItems
+// id: rx id
+func RxRelItems(pContext *gin.Context, id int64) []typ.Item {
+	if id <= 0 {
+		return nil
+	}
+
+	user := GetUser(pContext)
+	items := make([]typ.Item, 1)
+	err := db.Qry(&items, "SELECT i.id, i.`name`, i.rem, i.add_time, i.upd_time FROM item i JOIN rx r ON r.item_ids LIKE ('%,' || i.id || ',%') WHERE i.del_flag = 0 AND( r.owner_id = ? OR r.sharer_id = ?) AND r.id = ? GROUP BY i.id", user.Id, user.Id, id)
+	if err != nil {
+		log.Println(err)
+		return nil
+	}
+
+	if items[0].Id == 0 {
+		items = nil
+	}
+
+	return items
 }
 
 func Rxs(pContext *gin.Context) []typ.Rx {

@@ -25,11 +25,12 @@
             <td>{{ Localize "i18n.name" }}</td>
             <td>{{ Localize "i18n.owner" }}</td>
             <td>{{ Localize "i18n.sharer" }}</td>
+            <td>{{ Localize "i18n.relItemCount" }}</td>
             <td>{{ Localize "i18n.rem" }}</td>
             <td>{{ Localize "i18n.addTime" }}</td>
             <td>{{ Localize "i18n.updTime" }}</td>
             <td>{{ Localize "i18n.code" }}</td>
-            <td colspan="2">{{ Localize "i18n.op" }}</td>
+            <td colspan="3">{{ Localize "i18n.op" }}</td>
         </tr>
         </thead>
         <tbody>
@@ -40,6 +41,7 @@
             <td>{{ $value.Name }}</td>
             <td>{{ if ne $value.OwnerName "" }}{{ $value.OwnerName }}, {{ $value.OwnerNickname }}{{ end }}</td>
             <td>{{ if ne $value.SharerName "" }}{{ $value.SharerName }}, {{ $value.SharerNickname }}{{ end }}</td>
+            <td>0</td>
             <td>{{ $value.Rem }}</td>
             <td>{{ UnixToTime $value.AddTime }}</td>
             <td>{{ UnixToTime $value.UpdTime }}</td>
@@ -50,10 +52,18 @@
             </td>
             <td>
                 {{ if ne $value.OwnerId $.user.Id }}
+                <span>{{ Localize "i18n.relItem" }}</span>
+                {{ else }}
+                <a href="/rx/relitempage?id={{ $value.Id }}">{{ Localize "i18n.relItem" }}</a>
+                {{ end }}
+            </td>
+            <td>
+                {{ if ne $value.OwnerId $.user.Id }}
                 <span>{{ Localize "i18n.upd" }}</span>
                 {{ else }}
                 <a href="/rx/addpage?id={{ $value.Id }}">{{ Localize "i18n.upd" }}</a>
                 {{ end }}
+            </td>
             <td>
                 <a href="/rx/{{ $value.Id }}" method="DELETE" confirm='{{ Localize "i18n.del" }} {{ $value.Name }}?'>
                     {{ Localize "i18n.del" }}

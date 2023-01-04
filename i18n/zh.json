@@ -76,5 +76,7 @@
   "i18n.noData": "无数据",
   "i18n.itemNotExist": "项目不存在",
   "i18n.itemDeployStarted": "项目已开始部署",
-  "i18n.itemInDeploy": "项目已在部署中"
+  "i18n.itemInDeploy": "项目已在部署中",
+  "i18n.relItem": "关联项目",
+  "i18n.relItemCount": "关联项目个数"
 }
