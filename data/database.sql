@@ -27,11 +27,12 @@ CREATE TABLE `rx` -- rx信息表
     `id`        INTEGER PRIMARY KEY AUTOINCREMENT, -- 用户id
     `name`      VARCHAR(64) NOT NULL,              -- 名称
     `owner_id`  INTEGER     NOT NULL,              -- 拥有者id
-    `sharer_id` INTEGER      DEFAULT 0,            -- 共享者id
-    `rem`       VARCHAR(256) DEFAULT '',           -- 备注
-    `del_flag`  TINYINT      DEFAULT 0,            -- 删除标识，0-正常，1-删除
-    `add_time`  INTEGER      DEFAULT 0,            -- 创建时间（时间戳，s）
-    `upd_time`  INTEGER      DEFAULT 0             -- 修改时间（时间戳，s）
+    `sharer_id` INTEGER       DEFAULT 0,           -- 共享者id
+    `item_ids`  VARCHAR(1024) DEFAULT '',          -- 共享item_id集合
+    `rem`       VARCHAR(256)  DEFAULT '',          -- 备注
+    `del_flag`  TINYINT       DEFAULT 0,           -- 删除标识，0-正常，1-删除
+    `add_time`  INTEGER       DEFAULT 0,           -- 创建时间（时间戳，s）
+    `upd_time`  INTEGER       DEFAULT 0            -- 修改时间（时间戳，s）
 );
 
 
