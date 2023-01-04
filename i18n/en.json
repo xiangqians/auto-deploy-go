@@ -78,5 +78,6 @@
   "i18n.itemDeployStarted": "Item deployment started",
   "i18n.itemInDeploy": "Item is already in deployment",
   "i18n.shareItem": "Share Item",
-  "i18n.shareItemCount": "Share Item Count"
+  "i18n.shareItemCount": "Share Item Count",
+  "i18n.rxNotExist": "RX does not exist"
 }

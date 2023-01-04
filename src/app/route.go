@@ -77,7 +77,7 @@ func initRoute(pEngine *gin.Engine) {
 		rxRouterGroup.POST("/join", api.RxJoin)
 		rxRouterGroup.Any("/shareitempage", api.RxShareItemPage)
 		rxRouterGroup.POST("/shareitem", api.RxShareItemAdd)
-		rxRouterGroup.DELETE("/shareitem/:id", api.RxShareItemDel)
+		rxRouterGroup.DELETE("/shareitem/:id/:itemId", api.RxShareItemDel)
 	}
 	pEngine.POST("/rx", api.RxAdd)
 	pEngine.PUT("/rx", api.RxUpd)

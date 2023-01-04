@@ -6,6 +6,8 @@ package api
 import (
 	"auto-deploy-go/src/db"
 	"auto-deploy-go/src/typ"
+	"errors"
+	"fmt"
 	"github.com/gin-contrib/i18n"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
@@ -130,6 +132,7 @@ func RxShareItemPage(pContext *gin.Context) {
 
 	var shareItems []typ.Item
 
+	// rx id
 	idStr := pContext.Query("id")
 	id, err := strconv.ParseInt(idStr, 10, 64)
 	if err == nil && id > 0 {
@@ -137,17 +140,64 @@ func RxShareItemPage(pContext *gin.Context) {
 	}
 
 	pContext.HTML(http.StatusOK, "rx/shareitem.html", gin.H{
+		"rxId":       id,
 		"shareItems": shareItems,
 		"message":    message,
 	})
 }
 
 func RxShareItemAdd(pContext *gin.Context) {
-
 }
 
 func RxShareItemDel(pContext *gin.Context) {
+	redirect := func(id int64, err error) {
+		session := sessions.Default(pContext)
+		if err != nil {
+			session.Set("message", err.Error())
+		}
+		session.Save()
+		pContext.Redirect(http.StatusMovedPermanently, fmt.Sprintf("/rx/shareitempage?id=%v", id))
+	}
 
+	// rx id
+	idStr := pContext.Param("id")
+	id, err := strconv.ParseInt(idStr, 10, 64)
+	if err != nil {
+		redirect(id, err)
+		return
+	}
+
+	// item id
+	itemIdStr := pContext.Param("itemId")
+	itemId, err := strconv.ParseInt(itemIdStr, 10, 64)
+	if err != nil {
+		redirect(id, err)
+		return
+	}
+	if itemId <= 0 {
+		redirect(id, nil)
+		return
+	}
+
+	// rx
+	user := GetUser(pContext)
+	rx := typ.Rx{}
+	err = db.Qry(&rx, "SELECT r.id, r.item_ids FROM rx r WHERE r.del_flag = 0 AND r.owner_id = ? AND r.id = ?", user.Id, id)
+	if err != nil {
+		redirect(id, err)
+		return
+	}
+	if rx.Id == 0 {
+		redirect(id, errors.New(i18n.MustGetMessage("i18n.rxNotExist")))
+		return
+	}
+
+	// update
+	itemIds := strings.ReplaceAll(rx.ItemIds, fmt.Sprintf(",%v,", itemId), ",")
+	if itemIds != rx.ItemIds {
+		db.Del("UPDATE rx SET item_ids = ?, upd_time = ? WHERE owner_id = ? AND id = ?", itemIds, time.Now().Unix(), user.Id, id)
+	}
+	redirect(id, nil)
 }
 
 func rxPreAddOrUpd(pContext *gin.Context) (typ.Rx, error) {
@@ -177,7 +227,7 @@ func RxShareItems(pContext *gin.Context, id int64) []typ.Item {
 
 	user := GetUser(pContext)
 	items := make([]typ.Item, 1)
-	err := db.Qry(&items, "SELECT i.id, i.`name`, i.rem, i.add_time, i.upd_time FROM item i JOIN rx r ON r.item_ids LIKE ('%,' || i.id || ',%') WHERE i.del_flag = 0 AND( r.owner_id = ? OR r.sharer_id = ?) AND r.id = ? GROUP BY i.id", user.Id, user.Id, id)
+	err := db.Qry(&items, "SELECT i.id, i.`name`, i.rem, i.add_time, i.upd_time FROM item i JOIN rx r ON r.del_flag = 0 AND r.item_ids LIKE ('%,' || i.id || ',%') WHERE i.del_flag = 0 AND( r.owner_id = ? OR r.sharer_id = ?) AND r.id = ? GROUP BY i.id", user.Id, user.Id, id)
 	if err != nil {
 		log.Println(err)
 		return nil

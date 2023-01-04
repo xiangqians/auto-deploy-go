@@ -34,7 +34,7 @@
             <td>{{ UnixToTime $value.AddTime }}</td>
             <td>{{ UnixToTime $value.UpdTime }}</td>
             <td>
-                <a href="/rx/shareitem/{{ $value.Id }}" method="DELETE"
+                <a href="/rx/shareitem/{{ $.rxId }}/{{ $value.Id }}" method="DELETE"
                    confirm='{{ Localize "i18n.del" }} {{ $value.Name }}?'>
                     {{ Localize "i18n.del" }}
                 </a>
