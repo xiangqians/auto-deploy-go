@@ -72,6 +72,11 @@ COPY ./templates /opt/auto-deploy/templates
 COPY ./auto_deploy_linux_amd64 /opt/auto-deploy/
 COPY ./startup.sh /opt/auto-deploy/
 
+# 授予可执行权限
+RUN chmod +x /opt/auto-deploy/auto_deploy_linux_amd64
+RUN chmod +x /opt/auto-deploy/startup.sh
+
+
 # 暴露端口
 #EXPOSE 8080
 

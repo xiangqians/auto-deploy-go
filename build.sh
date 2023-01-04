@@ -36,6 +36,7 @@ echo pkgPath: ${pkgPath}
 # startup.sh
 startupPath=${outputDir}/startup.sh
 cat>${startupPath}<<EOF
+#!/bin/bash
 # startup.sh
 # \$ chmod +x ${pkgName} startup.sh
 #nohup ./${pkgName} >/dev/null 2>&1 &

@@ -11,7 +11,9 @@ mvn package
 [deploy]
 #! /bin/bash
 
-./clean.sh
+docker stop test
+docker rm test
+docker rmi org/test:1.0
 
 # Dockerfile
 cat>Dockerfile<<EOF
@@ -55,12 +57,3 @@ sudo docker run \
 --name test \
 -p 8088:8080 \
 -t org/test:1.0
-
-# clean.sh
-cat>clean.sh<<EOF
-#!/bin/bash
-docker stop test
-docker rm test
-docker rmi org/test:1.0
-EOF
-chmod +x clean.sh
