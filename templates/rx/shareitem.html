@@ -8,7 +8,6 @@
     <meta charset="UTF-8">
     <link rel="shortcut icon" rel="external nofollow" href="/static/favicon.ico">
     <link rel="stylesheet" href="/static/custom/min.css" type="text/css"/>
-    <link rel="stylesheet" href="/static/jquery-confirm-v3.3.2/min.css" type="text/css"/>
     <title>{{ Localize "i18n.shareItem" }}</title>
 </head>
 <body>
@@ -70,7 +69,6 @@
 </html>
 <script type="text/javascript" src="/static/jquery-v3.6.2/min.js"></script>
 <script type="text/javascript" src="/static/custom/min.js"></script>
-<script type="text/javascript" src="/static/jquery-confirm-v3.3.2/min.js"></script>
 <script type="text/javascript">
     let $add = $('a[name="add"]')
     if ($add.length > 0) {
@@ -84,43 +82,6 @@
 
             let code = null
             // prompt("<p>1213</p>", '');
-            $.confirm({
-                title: 'Prompt!',
-                content: '' +
-                    '<form action="" class="formName">' +
-                    '<div class="form-group">' +
-                    '<label>Enter something here</label>' +
-                    '<input type="text" placeholder="Your name" class="name form-control" required />' +
-                    '</div>' +
-                    '</form>',
-                buttons: {
-                    formSubmit: {
-                        text: 'Submit',
-                        btnClass: 'btn-blue',
-                        action: function () {
-                            var name = this.$content.find('.name').val();
-                            if(!name){
-                                $.alert('provide a valid name');
-                                return false;
-                            }
-                            $.alert('Your name is ' + name);
-                        }
-                    },
-                    cancel: function () {
-                        //close
-                    },
-                },
-                onContentReady: function () {
-                    // bind to events
-                    var jc = this;
-                    this.$content.find('form').on('submit', function (e) {
-                        // if the user submits the form by pressing enter in the field.
-                        e.preventDefault();
-                        jc.$$formSubmit.trigger('click'); // reference the button and click it
-                    });
-                }
-            });
-
             return [r, {"code": code}]
         }
     }
