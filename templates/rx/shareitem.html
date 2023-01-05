@@ -34,11 +34,12 @@
             <td>{{ UnixToTime $value.AddTime }}</td>
             <td>{{ UnixToTime $value.UpdTime }}</td>
             <td>
-                <button action="/rx/shareitem/{{ $value.RxId }}/{{ $value.Id }}" method="DELETE"
-                        confirm='{{ Localize "i18n.del" }} {{ $value.Name }}?'
-                        name="copy" {{ if ne $value.OwnerId $.user.Id }}disabled="disabled" {{ end }}>
-                    {{ Localize "i18n.del" }}
-                </button>
+                <a href="/rx/shareitem/{{ $value.RxId }}/{{ $value.Id }}" method="DELETE"
+                   confirm='{{ Localize "i18n.del" }} {{ $value.Name }}?'>
+                    <button name="copy" {{ if ne $value.OwnerId $.user.Id }}disabled="disabled" {{ end }}>
+                        {{ Localize "i18n.del" }}
+                    </button>
+                </a>
             </td>
         </tr>
         {{ Put $ "ownerId" $value.OwnerId }}
@@ -70,40 +71,42 @@
 <script type="text/javascript" src="/static/jquery-v3.6.2/min.js"></script>
 <script type="text/javascript" src="/static/custom/min.js"></script>
 <script type="text/javascript">
-    let $add = $('a[name="add"]')
-    if ($add.length > 0) {
-        $add[0]['_pre_'] = function ($e) {
-            // flag判断是否已点击 'Add →'
-            let flag = $e.attr('flag')
-            if (flag != 1) {
-                let $select = $('<select style="margin-right: 10px"></select>')
-                $select.append('<option value=""></option>')
-                for (let i = 1; i < 10; i++) {
-                    $select.append('<option value="' + i + '">' + i + '</option>')
+    (function () {
+        let $add = $('a[name="add"]')
+        if ($add.length > 0) {
+            $add[0]['_pre_'] = function ($e) {
+                // flag判断是否已点击 'Add →'
+                let flag = $e.attr('flag')
+                if (flag != 1) {
+                    let $select = $('<select style="margin-right: 10px"></select>')
+                    $select.append('<option value=""></option>')
+                    for (let i = 1; i < 10; i++) {
+                        $select.append('<option value="' + i + '">' + i + '</option>')
+                    }
+                    $e.before($select)
+                    $e.html('{{ Localize "i18n.add" }}')
+                    $e.attr('flag', 1)
+                    return false
                 }
-                $e.before($select)
-                $e.html('{{ Localize "i18n.add" }}')
-                $e.attr('flag', 1)
-                return false
+
+                // 获取上一个 select 兄弟节点
+                let $select = $e.prev('select')
+                // console.log($select)
+                // 获取选中的 value 属性值
+                let value = $select.find('option:selected').attr('value').trim();
+                console.log(value)
+                if (value === "") {
+                    // 添加 css border
+                    $select.css('border', '2px solid red')
+                    return false
+                }
+
+                // 删除 css border
+                $select.css('border', '')
+
+                let code = null
+                return [false, {"code": code}]
             }
-
-            // 获取上一个 select 兄弟节点
-            let $select = $e.prev('select')
-            // console.log($select)
-            // 获取选中的 value 属性值
-            let value = $select.find('option:selected').attr('value').trim();
-            console.log(value)
-            if (value === "") {
-                // 添加 css border
-                $select.css('border', '2px solid red')
-                return false
-            }
-
-            // 删除 css border
-            $select.css('border', '')
-
-            let code = null
-            return [false, {"code": code}]
         }
-    }
+    })()
 </script>
