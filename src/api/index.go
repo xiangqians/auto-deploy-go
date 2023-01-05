@@ -217,13 +217,14 @@ func getItemLastRecords(pContext *gin.Context, itemId int64) []typ.ItemLastRecor
 		"LEFT JOIN record r ON r.del_flag = 0 AND r.item_id = i.id " +
 		"LEFT JOIN record rt ON rt.del_flag = 0 AND rt.item_id = r.item_id AND r.add_time < rt.add_time "
 
-	sql += "WHERE i.del_flag = 0 AND i.user_id IN(SELECT DISTINCT(owner_id) FROM rx WHERE del_flag = 0 AND sharer_id = ? UNION ALL SELECT %v) "
+	sql += "WHERE i.del_flag = 0 "
+	//sql += "AND i.user_id IN(SELECT DISTINCT(owner_id) FROM rx WHERE del_flag = 0 AND sharer_id = ? UNION ALL SELECT %v) "
+	sql += fmt.Sprintf("AND (i.user_id = %v OR EXISTS(SELECT 1 FROM rx rx WHERE rx.del_flag = 0 AND rx.sharer_id = %v AND rx.item_ids LIKE ('%%,' || i.id || ',%%') )) ", user.Id, user.Id)
 	if itemId > 0 {
 		sql += fmt.Sprintf("AND i.id = %v ", strconv.FormatInt(itemId, 10))
 	}
 	sql += "GROUP BY i.id, r.id HAVING COUNT(rt.id) < 1"
-	sql = fmt.Sprintf(sql, user.Id)
-	err := db.Qry(&itemLastRecords, sql, user.Id)
+	err := db.Qry(&itemLastRecords, sql)
 	if err != nil {
 		log.Println(err)
 		return nil
