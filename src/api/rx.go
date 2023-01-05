@@ -139,14 +139,114 @@ func RxShareItemPage(pContext *gin.Context) {
 		shareItems = RxShareItems(pContext, id)
 	}
 
+	rx, err := Rx(pContext, id)
+
 	pContext.HTML(http.StatusOK, "rx/shareitem.html", gin.H{
 		"user":       GetUser(pContext),
+		"rx":         rx,
 		"shareItems": shareItems,
 		"message":    message,
 	})
 }
 
+// RxNotShareItems 获取尚未共享的项目集
+func RxNotShareItems(pContext *gin.Context) {
+	redirect := func(notShareItems []typ.Item) {
+		pContext.JSON(http.StatusOK, gin.H{
+			"notShareItems": notShareItems,
+		})
+	}
+
+	// rx id
+	idStr := pContext.Param("id")
+	id, err := strconv.ParseInt(idStr, 10, 64)
+	if err != nil {
+		redirect(nil)
+		return
+	}
+
+	// rx
+	rx, err := Rx(pContext, id)
+	if err != nil {
+		log.Println(err)
+		redirect(nil)
+		return
+	}
+
+	// 只返回需要的字段
+	notShareItems := Items(pContext, rx.ItemIds)
+	if notShareItems != nil {
+		_notShareItems := make([]typ.Item, len(notShareItems))
+		for i, notShareItem := range notShareItems {
+			_notShareItems[i] = typ.Item{Abs: typ.Abs{Id: notShareItem.Id}, Name: notShareItem.Name}
+		}
+		notShareItems = _notShareItems
+	}
+
+	redirect(notShareItems)
+	return
+}
+
 func RxShareItemAdd(pContext *gin.Context) {
+	redirect := func(id int64, err error) {
+		session := sessions.Default(pContext)
+		if err != nil {
+			session.Set("message", err.Error())
+		}
+		session.Save()
+		pContext.Redirect(http.StatusMovedPermanently, fmt.Sprintf("/rx/shareitempage?id=%v", id))
+	}
+
+	// rx id
+	idStr := pContext.Param("id")
+	id, err := strconv.ParseInt(idStr, 10, 64)
+	if err != nil {
+		redirect(id, err)
+		return
+	}
+
+	// item id
+	itemIdStr := pContext.Param("itemId")
+	itemId, err := strconv.ParseInt(itemIdStr, 10, 64)
+	if err != nil {
+		redirect(id, err)
+		return
+	}
+	if itemId <= 0 {
+		redirect(id, nil)
+		return
+	}
+
+	// item
+	_, err = Item(pContext, itemId)
+	if err != nil {
+		redirect(id, errors.New(i18n.MustGetMessage("i18n.itemNotExist")))
+		return
+	}
+
+	// rx
+	rx, err := Rx(pContext, id)
+	if err != nil {
+		log.Println(err)
+		redirect(id, errors.New(i18n.MustGetMessage("i18n.rxNotExist")))
+		return
+	}
+
+	itemIds := rx.ItemIds
+	if strings.Contains(itemIds, fmt.Sprintf(",%v,", itemId)) {
+		redirect(id, nil)
+		return
+	}
+
+	if !strings.HasSuffix(itemIds, ",") {
+		itemIds += ","
+	}
+	itemIds += strconv.FormatInt(itemId, 10) + ","
+	user := GetUser(pContext)
+	db.Upd("UPDATE rx SET item_ids = ?, upd_time = ? WHERE owner_id = ? AND id = ?", itemIds, time.Now().Unix(), user.Id, id)
+
+	redirect(id, nil)
+	return
 }
 
 func RxShareItemDel(pContext *gin.Context) {
@@ -180,14 +280,9 @@ func RxShareItemDel(pContext *gin.Context) {
 	}
 
 	// rx
-	user := GetUser(pContext)
-	rx := typ.Rx{}
-	err = db.Qry(&rx, "SELECT r.id, r.item_ids FROM rx r WHERE r.del_flag = 0 AND r.owner_id = ? AND r.id = ?", user.Id, id)
+	rx, err := Rx(pContext, id)
 	if err != nil {
-		redirect(id, err)
-		return
-	}
-	if rx.Id == 0 {
+		log.Println(err)
 		redirect(id, errors.New(i18n.MustGetMessage("i18n.rxNotExist")))
 		return
 	}
@@ -195,6 +290,7 @@ func RxShareItemDel(pContext *gin.Context) {
 	// update
 	itemIds := strings.ReplaceAll(rx.ItemIds, fmt.Sprintf(",%v,", itemId), ",")
 	if itemIds != rx.ItemIds {
+		user := GetUser(pContext)
 		db.Del("UPDATE rx SET item_ids = ?, upd_time = ? WHERE owner_id = ? AND id = ?", itemIds, time.Now().Unix(), user.Id, id)
 	}
 	redirect(id, nil)
@@ -238,6 +334,21 @@ func RxShareItems(pContext *gin.Context, id int64) []typ.Item {
 	}
 
 	return shareItems
+}
+
+func Rx(pContext *gin.Context, id int64) (typ.Rx, error) {
+	user := GetUser(pContext)
+	rx := typ.Rx{}
+	err := db.Qry(&rx, "SELECT r.id, r.`name`, r.owner_id, r.sharer_id, r.item_ids, r.rem FROM rx r WHERE r.del_flag = 0 AND r.owner_id = ? AND r.id = ?", user.Id, id)
+	if err != nil {
+		return rx, err
+	}
+
+	if rx.Id == 0 {
+		return rx, errors.New("no record")
+	}
+
+	return rx, nil
 }
 
 func Rxs(pContext *gin.Context) []typ.Rx {

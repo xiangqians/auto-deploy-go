@@ -42,7 +42,6 @@
                 </a>
             </td>
         </tr>
-        {{ Put $ "ownerId" $value.OwnerId }}
         {{ end }}
         {{ else }}
         <tr>
@@ -52,10 +51,10 @@
         </tbody>
     </table>
     <br>
-    {{ if eq .ownerId .user.Id }}
+    {{ if eq .rx.OwnerId .user.Id }}
     <br>
     <div>
-        <a name="add" href="/rx/shareitem" method="POST">{{ Localize "i18n.add" }} →</a>
+        <a name="add" href="/rx/shareitem/{{ .rx.Id }}/0" method="POST">{{ Localize "i18n.add" }} →</a>
     </div>
     {{ end }}
     <br>
@@ -71,6 +70,8 @@
 <script type="text/javascript" src="/static/jquery-v3.6.2/min.js"></script>
 <script type="text/javascript" src="/static/custom/min.js"></script>
 <script type="text/javascript">
+
+    ;
     (function () {
         let $add = $('a[name="add"]')
         if ($add.length > 0) {
@@ -80,9 +81,18 @@
                 if (flag != 1) {
                     let $select = $('<select style="margin-right: 10px"></select>')
                     $select.append('<option value=""></option>')
-                    for (let i = 1; i < 10; i++) {
-                        $select.append('<option value="' + i + '">' + i + '</option>')
-                    }
+
+                    Custom.ajaxJsonData('/rx/notshareitems/{{ .rx.Id }}', 'GET', null, false, function (resp) {
+                        let notShareItems = resp.notShareItems
+                        // console.log(notShareItems)
+                        if (notShareItems) {
+                            notShareItems.forEach(notShareItem => {
+                                // console.log(notShareItem)
+                                $select.append('<option value="' + notShareItem.Id + '">' + notShareItem.Name + '</option>')
+                            })
+                        }
+                    })
+
                     $e.before($select)
                     $e.html('{{ Localize "i18n.add" }}')
                     $e.attr('flag', 1)
@@ -94,7 +104,7 @@
                 // console.log($select)
                 // 获取选中的 value 属性值
                 let value = $select.find('option:selected').attr('value').trim();
-                console.log(value)
+                // console.log(value)
                 if (value === "") {
                     // 添加 css border
                     $select.css('border', '2px solid red')
@@ -104,9 +114,16 @@
                 // 删除 css border
                 $select.css('border', '')
 
-                let code = null
-                return [false, {"code": code}]
+                let href = $e.attr('href')
+                // console.log('href', href)
+                let index = href.lastIndexOf('/')
+                href = href.substring(0, index + 1) + value
+                // console.log('href', href)
+                $e.attr('href', href)
+
+                return true
             }
         }
     })()
+    ;
 </script>

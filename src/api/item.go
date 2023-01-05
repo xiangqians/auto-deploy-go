@@ -6,6 +6,8 @@ package api
 import (
 	"auto-deploy-go/src/db"
 	"auto-deploy-go/src/typ"
+	"errors"
+	"fmt"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"log"
@@ -21,7 +23,7 @@ func ItemIndex(pContext *gin.Context) {
 	session.Save()
 	pContext.HTML(http.StatusOK, "item/index.html", gin.H{
 		"user":    GetUser(pContext),
-		"items":   Items(pContext),
+		"items":   Items(pContext, ""),
 		"message": message,
 	})
 }
@@ -104,10 +106,32 @@ func itemPreAddOrUpd(pContext *gin.Context) (typ.Item, error) {
 	return item, err
 }
 
-func Items(pContext *gin.Context) []typ.Item {
+func Item(pContext *gin.Context, id int64) (typ.Item, error) {
+	user := GetUser(pContext)
+	item := typ.Item{}
+	err := db.Qry(&item, "SELECT i.id, i.`name`, i.git_id, i.repo_url, i.branch, i.server_id, i.script, i.rem FROM item i  WHERE i.del_flag = 0 AND i.user_id = ? AND i.id = ?", user.Id, id)
+	if err != nil {
+		return item, err
+	}
+
+	if item.Id == 0 {
+		return item, errors.New("no record")
+	}
+
+	return item, nil
+}
+
+func Items(pContext *gin.Context, notLikeIds string) []typ.Item {
 	user := GetUser(pContext)
 	items := make([]typ.Item, 1)
-	err := db.Qry(&items, "SELECT i.id, i.`name`, i.git_id, IFNULL(g.`name`, '') AS 'git_name', i.repo_url, i.branch, i.server_id, IFNULL(s.`name`, '') AS 'server_name', i.rem, i.add_time, i.upd_time FROM item i LEFT JOIN git g ON g.del_flag = 0 AND g.id = i.git_id LEFT JOIN server s ON s.del_flag = 0 AND s.id = i.server_id WHERE i.del_flag = 0 AND i.user_id = ?", user.Id)
+
+	sql := "SELECT i.id, i.`name`, i.git_id, IFNULL(g.`name`, '') AS 'git_name', i.repo_url, i.branch, i.server_id, IFNULL(s.`name`, '') AS 'server_name', i.rem, i.add_time, i.upd_time FROM item i LEFT JOIN git g ON g.del_flag = 0 AND g.id = i.git_id LEFT JOIN server s ON s.del_flag = 0 AND s.id = i.server_id WHERE i.del_flag = 0 AND i.user_id = ? "
+	if notLikeIds != "" {
+		sql += fmt.Sprintf("AND '%s' NOT LIKE ('%%,' || i.id || ',%%') ", notLikeIds)
+	}
+	sql += "GROUP BY i.id"
+
+	err := db.Qry(&items, sql, user.Id)
 	if err != nil {
 		log.Println(err)
 		return nil

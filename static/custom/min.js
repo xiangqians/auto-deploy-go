@@ -2,9 +2,11 @@
  * @author xiangqian
  * @date 22:24 2022/12/25
  */
-(function () {
+;
+Custom = function () {
+    let obj = {}
 
-    function reload(text) {
+    obj.reload = function (text) {
         // 使用 document.write() 覆盖当前文档
         document.write(text)
         document.close()
@@ -17,21 +19,59 @@
         }
     }
 
-    function ajax(url, method, formData) {
+    obj.ajaxFormData = function (url, method, data, async, success, error) {
         // console.log(method, url, formData)
         // application/x-www-form-urlencoded
         $.ajax({
             url: url,
             type: method,
-            data: formData,
+            data: data,
             processData: false,
             contentType: false,
+            async: async,
             success: function (resp) {
-                reload(resp)
+                if (success) {
+                    success(resp)
+                }
             },
             error: function (e) {
-                alert(e)
+                if (error) {
+                    error(e)
+                }
             }
+        })
+    }
+
+    obj.ajaxJsonData = function (url, method, data, async, success, error) {
+        $.ajax({
+            url: url,
+            type: method,
+            data: data,
+            dataType: "json",
+            async: async,
+            success: function (resp) {
+                if (success) {
+                    success(resp)
+                }
+            },
+            error: function (e) {
+                if (error) {
+                    error(e)
+                }
+            }
+        })
+    }
+
+    return obj
+}()
+;
+
+(function () {
+    function ajaxFormData(url, method, data) {
+        Custom.ajaxFormData(url, method, data, true, function (resp) {
+            Custom.reload(resp)
+        }, function (e) {
+            alert(e)
         })
     }
 
@@ -68,7 +108,7 @@
             }
         }
 
-        // ajax
+        // ajaxFormData
         if (flag) {
             let url = $e.attr("href")
             // console.log(url)
@@ -77,7 +117,7 @@
             }
             // console.log(url)
             let method = $e.attr("method").trim().toUpperCase()
-            ajax(url, method, formData)
+            ajaxFormData(url, method, formData)
         }
     }
 
@@ -110,7 +150,7 @@
                         $form.serializeArray().forEach(e => {
                             formData.append(e.name, e.value);
                         })
-                        ajax(url, method, formData)
+                        ajaxFormData(url, method, formData)
                         return false
                     })
                 }
@@ -120,3 +160,4 @@
     }
 
 })()
+;
