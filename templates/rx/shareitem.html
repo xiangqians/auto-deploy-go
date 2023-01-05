@@ -72,17 +72,38 @@
 <script type="text/javascript">
     let $add = $('a[name="add"]')
     if ($add.length > 0) {
-        $add[0]['_pre_'] = function () {
-            let r = false
-            // let code = prompt('{{ Localize "i18n.pleaseEnterSharedCode" }}', '')
-            // if (code && code !== "") {
-            //     code = code.trim()
-            //     r = true
-            // }
+        $add[0]['_pre_'] = function ($e) {
+            // flag判断是否已点击 'Add →'
+            let flag = $e.attr('flag')
+            if (flag != 1) {
+                let $select = $('<select style="margin-right: 10px"></select>')
+                $select.append('<option value=""></option>')
+                for (let i = 1; i < 10; i++) {
+                    $select.append('<option value="' + i + '">' + i + '</option>')
+                }
+                $e.before($select)
+                $e.html('{{ Localize "i18n.add" }}')
+                $e.attr('flag', 1)
+                return false
+            }
+
+            // 获取上一个 select 兄弟节点
+            let $select = $e.prev('select')
+            // console.log($select)
+            // 获取选中的 value 属性值
+            let value = $select.find('option:selected').attr('value').trim();
+            console.log(value)
+            if (value === "") {
+                // 添加 css border
+                $select.css('border', '2px solid red')
+                return false
+            }
+
+            // 删除 css border
+            $select.css('border', '')
 
             let code = null
-            // prompt("<p>1213</p>", '');
-            return [r, {"code": code}]
+            return [false, {"code": code}]
         }
     }
 </script>

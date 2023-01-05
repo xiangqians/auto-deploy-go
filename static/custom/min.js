@@ -42,7 +42,7 @@
         // pre func
         let pre = $e[0]._pre_
         if (pre) {
-            let r = pre()
+            let r = pre($e)
             let rarr = null
             let rl = 0
             if (Object.prototype.toString.call(r) === '[object Boolean]') {
