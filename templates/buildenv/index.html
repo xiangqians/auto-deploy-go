@@ -1,0 +1,90 @@
+<!--
+ | @author xiangqian
+ | @date 21:43 2023/01/07
+ |-->
+<!DOCTYPE html>
+<!-- url -->
+{{ Put . "url" "/buildenv/index" }}
+<html lang="en" url="{{ .url }}">
+<head>
+    <meta charset="UTF-8">
+    <link rel="shortcut icon" rel="external nofollow" href="/static/favicon.ico">
+    <link rel="stylesheet" href="/static/custom/min.css" type="text/css"/>
+    <title>{{ Localize "i18n.buildEnv" }}</title>
+</head>
+<body>
+
+{{ template "com/header.html" . }}
+
+<content>
+    <table border="1" cellspacing="0" cellpadding="10" align="center">
+        <thead>
+        <tr>
+            <td>{{ Localize "i18n.no." }}</td>
+            <td>{{ Localize "i18n.value" }}</td>
+            <td>{{ Localize "i18n.rem" }}</td>
+            <td>{{ Localize "i18n.disable" }}</td>
+            <td>{{ Localize "i18n.addTime" }}</td>
+            <td>{{ Localize "i18n.updTime" }}</td>
+            <td colspan="3">{{ Localize "i18n.op" }}</td>
+        </tr>
+        </thead>
+        <tbody>
+        {{ if .buildEnvs }}
+        {{ range $index,$value := .buildEnvs }}
+        <tr>
+            <td>{{ Add1 $index }}</td>
+            <td>{{ $value.Value }}</td>
+            <td>{{ $value.Rem }}</td>
+
+            {{ if eq $value.DisableFlag 0 }}
+            <td style="color: green">{{ Localize "i18n.enable" }}</td>
+            {{ else }}
+            <td style="color: red">{{ Localize "i18n.disable" }}</td>
+            {{ end }}
+            <td>{{ UnixToTime $value.AddTime }}</td>
+            <td>{{ UnixToTime $value.UpdTime }}</td>
+            <td>
+                <a href="/buildenv/addpage?id={{ $value.Id }}">
+                    <button>
+                        {{ if eq $value.DisableFlag 0 }}
+                        {{ Localize "i18n.disable" }}
+                        {{ else }}
+                        {{ Localize "i18n.enable" }}
+                        {{ end }}
+                    </button>
+                </a>
+            </td>
+            <td>
+                <a href="/buildenv/addpage?id={{ $value.Id }}">
+                    <button>{{ Localize "i18n.upd" }}</button>
+                </a>
+            </td>
+            <td>
+                <a href="/buildenv/{{ $value.Id }}" method="DELETE"
+                   confirm='{{ Localize "i18n.del" }} {{ $value.Value }}?'>
+                    <button>{{ Localize "i18n.del" }}</button>
+                </a>
+            </td>
+        </tr>
+        {{ end }}
+        {{ else }}
+        <tr>
+            <td colspan="8">{{ Localize "i18n.noData" }}</td>
+        </tr>
+        {{ end }}
+        </tbody>
+    </table>
+    <br>
+    <br>
+    <div>
+        <a href="/buildenv/addpage">{{ Localize "i18n.add" }} →</a>
+    </div>
+</content>
+
+{{ template "com/footer.html" . }}
+
+</body>
+</html>
+<script type="text/javascript" src="/static/jquery-v3.6.2/min.js"></script>
+<script type="text/javascript" src="/static/custom/min.js"></script>

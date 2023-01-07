@@ -21,9 +21,13 @@ $. 引用模板中的根级上下文
     </div>
     <br>
 
-    {{ if IsAdminUser .user }}
-    {{ else }}
     <div style="text-align: left; padding-left: 50px;">
+        {{ if IsAdminUser .user }}
+        <a name="nav" style='padding: 8px;{{ if eq .url "/" }}background-color: lightgray;{{ end }}'
+           href="/">{{ Localize "i18n.index" }}</a>
+        <a name="nav" style='padding: 8px;{{ if eq .url "/buildenv/index" }}background-color: lightgray;{{ end }}'
+           href="/buildenv/index">{{ Localize "i18n.buildEnv" }}</a>
+        {{ else }}
         <a name="nav" style='padding: 8px;{{ if eq .url "/" }}background-color: lightgray;{{ end }}'
            href="/">{{ Localize "i18n.index" }}</a>
         <a name="nav" style='padding: 8px;{{ if eq .url "/git/index" }}background-color: lightgray;{{ end }}'
@@ -34,8 +38,8 @@ $. 引用模板中的根级上下文
            href="/item/index">{{ Localize "i18n.item" }}</a>
         <a name="nav" style='padding: 8px;{{ if eq .url "/rx/index" }}background-color: lightgray;{{ end }}'
            href="/rx/index">{{ Localize "i18n.rx" }}</a>
+        {{ end }}
     </div>
-    {{ end }}
     <br>
     <br>
 </header>

@@ -86,5 +86,7 @@
   "i18n.buildEnv": "构建环境",
   "i18n.allowReg": "允许用户注册",
   "i18n.yes": "是",
-  "i18n.no": "否"
+  "i18n.no": "否",
+  "i18n.enable": "启用",
+  "i18n.disable": "禁用"
 }

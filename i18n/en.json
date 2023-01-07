@@ -86,5 +86,7 @@
   "i18n.buildEnv": "Build Env",
   "i18n.allowReg": "Allow users to register",
   "i18n.yes": "Yes",
-  "i18n.no": "No"
+  "i18n.no": "No",
+  "i18n.enable": "Enable",
+  "i18n.disable": "Disable"
 }
