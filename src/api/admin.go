@@ -41,6 +41,11 @@ func AdminBuildLevelUpd(pContext *gin.Context) {
 	return
 }
 
+func AdminSudoFlagUpd(pContext *gin.Context) {
+	adminByteColumnUpd(pContext, "sudo_flag")
+	return
+}
+
 func adminByteColumnUpd(pContext *gin.Context, name string) {
 	redirect := func(err error) {
 		session := sessions.Default(pContext)
@@ -176,7 +181,7 @@ func BuildEnvs() []typ.BuildEnv {
 
 func Setting() (typ.Setting, error) {
 	setting := typ.Setting{}
-	err := db.Qry(&setting, "SELECT `allow_reg_flag`, `build_level`, `build_envs` FROM `setting` LIMIT 1")
+	err := db.Qry(&setting, "SELECT `sudo_flag`, `allow_reg_flag`, `build_level`, `build_envs` FROM `setting` LIMIT 1")
 	if err != nil {
 		return setting, err
 	}

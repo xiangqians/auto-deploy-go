@@ -75,8 +75,9 @@ type User struct {
 }
 
 type Setting struct {
+	SudoFlag     byte   // 使用sudo标识，0-不使用，1-使用
 	AllowRegFlag byte   // 允许用户注册标识，0-不允许，1-允许
-	BuildLevel   byte   // 构建级别：1，当build_env空闲时，item才进行构建（安全级别高）；2，随机选取一个build_env来构建（安全级别低）
+	BuildLevel   byte   // 构建级别：1，当build_env空闲时，项目才进行构建（安全级别高）；2，随机选取一个build_env来构建，无论build_env是否空闲（安全级别低）
 	BuildEnvs    string // 构建环境集
 }
 

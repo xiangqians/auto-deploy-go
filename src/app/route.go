@@ -89,6 +89,7 @@ func initRoute(pEngine *gin.Engine) {
 	{
 		adminRouterGroup.PUT("/allowregflag/:value", api.AdminAllowRegFlagUpd)
 		adminRouterGroup.PUT("/buildlevel/:value", api.AdminBuildLevelUpd)
+		adminRouterGroup.PUT("/sudoflag/:value", api.AdminSudoFlagUpd)
 		adminRouterGroup.POST("/buildenv/:value", api.AdminBuildEnvAdd)
 		adminRouterGroup.DELETE("/buildenv/:value", api.AdminBuildEnvDel)
 	}

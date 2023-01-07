@@ -20,7 +20,26 @@
     <p style="color: red;">{{ .message }}</p>
 
     <div>
-        {{ Localize "i18n.allowReg" }}?
+        sudo ?
+        <input type="radio"
+               name="sudoFlag"
+               url="/admin/sudoflag/1"
+               method="PUT"
+               value="1"
+               {{ if eq .setting.SudoFlag 1 }}checked="checked" {{ end }}
+               style="margin-left: 10px">{{ Localize "i18n.yes" }}
+        <input type="radio"
+               name="sudoFlag"
+               url="/admin/sudoflag/0"
+               method="PUT"
+               value="0"
+               {{ if eq .setting.SudoFlag 0 }}checked="checked" {{ end }}
+               style="margin-left: 10px">{{ Localize "i18n.no" }}
+    </div>
+    <br>
+
+    <div>
+        {{ Localize "i18n.allowReg" }} ?
         <input type="radio"
                name="allowRegFlag"
                url="/admin/allowregflag/1"
@@ -37,11 +56,9 @@
                style="margin-left: 10px">{{ Localize "i18n.no" }}
     </div>
     <br>
-    <br>
-    <br>
 
     <div>
-        {{ Localize "i18n.buildLevel" }}?
+        {{ Localize "i18n.buildLevel" }} ?
         <span title="当build_env空闲时，项目才进行构建（安全级别高）">
         <input type="radio"
                name="buildLevel"
@@ -51,7 +68,7 @@
                {{ if eq .setting.BuildLevel 1 }}checked="checked" {{ end }}
                style="margin-left: 10px"/>1
         </span>
-        <span title="随机选取一个build_env来构建（安全级别低）">
+        <span title="随机选取一个build_env来构建，无论build_env是否空闲（安全级别低）">
         <input type="radio"
                name="buildLevel"
                url="/admin/buildlevel/2"
@@ -103,7 +120,6 @@
         {{ end }}
         </tbody>
     </table>
-    <br>
     <br>
     <div>
         <a name="add" href="/admin/buildenv/0" method="POST">{{ Localize "i18n.add" }} →</a>
