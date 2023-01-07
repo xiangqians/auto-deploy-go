@@ -21,6 +21,8 @@ $. 引用模板中的根级上下文
     </div>
     <br>
 
+    {{ if IsAdminUser .user }}
+    {{ else }}
     <div style="text-align: left; padding-left: 50px;">
         <a name="nav" style='padding: 8px;{{ if eq .url "/" }}background-color: lightgray;{{ end }}'
            href="/">{{ Localize "i18n.index" }}</a>
@@ -33,6 +35,7 @@ $. 引用模板中的根级上下文
         <a name="nav" style='padding: 8px;{{ if eq .url "/rx/index" }}background-color: lightgray;{{ end }}'
            href="/rx/index">{{ Localize "i18n.rx" }}</a>
     </div>
+    {{ end }}
     <br>
     <br>
 </header>

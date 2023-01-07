@@ -4,6 +4,7 @@
 package app
 
 import (
+	"auto-deploy-go/src/api"
 	"auto-deploy-go/src/typ"
 	"fmt"
 	"github.com/gin-contrib/i18n"
@@ -106,6 +107,10 @@ func intHtmlTemplate(pEngine *gin.Engine) {
 			return ""
 		},
 
+		"IsAdminUser": func(user typ.User) bool {
+			return api.IsAdminUser(nil, user)
+		},
+
 		//"Template": func(name string) string {
 		//	var data any = nil
 		//	re := pEngine.HTMLRender.Instance(name, data)
@@ -161,14 +166,17 @@ func intHtmlTemplate(pEngine *gin.Engine) {
 				// /**/*
 				if fileInfo.IsDir() {
 					fname := fileInfo.Name()
-					if fname != "com" {
-						subFileInfos, sfierr := pFile.Readdir(-1)
-						if sfierr == nil {
-							for _, subFileInfo := range subFileInfos {
-								subfname := subFileInfo.Name()
-								files := getFiles(fmt.Sprintf("%s/%s", matche, subfname))
-								renderer.AddFromFilesFuncs(fmt.Sprintf("%s/%s", fname, subfname), pEngine.FuncMap, files...)
+					subFileInfos, sfierr := pFile.Readdir(-1)
+					if sfierr == nil {
+						for _, subFileInfo := range subFileInfos {
+							subfname := subFileInfo.Name()
+							var files []string
+							if fname == "com" {
+								files = []string{fmt.Sprintf("%s/%s", matche, subfname)}
+							} else {
+								files = getFiles(fmt.Sprintf("%s/%s", matche, subfname))
 							}
+							renderer.AddFromFilesFuncs(fmt.Sprintf("%s/%s", fname, subfname), pEngine.FuncMap, files...)
 						}
 					}
 				} else

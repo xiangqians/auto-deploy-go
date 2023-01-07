@@ -251,3 +251,10 @@ func PasswdEncrypt(passwd string) string {
 
 	return hex.EncodeToString(d.Sum(nil))
 }
+
+func IsAdminUser(pContext *gin.Context, user typ.User) bool {
+	if user.Id == 0 {
+		user = GetUser(pContext)
+	}
+	return user.Id == 1 && user.Name == "admin"
+}

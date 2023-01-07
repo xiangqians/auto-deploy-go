@@ -29,9 +29,8 @@ func init() {
 }
 
 func IndexPage(pContext *gin.Context) {
-	// admin账号登录
-	user := GetUser(pContext)
-	if user.Id == 1 && user.Name == "admin" {
+	// 如果是admin账号登录
+	if IsAdminUser(pContext, typ.User{}) {
 		AdminIndexPage(pContext)
 		return
 	}
@@ -43,7 +42,7 @@ func IndexPage(pContext *gin.Context) {
 	session.Delete("message")
 	session.Save()
 	pContext.HTML(netHttp.StatusOK, "index.html", gin.H{
-		"user":            user,
+		"user":            GetUser(pContext),
 		"itemLastRecords": getItemLastRecords(pContext, 0),
 		"status":          status, // 非0表示异常
 		"message":         message,
