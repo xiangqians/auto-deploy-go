@@ -5,7 +5,7 @@ DROP TABLE IF EXISTS `setting`;
 CREATE TABLE `setting` -- 系统设置信息表
 (
     `allow_reg_flag` TINYINT       DEFAULT 1, -- 允许用户注册标识，0-不允许，1-允许
-    `build_level`    TINYINT       DEFAULT 2, -- 构建级别：1，当build_env空闲时，item才进行构建（安全级别高）；2，随机选取一个build_env来构建（安全级别低）
+    `build_level`    TINYINT       DEFAULT 2, -- 构建级别：1，当build_env空闲时，项目才进行构建（安全级别高）；2，随机选取一个build_env来构建（安全级别低）
     `build_envs`     VARCHAR(1024) DEFAULT '' -- 构建环境集
 );
 INSERT INTO `setting` (`allow_reg_flag`, `build_level`, `build_envs`) VALUES ('1', '2', 'default:');

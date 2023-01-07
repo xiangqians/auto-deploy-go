@@ -42,20 +42,24 @@
 
     <div>
         {{ Localize "i18n.buildLevel" }}?
+        <span title="当build_env空闲时，项目才进行构建（安全级别高）">
         <input type="radio"
                name="buildLevel"
                url="/admin/buildlevel/1"
                method="PUT"
                value="1"
                {{ if eq .setting.BuildLevel 1 }}checked="checked" {{ end }}
-               style="margin-left: 10px">1
+               style="margin-left: 10px"/>1
+        </span>
+        <span title="随机选取一个build_env来构建（安全级别低）">
         <input type="radio"
                name="buildLevel"
                url="/admin/buildlevel/2"
                method="PUT"
                value="2"
                {{ if eq .setting.BuildLevel 2 }}checked="checked" {{ end }}
-               style="margin-left: 10px">2
+               style="margin-left: 10px"/>2
+        </span>
     </div>
     <br>
     <br>
