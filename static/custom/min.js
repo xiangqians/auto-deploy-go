@@ -125,16 +125,31 @@ Custom = function () {
     }
 
     // <a></a>
-    let $aarr = $('a[method]')
-    for (let i = 0, l = $aarr.length; i < l; i++) {
-        let $a = $($aarr[i])
+    // let $as = $('a[method]')
+    let $as = $('a')
+    for (let i = 0, l = $as.length; i < l; i++) {
+        let $a = $($as[i])
         // console.log($a)
-        $a.click(function () {
-            request($a)
+        let method = $a.attr('method')
+        if (method) {
+            $a.click(function () {
+                request($a)
 
-            // 取消 <a></a> 默认行为
-            return false
-        })
+                // 取消 <a></a> 默认行为
+                return false
+            })
+        }
+        // 为 href 添加时间戳，预防被Chrome浏览器劫持，认为是”重复提交“。
+        else {
+            let href = $a.attr('href')
+            let timestamp = new Date().getTime()
+            if (href.indexOf('?') > 0) {
+                href += '&t=' + timestamp
+            } else {
+                href += '?t=' + timestamp
+            }
+            $a.attr('href', href)
+        }
     }
 
     // <form></form>
