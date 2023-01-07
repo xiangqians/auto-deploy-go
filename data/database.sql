@@ -7,9 +7,22 @@ CREATE TABLE `setting` -- 系统设置信息表
     `sudo_flag`      TINYINT       DEFAULT 0, -- 使用sudo标识，0-不使用，1-使用
     `allow_reg_flag` TINYINT       DEFAULT 1, -- 允许用户注册标识，0-不允许，1-允许
     `build_level`    TINYINT       DEFAULT 2, -- 构建级别：1，当build_env空闲时，项目才进行构建（安全级别高）；2，随机选取一个build_env来构建，无论build_env是否空闲（安全级别低）
-    `build_envs`     VARCHAR(1024) DEFAULT '' -- 构建环境集
 );
-INSERT INTO `setting` (`sudo_flag`, `allow_reg_flag`, `build_level`, `build_envs`) VALUES (0, 1, 2, 'default:');
+INSERT INTO `setting` (`sudo_flag`, `allow_reg_flag`, `build_level`) VALUES (0, 1, 2);
+
+
+--------------------------------
+-- Table structure for build_env
+-- -----------------------------
+DROP TABLE IF EXISTS `build_env`;
+CREATE TABLE `build_env` -- 构建环境信息表
+(
+    `id`       INTEGER PRIMARY KEY AUTOINCREMENT, -- id
+    `value`    VARCHAR(64) NOT NULL UNIQUE,       -- 构建值
+    `rem`      VARCHAR(256) DEFAULT '',           -- 备注
+    `add_time` INTEGER      DEFAULT 0,            -- 创建时间（时间戳，s）
+    `upd_time` INTEGER      DEFAULT 0             -- 修改时间（时间戳，s）
+);
 
 
 -- ------------------------
@@ -116,6 +129,7 @@ DROP TABLE IF EXISTS `record`;
 CREATE TABLE `record` -- 项目部署记录信息表
 (
     `id`            INTEGER PRIMARY KEY AUTOINCREMENT, -- id
+    `build_env_id`  INTEGER NOT NULL,                  -- 构建环境id
     `item_id`       INTEGER NOT NULL,                  -- 所属项目id
     `pull_stime`    INTEGER      DEFAULT 0,            -- pull开始时间（时间戳，s）
     `pull_etime`    INTEGER      DEFAULT 0,            -- pull结束时间（时间戳，s）

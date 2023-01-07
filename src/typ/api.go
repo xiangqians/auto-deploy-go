@@ -75,20 +75,19 @@ type User struct {
 }
 
 type Setting struct {
-	SudoFlag     byte   // 使用sudo标识，0-不使用，1-使用
-	AllowRegFlag byte   // 允许用户注册标识，0-不允许，1-允许
-	BuildLevel   byte   // 构建级别：1，当build_env空闲时，项目才进行构建（安全级别高）；2，随机选取一个build_env来构建，无论build_env是否空闲（安全级别低）
-	BuildEnvs    string // 构建环境集
+	SudoFlag     byte // 使用sudo标识，0-不使用，1-使用
+	AllowRegFlag byte // 允许用户注册标识，0-不允许，1-允许
+	BuildLevel   byte // 构建级别：1，当build_env空闲时，项目才进行构建（安全级别高）；2，随机选取一个build_env来构建，无论build_env是否空闲（安全级别低）
 }
 
 type BuildEnv struct {
+	Abs
 	Value        string // 环境值
-	UserId       int64  // 当前正在使用BuildEnv的用户id
-	UserName     string // 当前正在使用BuildEnv的用户名
-	UserNickname string // 当前正在使用BuildEnv的用户昵称
-	ItemId       int64  // 当前正在使用BuildEnv的项目id
-	ItemName     string // 当前正在使用BuildEnv的项目名称
-	Time         int64  // 使用BuildEnv时间戳（s）
+	UserId       int64  // 使用BuildEnv的用户id
+	UserName     string // 使用BuildEnv的用户名
+	UserNickname string // 使用BuildEnv的用户昵称
+	ItemId       int64  // 使用BuildEnv的项目id
+	ItemName     string // 使用BuildEnv的项目名称
 }
 
 type ItemLastRecord struct {
