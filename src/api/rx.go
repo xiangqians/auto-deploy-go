@@ -238,6 +238,8 @@ func RxShareItemAdd(pContext *gin.Context) {
 		return
 	}
 
+	// rx 改为-> strings.Contains(fmt.Sprintf(",%s,", buildEnvs), fmt.Sprintf(",%s,", value)) -- 有时间再处理
+
 	if !strings.HasSuffix(itemIds, ",") {
 		itemIds += ","
 	}

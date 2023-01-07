@@ -23,14 +23,14 @@
         sudo ?
         <input type="radio"
                name="sudoFlag"
-               url="/admin/sudoflag/1"
+               url="/setting/sudoflag/1"
                method="PUT"
                value="1"
                {{ if eq .setting.SudoFlag 1 }}checked="checked" {{ end }}
                style="margin-left: 10px">{{ Localize "i18n.yes" }}
         <input type="radio"
                name="sudoFlag"
-               url="/admin/sudoflag/0"
+               url="/setting/sudoflag/0"
                method="PUT"
                value="0"
                {{ if eq .setting.SudoFlag 0 }}checked="checked" {{ end }}
@@ -42,14 +42,14 @@
         {{ Localize "i18n.allowReg" }} ?
         <input type="radio"
                name="allowRegFlag"
-               url="/admin/allowregflag/1"
+               url="/setting/allowregflag/1"
                method="PUT"
                value="1"
                {{ if eq .setting.AllowRegFlag 1 }}checked="checked" {{ end }}
                style="margin-left: 10px">{{ Localize "i18n.yes" }}
         <input type="radio"
                name="allowRegFlag"
-               url="/admin/allowregflag/0"
+               url="/setting/allowregflag/0"
                method="PUT"
                value="0"
                {{ if eq .setting.AllowRegFlag 0 }}checked="checked" {{ end }}
@@ -62,7 +62,7 @@
         <span title="当build_env空闲时，项目才进行构建（安全级别高）">
         <input type="radio"
                name="buildLevel"
-               url="/admin/buildlevel/1"
+               url="/setting/buildlevel/1"
                method="PUT"
                value="1"
                {{ if eq .setting.BuildLevel 1 }}checked="checked" {{ end }}
@@ -71,7 +71,7 @@
         <span title="随机选取一个build_env来构建，无论build_env是否空闲（安全级别低）">
         <input type="radio"
                name="buildLevel"
-               url="/admin/buildlevel/2"
+               url="/setting/buildlevel/2"
                method="PUT"
                value="2"
                {{ if eq .setting.BuildLevel 2 }}checked="checked" {{ end }}
