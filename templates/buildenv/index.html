@@ -38,9 +38,9 @@
             <td>{{ $value.Rem }}</td>
 
             {{ if eq $value.DisableFlag 0 }}
-            <td style="color: green">{{ Localize "i18n.enable" }}</td>
+            <td style="color: green">{{ Localize "i18n.no" }}</td>
             {{ else }}
-            <td style="color: red">{{ Localize "i18n.disable" }}</td>
+            <td style="color: red">{{ Localize "i18n.yes" }}</td>
             {{ end }}
             <td>{{ UnixToTime $value.AddTime }}</td>
             <td>{{ UnixToTime $value.UpdTime }}</td>
