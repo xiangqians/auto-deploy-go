@@ -82,12 +82,8 @@ type Setting struct {
 
 type BuildEnv struct {
 	Abs
-	Value        string // 环境值
-	UserId       int64  // 使用BuildEnv的用户id
-	UserName     string // 使用BuildEnv的用户名
-	UserNickname string // 使用BuildEnv的用户昵称
-	ItemId       int64  // 使用BuildEnv的项目id
-	ItemName     string // 使用BuildEnv的项目名称
+	Value       string `form:"name" binding:"required,excludes= ,min=1,max=60"` // 环境值
+	DisableFlag byte   // 禁用标识，0-正常，1-禁用
 }
 
 type ItemLastRecord struct {

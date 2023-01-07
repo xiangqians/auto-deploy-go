@@ -17,11 +17,12 @@ INSERT INTO `setting` (`sudo_flag`, `allow_reg_flag`, `build_level`) VALUES (0, 
 DROP TABLE IF EXISTS `build_env`;
 CREATE TABLE `build_env` -- 构建环境信息表
 (
-    `id`       INTEGER PRIMARY KEY AUTOINCREMENT, -- id
-    `value`    VARCHAR(64) NOT NULL UNIQUE,       -- 构建值
-    `rem`      VARCHAR(256) DEFAULT '',           -- 备注
-    `add_time` INTEGER      DEFAULT 0,            -- 创建时间（时间戳，s）
-    `upd_time` INTEGER      DEFAULT 0             -- 修改时间（时间戳，s）
+    `id`           INTEGER PRIMARY KEY AUTOINCREMENT, -- id
+    `value`        VARCHAR(64) NOT NULL UNIQUE,       -- 构建值
+    `rem`          VARCHAR(256) DEFAULT '',           -- 备注
+    `disable_flag` TINYINT      DEFAULT 0,            -- 禁用标识，0-正常，1-禁用
+    `add_time`     INTEGER      DEFAULT 0,            -- 创建时间（时间戳，s）
+    `upd_time`     INTEGER      DEFAULT 0             -- 修改时间（时间戳，s）
 );
 
 
