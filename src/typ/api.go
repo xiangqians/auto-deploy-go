@@ -74,6 +74,22 @@ type User struct {
 	RePasswd string `form:"rePasswd" binding:"required,excludes= ,max=100,eqfield=Passwd"` // retype Passwd
 }
 
+type Setting struct {
+	AllowRegFlag byte   // 允许用户注册标识，0-不允许，1-允许
+	BuildLevel   byte   // 构建级别：1，当build_env空闲时，item才进行构建（安全级别高）；2，随机选取一个build_env来构建（安全级别低）
+	BuildEnvs    string // 构建环境集
+}
+
+type BuildEnv struct {
+	Value        string // 环境值
+	UserId       int64  // 当前正在使用BuildEnv的用户id
+	UserName     string // 当前正在使用BuildEnv的用户名
+	UserNickname string // 当前正在使用BuildEnv的用户昵称
+	ItemId       int64  // 当前正在使用BuildEnv的项目id
+	ItemName     string // 当前正在使用BuildEnv的项目名称
+	Time         int64  // 使用BuildEnv时间戳（s）
+}
+
 type ItemLastRecord struct {
 	Id           int64
 	ItemId       int64

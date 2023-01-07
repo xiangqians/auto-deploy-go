@@ -84,6 +84,15 @@ func initRoute(pEngine *gin.Engine) {
 	pEngine.PUT("/rx", api.RxUpd)
 	pEngine.DELETE("/rx/:id", api.RxDel)
 
+	// admin
+	adminRouterGroup := pEngine.Group("/admin")
+	{
+		adminRouterGroup.PUT("/allowregflag/:value", api.AdminAllowRegFlagUpd)
+		adminRouterGroup.PUT("/buildlevel/:value", api.AdminBuildLevelUpd)
+		adminRouterGroup.POST("/buildenv/:value", api.AdminBuildEnvAdd)
+		adminRouterGroup.DELETE("/buildenv/:value", api.AdminBuildEnvDel)
+	}
+
 	// ws
 	pEngine.GET("/ws", api.Ws)
 }

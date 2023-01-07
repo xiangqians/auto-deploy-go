@@ -115,6 +115,9 @@ Custom = function () {
             if (!(url)) {
                 url = $e.attr("action")
             }
+            if (!(url)) {
+                url = $e.attr("url")
+            }
             // console.log(url)
             let method = $e.attr("method").trim().toUpperCase()
             ajaxFormData(url, method, formData)
@@ -122,9 +125,9 @@ Custom = function () {
     }
 
     // <a></a>
-    let aarr = $('a[method]')
-    for (let i = 0, l = aarr.length; i < l; i++) {
-        let $a = $(aarr[i])
+    let $aarr = $('a[method]')
+    for (let i = 0, l = $aarr.length; i < l; i++) {
+        let $a = $($aarr[i])
         // console.log($a)
         $a.click(function () {
             request($a)
@@ -135,9 +138,9 @@ Custom = function () {
     }
 
     // <form></form>
-    let inputs = $('input[type="submit"]')
-    for (let i = 0, l = inputs.length; i < l; i++) {
-        let $input = $(inputs[i])
+    let $formInputs = $('input[type="submit"]')
+    for (let i = 0, l = $formInputs.length; i < l; i++) {
+        let $input = $($formInputs[i])
         for (let $parent = $input.parent(); !$parent.is('body'); $parent = $parent.parent()) {
             if ($parent.is('form')) {
                 let $form = $parent
@@ -157,6 +160,15 @@ Custom = function () {
                 break
             }
         }
+    }
+
+    // type=radio, method
+    let $radioInputs = $('input[type="radio"][method]')
+    for (let i = 0, l = $radioInputs.length; i < l; i++) {
+        let $radioInput = $($radioInputs[i])
+        $radioInput.click(function () {
+            request($radioInput)
+        })
     }
 
 })()

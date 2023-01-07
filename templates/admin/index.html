@@ -17,6 +17,93 @@
 {{ template "com/header.html" . }}
 
 <content>
+    <p style="color: red;">{{ .message }}</p>
+
+    <div>
+        {{ Localize "i18n.allowReg" }}?
+        <input type="radio"
+               name="allowRegFlag"
+               url="/admin/allowregflag/1"
+               method="PUT"
+               value="1"
+               {{ if eq .setting.AllowRegFlag 1 }}checked="checked" {{ end }}
+               style="margin-left: 10px">{{ Localize "i18n.yes" }}
+        <input type="radio"
+               name="allowRegFlag"
+               url="/admin/allowregflag/0"
+               method="PUT"
+               value="0"
+               {{ if eq .setting.AllowRegFlag 0 }}checked="checked" {{ end }}
+               style="margin-left: 10px">{{ Localize "i18n.no" }}
+    </div>
+    <br>
+    <br>
+    <br>
+
+    <div>
+        {{ Localize "i18n.buildLevel" }}?
+        <input type="radio"
+               name="buildLevel"
+               url="/admin/buildlevel/1"
+               method="PUT"
+               value="1"
+               {{ if eq .setting.BuildLevel 1 }}checked="checked" {{ end }}
+               style="margin-left: 10px">1
+        <input type="radio"
+               name="buildLevel"
+               url="/admin/buildlevel/2"
+               method="PUT"
+               value="2"
+               {{ if eq .setting.BuildLevel 2 }}checked="checked" {{ end }}
+               style="margin-left: 10px">2
+    </div>
+    <br>
+    <br>
+    <br>
+
+    {{ Localize "i18n.buildEnv" }}
+    <br>
+    <br>
+    <table border="1" cellspacing="0" cellpadding="10" align="center">
+        <thead>
+        <tr>
+            <td>{{ Localize "i18n.no." }}</td>
+            <td>{{ Localize "i18n.value" }}</td>
+            <td>{{ Localize "i18n.user" }}</td>
+            <td>{{ Localize "i18n.item" }}{{ Localize "i18n.name" }}</td>
+            <td>{{ Localize "i18n.useTime" }}</td>
+            <td>{{ Localize "i18n.op" }}</td>
+        </tr>
+        </thead>
+        <tbody>
+        {{ if .buildEnvs }}
+        {{ range $index,$value := .buildEnvs }}
+        <tr>
+            <td>{{ Add1 $index }}</td>
+            <td>{{ $value.Value }}</td>
+            <td>{{ if ne $value.UserName "" }}{{ $value.UserName }}, {{ $value.UserNickname }}{{ end }}</td>
+            <td>{{ $value.ItemName }}</td>
+            <td>{{ UnixToTime $value.Time }}</td>
+            <td>
+                <a href="/admin/buildenv/{{ $value.Value }}" method="DELETE"
+                   confirm='{{ Localize "i18n.del" }} {{ $value.Value }}?'>
+                    <button>{{ Localize "i18n.del" }}</button>
+                </a>
+            </td>
+        </tr>
+        {{ end }}
+        {{ else }}
+        <tr>
+            <td colspan="10">{{ Localize "i18n.noData" }}</td>
+        </tr>
+        {{ end }}
+        </tbody>
+    </table>
+    <br>
+    <br>
+    <div>
+        <a name="add" href="/admin/buildenv/0" method="POST">{{ Localize "i18n.add" }} →</a>
+    </div>
 </content>
 
 {{ template "com/footer.html" . }}
@@ -25,3 +112,61 @@
 </html>
 <script type="text/javascript" src="/static/jquery-v3.6.2/min.js"></script>
 <script type="text/javascript" src="/static/custom/min.js"></script>
+
+<script type="text/javascript">
+
+    ;
+    (function () {
+        let $add = $('a[name="add"]')
+        if ($add.length > 0) {
+            $add[0]['_pre_'] = function ($e) {
+                // flag判断是否已点击 'Add →'
+                let flag = $e.attr('flag')
+                if (flag != 1) {
+                    let $input = $('<input style="margin-right: 10px"></input>')
+                    // Custom.ajaxJsonData('/rx/notshareitems/{{ .rx.Id }}', 'GET', null, false, function (resp) {
+                    //     let notShareItems = resp.notShareItems
+                    //     // console.log(notShareItems)
+                    //     if (notShareItems) {
+                    //         notShareItems.forEach(notShareItem => {
+                    //             // console.log(notShareItem)
+                    //             $select.append('<option value="' + notShareItem.Id + '">' + notShareItem.Name + '</option>')
+                    //         })
+                    //     }
+                    // })
+
+                    $e.before($input)
+                    $e.html('{{ Localize "i18n.add" }}')
+                    $e.attr('flag', 1)
+                    return false
+                }
+
+                // 获取上一个 input 兄弟节点
+                let $input = $e.prev('input')
+                // console.log($input)
+                // 获取选中的 value 属性值
+                let value = $input.val()
+                if (value === "") {
+                    // 添加 css border
+                    $input.css('border', '2px solid red')
+                    return false
+                }
+                // console.log(value)
+
+                // 删除 css border
+                $input.css('border', '')
+
+                // href
+                let href = $e.attr('href')
+                // console.log('href', href)
+                let index = href.lastIndexOf('/')
+                href = href.substring(0, index + 1) + value
+                // console.log('href', href)
+                $e.attr('href', href)
+
+                return true
+            }
+        }
+    })()
+    ;
+</script>
