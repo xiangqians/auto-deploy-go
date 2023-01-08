@@ -17,14 +17,17 @@
 {{ template "com/header.html" . }}
 
 <content>
-    <select>
+    <select method="GET">
         {{ range $index,$value := .tables }}
         <option value="{{ $value.Name }}"
+                url="/?tableName={{ $value.Name }}"
                 {{ if eq $value.Name $.table.Name }} selected {{ end }}>{{ Localize $value.Desc }}
         </option>
         {{ end }}
     </select>
     <p style="color: red;">{{ .message }}</p>
+    {{ Put . "tdColspan" .data.TdColspan }}
+    {{ Put . "pageUrl" "/" }}
     <table border="1" cellspacing="0" cellpadding="10" align="center">
         <thead>
         <tr>
@@ -32,10 +35,11 @@
             <td>{{ Localize "i18n.no." }}</td>
 
             <!-- 差异部分 -->
-            <td>{{ Localize "i18n.user" }}</td>
-            <td>{{ Localize "i18n.nickname" }}</td>
-            <td>{{ Localize "i18n.passwd" }}</td>
-            {{ Put . "colspan" 10 }}
+            {{ if .data.Title }}
+            {{ range $index,$value := .data.Title }}
+            <td>{{ Localize $value }}</td>
+            {{ end }}
+            {{ end }}
 
             <!-- 公共部分 -->
             <td>{{ Localize "i18n.rem" }}</td>
@@ -46,18 +50,19 @@
         </tr>
         </thead>
         <tbody>
-        {{ $dataLen := len .page.Data }}
+        {{ $dataLen := len .data.Data }}
         {{ if gt $dataLen 0 }}
-        {{ range $index,$value := .page.Data }}
+        {{ range $index,$value := .data.Data }}
         <tr>
             <!-- 公共部分 -->
             <td>{{ Add1 $index }}</td>
 
             <!-- 差异部分 -->
-            {{ $name := $value.Name }}
-            <td>{{ $value.Name }}</td>
-            <td>{{ $value.Nickname }}</td>
-            <td>******</td>
+            {{ if $value.Data }}
+            {{ range $index,$value := $value.Data }}
+            <td>{{ $value }}</td>
+            {{ end }}
+            {{ end }}
 
             <!-- 公共部分 -->
             <td>{{ $value.Rem }}</td>
@@ -71,19 +76,19 @@
             <td>
                 {{ if eq $value.DelFlag 0 }}
                 <a href="/t/{{ $value.Id }}/del" method="DELETE"
-                   confirm='{{ Localize "i18n.del" }} {{ $name }}?'>
+                   confirm='{{ Localize "i18n.del" }} {{ $value.Name }}?'>
                     <button>{{ Localize "i18n.del" }}</button>
                 </a>
                 {{ else }}
                 <a href="/t/{{ $value.Id }}/restore" method="PUT"
-                   confirm='{{ Localize "i18n.restore" }} {{ $name }}?'>
+                   confirm='{{ Localize "i18n.restore" }} {{ $value.Name }}?'>
                     <button>{{ Localize "i18n.restore" }}</button>
                 </a>
                 {{ end }}
             </td>
             <td>
                 <a href="/t/{{ $value.Id }}/permanentlyDel" method="DELETE"
-                   confirm='{{ Localize "i18n.permanentlyDel" }} {{ $name }}?'>
+                   confirm='{{ Localize "i18n.permanentlyDel" }} {{ $value.Name }}?'>
                     <button>{{ Localize "i18n.permanentlyDel" }}</button>
                 </a>
             </td>
@@ -91,7 +96,7 @@
         {{ end }}
         {{ else }}
         <tr>
-            <td colspan="{{ .colspan }}">{{ Localize "i18n.noData" }}</td>
+            <td colspan="{{ .tdColspan }}">{{ Localize "i18n.noData" }}</td>
         </tr>
         {{ end }}
         </tbody>

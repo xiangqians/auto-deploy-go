@@ -199,5 +199,19 @@ Custom = function () {
         })
     }
 
+    // <select><option></option></select>
+    let $selects = $('select[method]')
+    for (let i = 0, l = $selects.length; i < l; i++) {
+        let $select = $($selects[i])
+        // console.log($select)
+        $select.on('change', function () {
+            // 获取选中的 <option></option>
+            let $option = $($select.find('option:selected')[0]);
+            // console.log($option)
+            $select.attr('url', $option.attr('url'))
+            request($select)
+        })
+    }
+
 })()
 ;

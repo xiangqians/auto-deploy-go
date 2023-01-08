@@ -7,7 +7,7 @@
 {{ if .page }}
 <tfoot>
 <tr>
-    <td colspan="{{ .colspan }}">
+    <td colspan="{{ .tdColspan }}">
         <span style="margin-right: 10px">{{ Localize "i18n.current" }}: {{ .page.Current }}</span>
         <span style="margin-right: 10px">{{ Localize "i18n.size" }}: {{ .page.Size }}</span>
         <span style="margin-right: 10px">{{ Localize "i18n.pages" }}: {{ .page.Pages }}</span>
@@ -16,14 +16,14 @@
             {{ if le .page.Current 1 }}
             {{ Localize "i18n.prevPage" }}
             {{ else }}
-            <a href="/?current={{ Minus1 .page.Current }}">{{ Localize "i18n.prevPage" }}</a>
+            <a href="{{ .pageUrl }}?current={{ Minus1 .page.Current }}">{{ Localize "i18n.prevPage" }}</a>
             {{  end }}
         </span>
         <span>
         {{ if ge .page.Current .page.Pages }}
         {{ Localize "i18n.nextPage" }}
         {{ else }}
-        <a href="/?current={{ Add1 .page.Current }}">{{ Localize "i18n.nextPage" }}</a>
+        <a href="{{ .pageUrl }}?current={{ Add1 .page.Current }}">{{ Localize "i18n.nextPage" }}</a>
         {{  end }}
         </span>
     </td>
