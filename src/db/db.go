@@ -6,14 +6,60 @@ package db
 
 import (
 	"auto-deploy-go/src/arg"
+	"auto-deploy-go/src/typ"
 	"auto-deploy-go/src/util"
 	"database/sql"
+	"fmt"
 	_ "github.com/mattn/go-sqlite3"
 	"reflect"
+	"strings"
 )
 
 func db() (*sql.DB, error) {
 	return sql.Open("sqlite3", arg.Db)
+}
+
+func Page[T any](current int64, size uint8, sql string, args ...any) (typ.Page[T], error) {
+	page := typ.Page[T]{
+		Current: current,
+		Size:    size,
+	}
+
+	// total
+	var total int64
+	_sql := fmt.Sprintf("SELECT COUNT(1) %s", sql[strings.Index(sql, "FROM"):])
+	err := Qry(&total, _sql, args...)
+	if err != nil {
+		return page, err
+	}
+	if total == 0 {
+		return page, nil
+	}
+
+	// set total & pages
+	page.Total = total
+	pages := total / int64(size)
+	if total%int64(size) != 0 {
+		pages += 1
+	}
+	page.Pages = pages
+
+	// [offset,] rows
+	offset := (current - 1) * int64(size)
+	rows := size
+	sql = fmt.Sprintf("%s LIMIT %v, %v", sql, offset, rows)
+
+	// query
+	data := make([]T, 1)
+	err = Qry(&data, sql, args...)
+	if err != nil {
+		return page, err
+	}
+	// 不赋予指针数据，以访发生逃逸
+	//page.Data = &data
+	page.Data = data
+
+	return page, nil
 }
 
 func Qry(i any, sql string, args ...any) error {

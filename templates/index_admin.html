@@ -17,7 +17,72 @@
 {{ template "com/header.html" . }}
 
 <content>
-    <h2>Hello World!</h2>
+    <table border="1" cellspacing="0" cellpadding="10" align="center">
+        <thead>
+        <tr>
+            <!-- 公共部分 -->
+            <td>{{ Localize "i18n.no." }}</td>
+
+            <!-- 差异部分 -->
+            <td>{{ Localize "i18n.user" }}</td>
+            <td>{{ Localize "i18n.nickname" }}</td>
+            <td>{{ Localize "i18n.passwd" }}</td>
+
+            <!-- 公共部分 -->
+            <td>{{ Localize "i18n.rem" }}</td>
+            <td>{{ Localize "i18n.del" }}</td>
+            <td>{{ Localize "i18n.addTime" }}</td>
+            <td>{{ Localize "i18n.updTime" }}</td>
+            <td colspan="2">{{ Localize "i18n.op" }}</td>
+        </tr>
+        </thead>
+        <tbody>
+        {{ if .page.Data }}
+        {{ range $index,$value := .page.Data }}
+        <tr>
+            <!-- 公共部分 -->
+            <td>{{ Add1 $index }}</td>
+
+            <!-- 差异部分 -->
+            <td>{{ $value.Name }}</td>
+            <td>{{ $value.Nickname }}</td>
+            <td>******</td>
+
+            <!-- 公共部分 -->
+            <td>{{ $value.Rem }}</td>
+            {{ if eq $value.DelFlag 0 }}
+            <td style="color: green">{{ Localize "i18n.no" }}</td>
+            {{ else }}
+            <td style="color: red">{{ Localize "i18n.yes" }}</td>
+            {{ end }}
+            <td>{{ UnixToTime $value.AddTime }}</td>
+            <td>{{ UnixToTime $value.UpdTime }}</td>
+            <td>
+                {{ if eq $value.DelFlag 0 }}
+                <a href="/t/{{ $value.Id }}/disable" method="PUT">
+                    <button>{{ Localize "i18n.disable" }}</button>
+                </a>
+                {{ else }}
+                <a href="/t/{{ $value.Id }}/enable" method="PUT">
+                    <button>{{ Localize "i18n.enable" }}</button>
+                </a>
+                {{ end }}
+            </td>
+            <td>
+                <a href="/git/{{ $value.Id }}" method="DELETE" confirm='{{ Localize "i18n.del" }} {{ $value.Name }}?'>
+                    <button>{{ Localize "i18n.del" }}</button>
+                </a>
+            </td>
+        </tr>
+        {{ end }}
+        {{ else }}
+        <tr>
+            <td colspan="8">{{ Localize "i18n.noData" }}</td>
+        </tr>
+        {{ end }}
+        </tbody>
+    </table>
+
 </content>
 
 {{ template "com/footer.html" . }}

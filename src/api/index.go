@@ -14,7 +14,7 @@ import (
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"log"
-	netHttp "net/http"
+	"net/http"
 	"strconv"
 	"time"
 )
@@ -31,9 +31,7 @@ func init() {
 func IndexPage(pContext *gin.Context) {
 	// 如果是admin账号登录
 	if IsAdminUser(pContext, typ.User{}) {
-		pContext.HTML(netHttp.StatusOK, "index_admin.html", gin.H{
-			"user": GetUser(pContext),
-		})
+		IndexAdminPage(pContext)
 		return
 	}
 
@@ -43,7 +41,7 @@ func IndexPage(pContext *gin.Context) {
 	session.Delete("status")
 	session.Delete("message")
 	session.Save()
-	pContext.HTML(netHttp.StatusOK, "index.html", gin.H{
+	pContext.HTML(http.StatusOK, "index.html", gin.H{
 		"user":            GetUser(pContext),
 		"itemLastRecords": getItemLastRecords(pContext, 0),
 		"status":          status, // 非0表示异常
@@ -58,7 +56,7 @@ func Deploy(pContext *gin.Context) {
 		session.Set("status", status)
 		session.Set("message", message)
 		session.Save()
-		pContext.Redirect(netHttp.StatusMovedPermanently, "/")
+		pContext.Redirect(http.StatusMovedPermanently, "/")
 	}
 
 	// itemId
