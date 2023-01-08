@@ -10,7 +10,21 @@ import (
 	"net/http"
 )
 
+var tables []typ.Table
+
+func init() {
+	tables = []typ.Table{
+		{Name: "user", Desc: "i18n.userTable"},
+		{Name: "rx", Desc: "i18n.rxTable"},
+		{Name: "git", Desc: "i18n.gitTable"},
+		{Name: "server", Desc: "i18n.serverTable"},
+		{Name: "item", Desc: "i18n.itemTable"},
+		{Name: "record", Desc: "i18n.recordTable"},
+	}
+}
+
 func IndexAdminPage(pContext *gin.Context) {
+
 	html := func(page any, err error) {
 		message := ""
 		if err != nil {
@@ -19,6 +33,8 @@ func IndexAdminPage(pContext *gin.Context) {
 		pContext.HTML(http.StatusOK, "index_admin.html", gin.H{
 			"user":    GetUser(pContext),
 			"page":    page,
+			"table":   tables[2],
+			"tables":  tables,
 			"message": message,
 		})
 	}

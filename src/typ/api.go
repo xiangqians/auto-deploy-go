@@ -147,6 +147,11 @@ type PageReq struct {
 	Size    uint8 `json:"size" form:"size" binding:"gt=0"`        // 页数量
 }
 
+type Table struct {
+	Name string
+	Desc string
+}
+
 // 注册模型
 func init() {
 	gob.Register(Git{})

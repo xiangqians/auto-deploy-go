@@ -96,5 +96,11 @@
   "i18n.restore": "Restore",
   "i18n.permanentlyDel": "Permanently delete",
   "i18n.prevPage": "Previous page",
-  "i18n.nextPage": "Next page"
+  "i18n.nextPage": "Next page",
+  "i18n.userTable": "User Table",
+  "i18n.rxTable": "RX Table",
+  "i18n.gitTable": "Git Table",
+  "i18n.serverTable": "Server Table",
+  "i18n.itemTable": "Item Table",
+  "i18n.recordTable": "Record Table"
 }

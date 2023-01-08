@@ -17,6 +17,13 @@
 {{ template "com/header.html" . }}
 
 <content>
+    <select>
+        {{ range $index,$value := .tables }}
+        <option value="{{ $value.Name }}"
+                {{ if eq $value.Name $.table.Name }} selected {{ end }}>{{ Localize $value.Desc }}
+        </option>
+        {{ end }}
+    </select>
     <p style="color: red;">{{ .message }}</p>
     <table border="1" cellspacing="0" cellpadding="10" align="center">
         <thead>

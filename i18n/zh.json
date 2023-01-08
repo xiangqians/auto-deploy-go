@@ -96,5 +96,11 @@
   "i18n.restore": "还原",
   "i18n.permanentlyDel": "永久删除",
   "i18n.prevPage": "上一页",
-  "i18n.nextPage": "下一页"
+  "i18n.nextPage": "下一页",
+  "i18n.userTable": "用户信息表",
+  "i18n.rxTable": "RX信息表",
+  "i18n.gitTable": "Git信息表",
+  "i18n.serverTable": "服务器信息表",
+  "i18n.itemTable": "项目信息表",
+  "i18n.recordTable": "部署记录信息表"
 }
