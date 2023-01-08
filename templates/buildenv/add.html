@@ -6,9 +6,46 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <link rel="shortcut icon" rel="external nofollow" href="/static/favicon.ico">
+    <link rel="stylesheet" href="/static/custom/min.css" type="text/css"/>
+    <title>
+        {{ if gt .buildEnv.Id 0 }}
+        {{ Localize "i18n.upd" }}
+        {{else}}
+        {{ Localize "i18n.add" }}
+        {{end}}
+        {{ Localize "i18n.buildEnv" }}
+    </title>
 </head>
 <body>
 
+<content>
+    <form action="/buildenv" method="{{ if gt .buildEnv.Id 0 }}PUT{{else}}POST{{end}}">
+        <p style="color: red;">{{ .message }}</p>
+        <input type="hidden" name="id" value="{{ .buildEnv.Id }}">
+        <div>
+            *<label>{{ Localize "i18n.name" }}:</label>
+            <input name="name" type="text" value="{{ .buildEnv.Value }}">
+        </div>
+        <div>
+            <label>{{ Localize "i18n.rem" }}:</label>
+            <textarea name="rem" type="text">{{ .buildEnv.Rem }}</textarea>
+        </div>
+        <div>
+            <input type="submit"
+                   value='{{ if gt .buildEnv.Id 0 }} {{ Localize "i18n.upd" }} {{else}} {{ Localize "i18n.add" }} {{end}}'>
+        </div>
+    </form>
+    <br>
+    <br>
+    <div style="padding-right: -10px">
+        <a href="/buildenv/index">{{ Localize "i18n.buildEnv" }} →</a>
+    </div>
+</content>
+
+{{ template "com/footer.html" . }}
+
 </body>
 </html>
+<script type="text/javascript" src="/static/jquery-v3.6.2/min.js"></script>
+<script type="text/javascript" src="/static/custom/min.js"></script>

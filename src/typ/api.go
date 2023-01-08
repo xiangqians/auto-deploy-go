@@ -141,4 +141,5 @@ func init() {
 	gob.Register(Server{})
 	gob.Register(User{})
 	gob.Register(ItemLastRecord{})
+	gob.Register(BuildEnv{})
 }

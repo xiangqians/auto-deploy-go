@@ -49,7 +49,7 @@ func settingByteColumnUpd(pContext *gin.Context, name string) {
 			session.Set("message", err.Error())
 		}
 		session.Save()
-		pContext.Redirect(http.StatusMovedPermanently, "/")
+		pContext.Redirect(http.StatusMovedPermanently, "/setting/index")
 	}
 
 	// value

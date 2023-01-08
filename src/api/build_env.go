@@ -36,11 +36,15 @@ func BuildEnvAddPage(pContext *gin.Context) {
 	session.Save()
 
 	if buildEnv == nil {
-		idStr := pContext.Query("id")
-		id, err := strconv.ParseInt(idStr, 10, 64)
-		if err == nil && id > 0 {
-			buildEnv, err = BuildEnv(id)
-			if err != nil {
+		buildEnv = typ.BuildEnv{}
+		idStr := strings.TrimSpace(pContext.Query("id"))
+		if idStr != "" {
+			id, err := strconv.ParseInt(idStr, 10, 64)
+			if err == nil && id > 0 {
+				buildEnv, err = BuildEnv(id)
+				if err != nil {
+					log.Println(err)
+				}
 			}
 		}
 	}
@@ -52,50 +56,66 @@ func BuildEnvAddPage(pContext *gin.Context) {
 }
 
 func BuildEnvAdd(pContext *gin.Context) {
-	buildEnv, err := preBuildEnvAddOrUpd(pContext)
-	if err != nil {
-		return
-	}
-
-	db.Add("INSERT INTO `build_env` (`value`, `rem`, `add_time`) VALUES (?, ?, ?)", buildEnv.Value, buildEnv.Rem, time.Now().Unix())
-	pContext.Redirect(http.StatusMovedPermanently, "/buildenv/index")
+	buildEnvAddOrUpd(pContext)
 }
 
 func BuildEnvUpd(pContext *gin.Context) {
-	buildEnv, err := preBuildEnvAddOrUpd(pContext)
-	if err != nil {
-		return
-	}
-
-	db.Upd("UPDATE build_env SET `value` = ?, `rem` = ?, upd_time = ? WHERE id = ?", buildEnv.Value, buildEnv.Rem, time.Now().Unix(), buildEnv.Id)
-	pContext.Redirect(http.StatusMovedPermanently, "/buildenv/index")
+	buildEnvAddOrUpd(pContext)
 }
 
 func BuildEnvDel(pContext *gin.Context) {
 	idStr := pContext.Param("id")
 	id, err := strconv.ParseInt(idStr, 10, 64)
 	if err == nil {
-		db.Del("DELETE FROM build_env WHERE id = ?", id)
+		_, err = db.Del("DELETE FROM build_env WHERE id = ?", id)
+	}
+
+	if err != nil {
+		session := sessions.Default(pContext)
+		session.Set("message", err.Error())
+		session.Save()
 	}
 	pContext.Redirect(http.StatusMovedPermanently, "/buildenv/index")
 }
 
-func preBuildEnvAddOrUpd(pContext *gin.Context) (typ.BuildEnv, error) {
+func buildEnvAddOrUpd(pContext *gin.Context) {
 	buildEnv := typ.BuildEnv{}
 	err := ShouldBind(pContext, &buildEnv)
 
 	buildEnv.Value = strings.TrimSpace(buildEnv.Value)
 	buildEnv.Rem = strings.TrimSpace(buildEnv.Rem)
 
-	if err != nil {
+	redirectToAddPage := func(buildEnv typ.BuildEnv, err error) {
 		session := sessions.Default(pContext)
 		session.Set("buildEnv", buildEnv)
-		session.Set("message", err.Error())
+		if err != nil {
+			session.Set("message", err.Error())
+		}
 		session.Save()
 		pContext.Redirect(http.StatusMovedPermanently, "/buildenv/addpage")
 	}
 
-	return buildEnv, err
+	if err != nil {
+		redirectToAddPage(buildEnv, err)
+		return
+	}
+
+	// add
+	if pContext.Request.Method == http.MethodPost {
+		_, err = db.Add("INSERT INTO `build_env` (`value`, `rem`, `add_time`) VALUES (?, ?, ?)", buildEnv.Value, buildEnv.Rem, time.Now().Unix())
+
+	} else
+	// upd
+	if pContext.Request.Method == http.MethodPut {
+		_, err = db.Upd("UPDATE build_env SET `value` = ?, `rem` = ?, upd_time = ? WHERE id = ?", buildEnv.Value, buildEnv.Rem, time.Now().Unix(), buildEnv.Id)
+	}
+
+	if err != nil {
+		redirectToAddPage(buildEnv, err)
+		return
+	}
+
+	pContext.Redirect(http.StatusMovedPermanently, "/buildenv/index")
 }
 
 func BuildEnv(id int64) (typ.BuildEnv, error) {
