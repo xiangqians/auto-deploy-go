@@ -53,7 +53,8 @@ type Rx struct {
 	ItemIds        string // 共享item_id集合
 
 	//
-	ShareItemCount int64 // 共享项目个数
+	ShareItemCount int64  // 共享项目个数
+	ShareItemNames string // 共享项目名
 }
 
 type Server struct {

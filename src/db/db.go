@@ -19,7 +19,9 @@ func db() (*sql.DB, error) {
 	return sql.Open("sqlite3", arg.Db)
 }
 
-func Page[T any](current int64, size uint8, sql string, args ...any) (typ.Page[T], error) {
+func Page[T any](pageReq typ.PageReq, sql string, args ...any) (typ.Page[T], error) {
+	current := pageReq.Current
+	size := pageReq.Size
 	page := typ.Page[T]{
 		Current: current,
 		Size:    size,

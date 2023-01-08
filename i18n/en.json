@@ -78,6 +78,7 @@
   "i18n.itemInDeploy": "Item is already in deployment",
   "i18n.shareItem": "Share Item",
   "i18n.shareItemCount": "Share Item Count",
+  "i18n.shareItemNames": "Share Item Names",
   "i18n.rxNotExist": "RX does not exist",
   "i18n.value": "Value",
   "i18n.useTime": "Time of use",

@@ -6,6 +6,7 @@ package api
 import (
 	"auto-deploy-go/src/db"
 	"auto-deploy-go/src/typ"
+	"fmt"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -91,8 +92,8 @@ func IndexAdminPage(pContext *gin.Context) {
 }
 
 type Data struct {
-	TdColspan int8     // <td></td> colspan
 	Title     []string // 标题
+	TdColspan int      // <td></td> colspan
 	Data      []Data2  // 数据
 }
 
@@ -105,12 +106,12 @@ type Data2 struct {
 func Page(pageReq typ.PageReq, tableName string) (any, Data, error) {
 	switch tableName {
 	case UserTableName:
-		page, err := db.Page[typ.User](pageReq.Current, pageReq.Size, "SELECT u.id, u.`name`, u.nickname, u.rem, u.del_flag, u.add_time, u.upd_time FROM `user` u")
+		page, err := db.Page[typ.User](pageReq, "SELECT u.id, u.`name`, u.nickname, u.rem, u.del_flag, u.add_time, u.upd_time FROM `user` u")
 		data := Data{}
-		// <td></td> colspan
-		data.TdColspan = 7 + 3
 		// title
 		data.Title = []string{"i18n.user", "i18n.nickname"}
+		// <td></td> colspan
+		data.TdColspan = 7 + len(data.Title)
 		// data
 		if page.Data != nil && len(page.Data) > 0 {
 			data2 := make([]Data2, len(page.Data))
@@ -126,6 +127,36 @@ func Page(pageReq typ.PageReq, tableName string) (any, Data, error) {
 		return page, data, err
 
 	case RxTableName:
+		page, err := db.Page[typ.Rx](pageReq, "SELECT r.id, r.`name`, r.owner_id, IFNULL(ou.`name`, '') AS 'owner_name',IFNULL(ou.nickname, '') AS 'owner_nickname', r.sharer_id, IFNULL(su.`name`, '') AS 'sharer_name', IFNULL(su.nickname, '') AS 'sharer_nickname', r.item_ids, COUNT(DISTINCT i.id) AS 'share_item_count', GROUP_CONCAT(i.`name`, '、') AS 'share_item_names', r.rem, r.del_flag, r.add_time, r.upd_time FROM rx r LEFT JOIN user ou ON ou.id = r.owner_id LEFT JOIN user su ON su.id = r.sharer_id LEFT JOIN item i ON r.item_ids LIKE ('%,' || i.id || ',%') GROUP BY r.id")
+		data := Data{}
+		// title
+		data.Title = []string{
+			"i18n.name",
+			"i18n.owner", "i18n.sharer",
+			"i18n.shareItemCount",
+			"i18n.shareItemNames",
+		}
+		// <td></td> colspan
+		data.TdColspan = 7 + len(data.Title)
+		// data
+		if page.Data != nil && len(page.Data) > 0 {
+			data2 := make([]Data2, len(page.Data))
+			for i, rx := range page.Data {
+				data2[i] = Data2{
+					Abs:  rx.Abs,
+					Name: rx.Name,
+					Data: []any{rx.Name,
+						fmt.Sprintf("%s, %s", rx.OwnerName, rx.OwnerNickname),
+						fmt.Sprintf("%s, %s", rx.SharerName, rx.SharerNickname),
+						rx.ShareItemCount,
+						rx.ShareItemNames,
+					},
+				}
+			}
+			data.Data = data2
+		}
+		return page, data, err
+
 	case GitTableName:
 	case ServerTableName:
 	case ItemTableName:
