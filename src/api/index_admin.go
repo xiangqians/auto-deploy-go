@@ -11,10 +11,23 @@ import (
 )
 
 func IndexAdminPage(pContext *gin.Context) {
-	pContext.HTML(http.StatusOK, "index_admin.html", gin.H{
-		"user": GetUser(pContext),
-		"page": UserPage(1, 10),
-	})
+	html := func(page any, err error) {
+		message := ""
+		if err != nil {
+			message = err.Error()
+		}
+		pContext.HTML(http.StatusOK, "index_admin.html", gin.H{
+			"user":    GetUser(pContext),
+			"page":    page,
+			"message": message,
+		})
+	}
+
+	pageReq := typ.PageReq{Current: 1, Size: 10}
+	err := ShouldBind(pContext, &pageReq)
+	//currentStr := pContext.Query("current")
+	//sizeStr := pContext.Query("size")
+	html(UserPage(pageReq.Current, pageReq.Size), err)
 }
 
 func UserPage(current int64, size uint8) typ.Page[typ.User] {

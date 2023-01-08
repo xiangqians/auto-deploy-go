@@ -142,6 +142,11 @@ type Page[T any] struct {
 	Data    []T   `json:"data"`    // 数据
 }
 
+type PageReq struct {
+	Current int64 `json:"current" form:"current"  binding:"gt=0"` // 当前页
+	Size    uint8 `json:"size" form:"size" binding:"gt=0"`        // 页数量
+}
+
 // 注册模型
 func init() {
 	gob.Register(Git{})
@@ -151,4 +156,5 @@ func init() {
 	gob.Register(User{})
 	gob.Register(ItemLastRecord{})
 	gob.Register(BuildEnv{})
+	gob.Register(PageReq{})
 }

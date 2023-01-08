@@ -48,7 +48,6 @@
   "i18n.accountRegSuccess": "账号注册成功",
   "i18n.whatIsAutoDeploy": "什么是AutoDeploy？",
   "i18n.no.": "序号",
-  "i18n.deploy": "部署",
   "i18n.status": "状态",
   "i18n.inDeploy": "部署中",
   "i18n.deployExc": "部署异常",
@@ -89,5 +88,13 @@
   "i18n.no": "否",
   "i18n.enable": "启用",
   "i18n.disable": "禁用",
-  "i18n.setting": "设置"
+  "i18n.setting": "设置",
+  "i18n.current": "当前页",
+  "i18n.size": "页数量",
+  "i18n.pages": "总页数",
+  "i18n.total": "总数",
+  "i18n.restore": "还原",
+  "i18n.permanentlyDel": "永久删除",
+  "i18n.prevPage": "上一页",
+  "i18n.nextPage": "下一页"
 }

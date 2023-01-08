@@ -48,7 +48,6 @@
   "i18n.accountRegSuccess": "Account registration succeeded",
   "i18n.whatIsAutoDeploy": "What is AutoDeploy?",
   "i18n.no.": "No.",
-  "i18n.deploy": "Deploy",
   "i18n.status": "Status",
   "i18n.inDeploy": "In deployment",
   "i18n.deployExc": "Deployment Exception",
@@ -89,5 +88,13 @@
   "i18n.no": "No",
   "i18n.enable": "Enable",
   "i18n.disable": "Disable",
-  "i18n.setting": "Setting"
+  "i18n.setting": "Setting",
+  "i18n.current": "Current",
+  "i18n.size": "Size",
+  "i18n.pages": "Pages",
+  "i18n.total": "Total",
+  "i18n.restore": "Restore",
+  "i18n.permanentlyDel": "Permanently delete",
+  "i18n.prevPage": "Previous page",
+  "i18n.nextPage": "Next page"
 }

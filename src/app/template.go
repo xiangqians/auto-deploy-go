@@ -18,6 +18,30 @@ import (
 	"time"
 )
 
+func Add(i1 any, i2 int64) int64 {
+	if v, r := i1.(int); r {
+		return int64(v) + i2
+	}
+
+	if v, r := i1.(int8); r {
+		return int64(v) + i2
+	}
+
+	if v, r := i1.(int16); r {
+		return int64(v) + i2
+	}
+
+	if v, r := i1.(int32); r {
+		return int64(v) + i2
+	}
+
+	if v, r := i1.(int64); r {
+		return v + i2
+	}
+
+	return 0
+}
+
 // 初始化HTML模板
 func intHtmlTemplate(pEngine *gin.Engine) {
 	// 自定义模板函数
@@ -49,8 +73,12 @@ func intHtmlTemplate(pEngine *gin.Engine) {
 		},
 
 		// +1
-		"Add1": func(i int) int {
-			return i + 1
+		"Add1": func(i any) int64 {
+			return Add(i, 1)
+		},
+
+		"Minus1": func(i any) int64 {
+			return Add(i, -1)
 		},
 
 		// 部署状态文本信息

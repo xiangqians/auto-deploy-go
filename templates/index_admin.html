@@ -44,6 +44,7 @@
             <td>{{ Add1 $index }}</td>
 
             <!-- 差异部分 -->
+            {{ $name := $value.Name }}
             <td>{{ $value.Name }}</td>
             <td>{{ $value.Nickname }}</td>
             <td>******</td>
@@ -59,18 +60,21 @@
             <td>{{ UnixToTime $value.UpdTime }}</td>
             <td>
                 {{ if eq $value.DelFlag 0 }}
-                <a href="/t/{{ $value.Id }}/disable" method="PUT">
-                    <button>{{ Localize "i18n.disable" }}</button>
+                <a href="/t/{{ $value.Id }}/del" method="DELETE"
+                   confirm='{{ Localize "i18n.del" }} {{ $name }}?'>
+                    <button>{{ Localize "i18n.del" }}</button>
                 </a>
                 {{ else }}
-                <a href="/t/{{ $value.Id }}/enable" method="PUT">
-                    <button>{{ Localize "i18n.enable" }}</button>
+                <a href="/t/{{ $value.Id }}/restore" method="PUT"
+                   confirm='{{ Localize "i18n.restore" }} {{ $name }}?'>
+                    <button>{{ Localize "i18n.restore" }}</button>
                 </a>
                 {{ end }}
             </td>
             <td>
-                <a href="/git/{{ $value.Id }}" method="DELETE" confirm='{{ Localize "i18n.del" }} {{ $value.Name }}?'>
-                    <button>{{ Localize "i18n.del" }}</button>
+                <a href="/t/{{ $value.Id }}/permanentlyDel" method="DELETE"
+                   confirm='{{ Localize "i18n.permanentlyDel" }} {{ $name }}?'>
+                    <button>{{ Localize "i18n.permanentlyDel" }}</button>
                 </a>
             </td>
         </tr>
@@ -81,6 +85,30 @@
         </tr>
         {{ end }}
         </tbody>
+        <tfoot>
+        <tr>
+            <td colspan="10">
+                <span style="margin-right: 10px">{{ Localize "i18n.current" }}: {{ .page.Current }}</span>
+                <span style="margin-right: 10px">{{ Localize "i18n.size" }}: {{ .page.Size }}</span>
+                <span style="margin-right: 10px">{{ Localize "i18n.pages" }}: {{ .page.Pages }}</span>
+                <span style="margin-right: 20px">{{ Localize "i18n.total" }}: {{ .page.Total }}</span>
+                <span style="margin-right: 10px">
+                    {{ if eq .page.Current 1 }}
+                    {{ Localize "i18n.prevPage" }}
+                    {{ else }}
+                    <a href="/?current={{ Minus1 .page.Current }}">{{ Localize "i18n.prevPage" }}</a>
+                    {{  end }}
+                </span>
+                <span>
+                    {{ if eq .page.Current .page.Pages }}
+                    {{ Localize "i18n.nextPage" }}
+                    {{ else }}
+                    <a href="/?current={{ Add1 .page.Current }}">{{ Localize "i18n.nextPage" }}</a>
+                    {{  end }}
+                </span>
+            </td>
+        </tr>
+        </tfoot>
     </table>
 
 </content>
