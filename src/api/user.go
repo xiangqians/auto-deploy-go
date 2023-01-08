@@ -99,7 +99,7 @@ func UserLogin(pContext *gin.Context) {
 
 	var user typ.User
 	if err == nil {
-		err = db.Qry(&user, "SELECT u.id, u.`name`, u.nickname, u.rem, u.add_time, u.upd_time FROM `user` u WHERE u.del_flag = 0 AND u.`name` = ? AND u.passwd = ? LIMIT 1", name, PasswdEncrypt(passwd))
+		_, err = db.Qry(&user, "SELECT u.id, u.`name`, u.nickname, u.rem, u.add_time, u.upd_time FROM `user` u WHERE u.del_flag = 0 AND u.`name` = ? AND u.passwd = ? LIMIT 1", name, PasswdEncrypt(passwd))
 	}
 
 	if err == nil && user.Id == 0 {
@@ -207,7 +207,7 @@ func VerifyUserNameAndPasswd(name, passwd string) error {
 
 func VerifyDbUserName(name string) error {
 	var id int64
-	err := db.Qry(&id, "SELECT u.id FROM `user` u WHERE u.del_flag = 0 AND u.`name` = ? LIMIT 1", name)
+	_, err := db.Qry(&id, "SELECT u.id FROM `user` u WHERE u.del_flag = 0 AND u.`name` = ? LIMIT 1", name)
 	if err != nil {
 		return err
 	}

@@ -36,7 +36,7 @@ func GitAddPage(pContext *gin.Context) {
 		id, err := strconv.ParseInt(idStr, 10, 64)
 		if err == nil && id > 0 {
 			user := GetUser(pContext)
-			err = db.Qry(&_git, "SELECT g.id, g.`name`, g.`user`, g.rem, g.add_time, g.upd_time FROM git g WHERE g.del_flag = 0 AND g.user_id = ? AND g.id = ?", user.Id, id)
+			_, err = db.Qry(&_git, "SELECT g.id, g.`name`, g.`user`, g.rem, g.add_time, g.upd_time FROM git g WHERE g.del_flag = 0 AND g.user_id = ? AND g.id = ?", user.Id, id)
 			if err != nil {
 				log.Println(err)
 			}
@@ -107,7 +107,7 @@ func gitPreAddOrUpd(pContext *gin.Context) (typ.Git, error) {
 func Gits(pContext *gin.Context) []typ.Git {
 	user := GetUser(pContext)
 	gits := make([]typ.Git, 1)
-	err := db.Qry(&gits, "SELECT g.id, g.`name`, g.`user`, g.rem, g.add_time, g.upd_time FROM git g WHERE g.del_flag = 0 AND g.user_id = ?", user.Id)
+	_, err := db.Qry(&gits, "SELECT g.id, g.`name`, g.`user`, g.rem, g.add_time, g.upd_time FROM git g WHERE g.del_flag = 0 AND g.user_id = ?", user.Id)
 	if err != nil {
 		log.Println(err)
 		return nil

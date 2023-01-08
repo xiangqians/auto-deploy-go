@@ -18,7 +18,7 @@ func Pull(item typ.Item, recordId int64, resPath string) error {
 	updSTime(typ.StepPull, recordId)
 
 	_git := typ.Git{}
-	err := db.Qry(&_git, "SELECT g.id, g.`user`, g.passwd FROM git g WHERE g.del_flag = 0 AND g.id = ?", item.GitId)
+	_, err := db.Qry(&_git, "SELECT g.id, g.`user`, g.passwd FROM git g WHERE g.del_flag = 0 AND g.id = ?", item.GitId)
 	if err != nil {
 		updETime(typ.StepPull, recordId, err, nil)
 		return err

@@ -156,7 +156,7 @@ func buildEnvAddOrUpd(pContext *gin.Context) {
 
 func BuildEnv(id int64) (typ.BuildEnv, error) {
 	buildEnv := typ.BuildEnv{}
-	err := db.Qry(&buildEnv, "SELECT be.`id`, be.`value`, be.`rem`, be.`disable_flag`, be.`add_time`, be.`upd_time` FROM `build_env` be WHERE be.id = ?", id)
+	_, err := db.Qry(&buildEnv, "SELECT be.`id`, be.`value`, be.`rem`, be.`disable_flag`, be.`add_time`, be.`upd_time` FROM `build_env` be WHERE be.id = ?", id)
 	if err != nil {
 		return buildEnv, err
 	}
@@ -170,7 +170,7 @@ func BuildEnv(id int64) (typ.BuildEnv, error) {
 
 func BuildEnvs() []typ.BuildEnv {
 	buildEnvs := make([]typ.BuildEnv, 1)
-	err := db.Qry(&buildEnvs, "SELECT be.`id`, be.`value`, be.`rem`, be.`disable_flag`, be.`add_time`, be.`upd_time` FROM `build_env` be")
+	_, err := db.Qry(&buildEnvs, "SELECT be.`id`, be.`value`, be.`rem`, be.`disable_flag`, be.`add_time`, be.`upd_time` FROM `build_env` be")
 	if err != nil {
 		log.Println(err)
 		return nil

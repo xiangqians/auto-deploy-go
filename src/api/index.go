@@ -100,7 +100,7 @@ func Deploy(pContext *gin.Context) {
 
 	// item
 	item := typ.Item{}
-	err = db.Qry(&item, "SELECT i.id, i.`name`, i.git_id, i.repo_url, i.branch, i.server_id, i.script, i.rem FROM item i  WHERE i.del_flag = 0 AND i.id = ?", itemId)
+	_, err = db.Qry(&item, "SELECT i.id, i.`name`, i.git_id, i.repo_url, i.branch, i.server_id, i.script, i.rem FROM item i  WHERE i.del_flag = 0 AND i.id = ?", itemId)
 	if err != nil {
 		redirect(1, err.Error())
 		return
@@ -230,7 +230,7 @@ func getItemLastRecords(pContext *gin.Context, itemId int64) []typ.ItemLastRecor
 		sql += fmt.Sprintf("AND i.id = %v ", strconv.FormatInt(itemId, 10))
 	}
 	sql += "GROUP BY i.id, r.id HAVING COUNT(rt.id) < 1"
-	err := db.Qry(&itemLastRecords, sql)
+	_, err := db.Qry(&itemLastRecords, sql)
 	if err != nil {
 		log.Println(err)
 		return nil

@@ -36,7 +36,7 @@ func ServerAddPage(pContext *gin.Context) {
 		id, err := strconv.ParseInt(idStr, 10, 64)
 		if err == nil && id > 0 {
 			user := GetUser(pContext)
-			err = db.Qry(&_server, "SELECT s.id, s.`name`, s.`host`, s.`port`, s.`user`, s.rem, s.add_time, s.upd_time FROM server s WHERE s.del_flag = 0 AND s.user_id = ? AND s.id = ?", user.Id, id)
+			_, err = db.Qry(&_server, "SELECT s.id, s.`name`, s.`host`, s.`port`, s.`user`, s.rem, s.add_time, s.upd_time FROM server s WHERE s.del_flag = 0 AND s.user_id = ? AND s.id = ?", user.Id, id)
 			if err != nil {
 				log.Println(err)
 			}
@@ -108,7 +108,7 @@ func serverPreAddOrUpd(pContext *gin.Context) (typ.Server, error) {
 func Servers(pContext *gin.Context) []typ.Server {
 	user := GetUser(pContext)
 	servers := make([]typ.Server, 1)
-	err := db.Qry(&servers, "SELECT s.id, s.`name`, s.`host`, s.`port`, s.`user`, s.rem, s.add_time, s.upd_time FROM server s WHERE s.del_flag = 0 AND s.user_id = ?", user.Id)
+	_, err := db.Qry(&servers, "SELECT s.id, s.`name`, s.`host`, s.`port`, s.`user`, s.rem, s.add_time, s.upd_time FROM server s WHERE s.del_flag = 0 AND s.user_id = ?", user.Id)
 	if err != nil {
 		log.Println(err)
 		return nil

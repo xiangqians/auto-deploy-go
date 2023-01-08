@@ -28,7 +28,7 @@ func Page[T any](current int64, size uint8, sql string, args ...any) (typ.Page[T
 	// total
 	var total int64
 	_sql := fmt.Sprintf("SELECT COUNT(1) %s", sql[strings.Index(sql, "FROM"):])
-	err := Qry(&total, _sql, args...)
+	_, err := Qry(&total, _sql, args...)
 	if err != nil {
 		return page, err
 	}
@@ -51,36 +51,38 @@ func Page[T any](current int64, size uint8, sql string, args ...any) (typ.Page[T
 
 	// query
 	data := make([]T, 1)
-	err = Qry(&data, sql, args...)
+	record, err := Qry(&data, sql, args...)
 	if err != nil {
 		return page, err
 	}
-	// 不赋予指针数据，以访发生逃逸
-	//page.Data = &data
-	page.Data = data
+	if record > 0 {
+		// 不赋予指针数据，以访发生逃逸
+		//page.Data = &data
+		page.Data = data
+	}
 
 	return page, nil
 }
 
-func Qry(i any, sql string, args ...any) error {
+func Qry(i any, sql string, args ...any) (int64, error) {
 	pDb, err := db()
 	if err != nil {
-		return err
+		return 0, err
 	}
 	defer pDb.Close()
 
 	pRows, err := pDb.Query(sql, args...)
 	if err != nil {
-		return err
+		return 0, err
 	}
 	defer pRows.Close()
 
-	err = rowsMapper(pRows, i)
+	record, err := rowsMapper(pRows, i)
 	if err != nil {
-		return err
+		return record, err
 	}
 
-	return nil
+	return record, nil
 }
 
 // Add return insertId
@@ -124,18 +126,20 @@ func exec(sql string, args ...any) (int64, error) {
 
 // 字段集映射
 // 支持 1）一个或多个属性映射；2）结构体映射；3）结构体切片映射
-func rowsMapper(pRows *sql.Rows, i any) error {
+func rowsMapper(pRows *sql.Rows, i any) (int64, error) {
 	cols, err := pRows.Columns()
 	if err != nil {
-		return err
+		return 0, err
 	}
 
+	var record int64
 	rflType := reflect.TypeOf(i).Elem()
 	rflVal := reflect.ValueOf(i).Elem()
 	switch rflType.Kind() {
 	// 结构体
 	case reflect.Struct:
 		if pRows.Next() {
+			record++
 			dest := getDest(cols, rflType, rflVal)
 			err = pRows.Scan(dest...)
 		}
@@ -152,6 +156,7 @@ func rowsMapper(pRows *sql.Rows, i any) error {
 			var eRflVal reflect.Value
 			idx := 0
 			for pRows.Next() {
+				record++
 				if idx < l {
 					eRflVal = rflVal.Index(idx).Addr().Elem()
 				} else {
@@ -161,7 +166,7 @@ func rowsMapper(pRows *sql.Rows, i any) error {
 				dest := getDest(cols, eRflType, eRflVal)
 				err = pRows.Scan(dest...)
 				if err != nil {
-					return err
+					return record, err
 				}
 
 				// 切片（slice）扩容
@@ -177,6 +182,7 @@ func rowsMapper(pRows *sql.Rows, i any) error {
 		// 普通指针类型数组
 		default:
 			if pRows.Next() {
+				record++
 				dest := make([]any, l)
 				for ei := 0; ei < l; ei++ {
 					e := rflVal.Index(ei).Interface()
@@ -189,11 +195,12 @@ func rowsMapper(pRows *sql.Rows, i any) error {
 	// 普通指针类型
 	default:
 		if pRows.Next() {
+			record++
 			err = pRows.Scan(i)
 		}
 	}
 
-	return err
+	return record, err
 }
 
 func getDest(cols []string, rflType reflect.Type, rflVal reflect.Value) []any {

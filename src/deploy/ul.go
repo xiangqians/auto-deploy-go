@@ -19,7 +19,7 @@ func UlAndDeploy(item typ.Item, recordId int64, packName, ulPath string) error {
 	updSTime(typ.StepUl, recordId)
 
 	server := typ.Server{}
-	err := db.Qry(&server, "SELECT s.id, s.`host`, s.`port`, s.`user`, s.passwd FROM server s WHERE s.del_flag = 0 AND s.id = ?", item.ServerId)
+	_, err := db.Qry(&server, "SELECT s.id, s.`host`, s.`port`, s.`user`, s.passwd FROM server s WHERE s.del_flag = 0 AND s.id = ?", item.ServerId)
 	if err != nil {
 		updETime(typ.StepUl, recordId, err, nil)
 		return err

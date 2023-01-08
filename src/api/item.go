@@ -42,7 +42,7 @@ func ItemAddPage(pContext *gin.Context) {
 		id, err := strconv.ParseInt(idStr, 10, 64)
 		if err == nil && id > 0 {
 			user := GetUser(pContext)
-			err = db.Qry(&_item, "SELECT i.id, i.`name`, i.git_id, i.repo_url, i.branch, i.server_id, i.script, i.rem FROM item i  WHERE i.del_flag = 0 AND i.user_id = ? AND i.id = ?", user.Id, id)
+			_, err = db.Qry(&_item, "SELECT i.id, i.`name`, i.git_id, i.repo_url, i.branch, i.server_id, i.script, i.rem FROM item i  WHERE i.del_flag = 0 AND i.user_id = ? AND i.id = ?", user.Id, id)
 			if err != nil {
 				log.Println(err)
 			}
@@ -109,7 +109,7 @@ func itemPreAddOrUpd(pContext *gin.Context) (typ.Item, error) {
 func Item(pContext *gin.Context, id int64) (typ.Item, error) {
 	user := GetUser(pContext)
 	item := typ.Item{}
-	err := db.Qry(&item, "SELECT i.id, i.`name`, i.git_id, i.repo_url, i.branch, i.server_id, i.script, i.rem FROM item i  WHERE i.del_flag = 0 AND i.user_id = ? AND i.id = ?", user.Id, id)
+	_, err := db.Qry(&item, "SELECT i.id, i.`name`, i.git_id, i.repo_url, i.branch, i.server_id, i.script, i.rem FROM item i  WHERE i.del_flag = 0 AND i.user_id = ? AND i.id = ?", user.Id, id)
 	if err != nil {
 		return item, err
 	}
@@ -131,7 +131,7 @@ func Items(pContext *gin.Context, notLikeIds string) []typ.Item {
 	}
 	sql += "GROUP BY i.id"
 
-	err := db.Qry(&items, sql, user.Id)
+	_, err := db.Qry(&items, sql, user.Id)
 	if err != nil {
 		log.Println(err)
 		return nil
