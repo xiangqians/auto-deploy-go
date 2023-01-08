@@ -19,7 +19,19 @@ Custom = function () {
         }
     }
 
+    obj.addTimestamp = function (url) {
+        let timestamp = new Date().getTime()
+        if (url.indexOf('?') > 0) {
+            url += '&t=' + timestamp
+        } else {
+            url += '?t=' + timestamp
+        }
+        return url
+    }
+
     obj.ajaxFormData = function (url, method, data, async, success, error) {
+        url = obj.addTimestamp(url)
+
         // console.log(method, url, formData)
         // application/x-www-form-urlencoded
         $.ajax({
@@ -43,6 +55,7 @@ Custom = function () {
     }
 
     obj.ajaxJsonData = function (url, method, data, async, success, error) {
+        url = obj.addTimestamp(url)
         $.ajax({
             url: url,
             type: method,

@@ -100,6 +100,8 @@ func initRoute(pEngine *gin.Engine) {
 	{
 		buildEnvRouterGroup.Any("/index", api.BuildEnvIndex)
 		buildEnvRouterGroup.Any("/addpage", api.BuildEnvAddPage)
+		buildEnvRouterGroup.PUT("/:id/enable", api.BuildEnvEnableOrDisable)
+		buildEnvRouterGroup.PUT("/:id/disable", api.BuildEnvEnableOrDisable)
 	}
 	pEngine.POST("/buildenv", api.BuildEnvAdd)
 	pEngine.PUT("/buildenv", api.BuildEnvUpd)

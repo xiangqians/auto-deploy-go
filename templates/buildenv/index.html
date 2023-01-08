@@ -45,15 +45,15 @@
             <td>{{ UnixToTime $value.AddTime }}</td>
             <td>{{ UnixToTime $value.UpdTime }}</td>
             <td>
-                <a href="/buildenv/addpage?id={{ $value.Id }}">
-                    <button>
-                        {{ if eq $value.DisableFlag 0 }}
-                        {{ Localize "i18n.disable" }}
-                        {{ else }}
-                        {{ Localize "i18n.enable" }}
-                        {{ end }}
-                    </button>
+                {{ if eq $value.DisableFlag 0 }}
+                <a href="/buildenv/{{ $value.Id }}/disable" method="PUT">
+                    <button>{{ Localize "i18n.disable" }}</button>
                 </a>
+                {{ else }}
+                <a href="/buildenv/{{ $value.Id }}/enable" method="PUT">
+                    <button>{{ Localize "i18n.enable" }}</button>
+                </a>
+                {{ end }}
             </td>
             <td>
                 <a href="/buildenv/addpage?id={{ $value.Id }}">

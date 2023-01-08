@@ -32,6 +32,7 @@ func BuildEnvAddPage(pContext *gin.Context) {
 	session := sessions.Default(pContext)
 	buildEnv := session.Get("buildEnv")
 	message := session.Get("message")
+	session.Delete("buildEnv")
 	session.Delete("message")
 	session.Save()
 
@@ -76,6 +77,41 @@ func BuildEnvDel(pContext *gin.Context) {
 		session.Save()
 	}
 	pContext.Redirect(http.StatusMovedPermanently, "/buildenv/index")
+}
+
+func BuildEnvEnableOrDisable(pContext *gin.Context) {
+	redirect := func(err error) {
+		if err != nil {
+			session := sessions.Default(pContext)
+			session.Set("message", err.Error())
+			session.Save()
+		}
+		pContext.Redirect(http.StatusMovedPermanently, "/buildenv/index")
+	}
+
+	idStr := pContext.Param("id")
+	id, err := strconv.ParseInt(idStr, 10, 64)
+	if err != nil {
+		redirect(err)
+		return
+	}
+
+	var disableFlag byte
+	reqPath := pContext.Request.URL.Path
+	if strings.HasSuffix(reqPath, "/enable") {
+		disableFlag = 0
+	} else if strings.HasSuffix(reqPath, "/disable") {
+		disableFlag = 1
+	}
+
+	// upd
+	_, err = db.Upd("UPDATE build_env SET disable_flag = ?, upd_time = ? WHERE id = ?", disableFlag, time.Now().Unix(), id)
+	if err != nil {
+		redirect(err)
+		return
+	}
+
+	redirect(nil)
 }
 
 func buildEnvAddOrUpd(pContext *gin.Context) {
