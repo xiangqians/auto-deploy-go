@@ -88,5 +88,6 @@
   "i18n.yes": "Yes",
   "i18n.no": "No",
   "i18n.enable": "Enable",
-  "i18n.disable": "Disable"
+  "i18n.disable": "Disable",
+  "i18n.setting": "Setting"
 }

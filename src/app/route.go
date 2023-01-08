@@ -13,7 +13,7 @@ import (
 
 func initRoute(pEngine *gin.Engine) {
 	// 设置默认路由
-	pEngine.NoRoute(func(pContext *gin.Context) {
+	handler := func(pContext *gin.Context) {
 		// pContext.HTML() 返回HTML
 		pContext.HTML(http.StatusOK, "404.html", gin.H{
 			"user":       api.GetUser(pContext),
@@ -21,7 +21,9 @@ func initRoute(pEngine *gin.Engine) {
 			"ginVersion": gin.Version,
 			"time":       time.Now(),
 		})
-	})
+	}
+	pEngine.Any("/404", handler)
+	pEngine.NoRoute(handler)
 
 	// index
 	pEngine.Any("/", api.IndexPage)
@@ -87,11 +89,10 @@ func initRoute(pEngine *gin.Engine) {
 	// setting
 	settingRouterGroup := pEngine.Group("/setting")
 	{
+		settingRouterGroup.Any("/index", api.SettingIndexPage)
 		settingRouterGroup.PUT("/allowregflag/:value", api.SettingAllowRegFlagUpd)
 		settingRouterGroup.PUT("/buildlevel/:value", api.SettingBuildLevelUpd)
 		settingRouterGroup.PUT("/sudoflag/:value", api.SettingSudoFlagUpd)
-		//adminRouterGroup.POST("/buildenv/:value", api.AdminBuildEnvAdd)
-		//adminRouterGroup.DELETE("/buildenv/:value", api.AdminBuildEnvDel)
 	}
 
 	// buildenv

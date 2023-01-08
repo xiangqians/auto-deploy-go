@@ -31,7 +31,9 @@ func init() {
 func IndexPage(pContext *gin.Context) {
 	// 如果是admin账号登录
 	if IsAdminUser(pContext, typ.User{}) {
-		AdminIndexPage(pContext)
+		pContext.HTML(netHttp.StatusOK, "index_admin.html", gin.H{
+			"user": GetUser(pContext),
+		})
 		return
 	}
 

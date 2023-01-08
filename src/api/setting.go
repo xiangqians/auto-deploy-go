@@ -13,6 +13,20 @@ import (
 	"strconv"
 )
 
+func SettingIndexPage(pContext *gin.Context) {
+	session := sessions.Default(pContext)
+	message := session.Get("message")
+	session.Delete("message")
+	session.Save()
+
+	setting, _ := Setting()
+	pContext.HTML(http.StatusOK, "setting/index.html", gin.H{
+		"user":    GetUser(pContext),
+		"setting": setting,
+		"message": message,
+	})
+}
+
 func SettingAllowRegFlagUpd(pContext *gin.Context) {
 	settingByteColumnUpd(pContext, "allow_reg_flag")
 	return
@@ -36,11 +50,6 @@ func settingByteColumnUpd(pContext *gin.Context, name string) {
 		}
 		session.Save()
 		pContext.Redirect(http.StatusMovedPermanently, "/")
-	}
-
-	if !IsAdminUser(pContext, typ.User{}) {
-		redirect(nil)
-		return
 	}
 
 	// value

@@ -25,6 +25,8 @@ $. 引用模板中的根级上下文
         {{ if IsAdminUser .user }}
         <a name="nav" style='padding: 8px;{{ if eq .url "/" }}background-color: lightgray;{{ end }}'
            href="/">{{ Localize "i18n.index" }}</a>
+        <a name="nav" style='padding: 8px;{{ if eq .url "/setting/index" }}background-color: lightgray;{{ end }}'
+           href="/setting/index">{{ Localize "i18n.setting" }}</a>
         <a name="nav" style='padding: 8px;{{ if eq .url "/buildenv/index" }}background-color: lightgray;{{ end }}'
            href="/buildenv/index">{{ Localize "i18n.buildEnv" }}</a>
         {{ else }}

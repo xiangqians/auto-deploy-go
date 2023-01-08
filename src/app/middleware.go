@@ -33,7 +33,9 @@ func userPermMiddleware(pEngine *gin.Engine) {
 
 		// isLogin
 		isLogin := false
-		if user, r := session.Get(api.SessionKeyUser).(typ.User); r && user.Id != 0 {
+		var user typ.User
+		if _user, r := session.Get(api.SessionKeyUser).(typ.User); r && _user.Id != 0 {
+			user = _user
 			isLogin = true
 		}
 
@@ -56,7 +58,18 @@ func userPermMiddleware(pEngine *gin.Engine) {
 
 			// 中止调用链
 			pContext.Abort()
+			return
 		}
+
+		// '/setting/*' & '/buildenv/*' 只允许 admin 访问
+		if (strings.HasPrefix(reqPath, "/setting") || strings.HasPrefix(reqPath, "/buildenv")) && !api.IsAdminUser(pContext, user) {
+			// 重定向
+			pContext.Redirect(http.StatusMovedPermanently, "/404")
+			// 中止调用链
+			pContext.Abort()
+			return
+		}
+
 	})
 }
 
