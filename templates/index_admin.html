@@ -26,8 +26,101 @@
         {{ end }}
     </select>
     <p style="color: red;">{{ .message }}</p>
-    {{ Put . "colspan" .data.Colspan }}
     {{ Put . "pageUrl" "/" }}
+    {{ Put . "colspan" .data.Colspan }}
+
+    <!-- record -->
+    {{ if eq .table.Name "record" }}
+    {{ Put . "colspan" 11 }}
+    <table border="1" cellspacing="0" cellpadding="10" align="center">
+        <thead>
+        <tr>
+            <td>{{ Localize "i18n.no." }}</td>
+            <td>{{ Localize "i18n.name" }}</td>
+            <td>{{ Localize "i18n.buildEnv" }}</td>
+            <td>{{ Localize "i18n.step" }}</td>
+            <td>{{ Localize "i18n.status" }}</td>
+            <td>{{ Localize "i18n.rem" }}</td>
+            <td>{{ Localize "i18n.del" }}</td>
+            <td>{{ Localize "i18n.addTime" }}</td>
+            <td>{{ Localize "i18n.updTime" }}</td>
+            <td colspan="2">{{ Localize "i18n.op" }}</td>
+        </tr>
+        </thead>
+        <tbody>
+        {{ if .page.Data }}
+        {{ range $index,$value := .page.Data }}
+        <tr>
+            <td>{{ Add1 $index }}</td>
+            <td title="{{ $value.RevMsg }}">{{ $value.ItemName }}</td>
+            <td>{{ $value.BuildEnvValue }}</td>
+            <td title="{{ $value }}">
+            <span style="padding-left: 10px; {{ if gt $value.PullStatus 0 }}color: red;{{ else }}{{ if gt $value.PullStime 0 }}{{ if eq $value.PullEtime 0 }}color: blue;{{ end }}{{ end }}{{ end }}"
+                  title="{{ $value.PullRem }}">{{ Localize "i18n.pull" }} ({{ UnixDiff $value.PullStime $value.PullEtime }})</span>
+                →
+                <span style="padding-left: 10px; {{ if gt $value.BuildStatus 0 }}color: red;{{ else }}{{ if gt $value.BuildStime 0 }}{{ if eq $value.BuildEtime 0 }}color: blue;{{ end }}{{ end }}{{ end }}"
+                      title="{{ $value.BuildRem }}">{{ Localize "i18n.build" }} ({{ UnixDiff $value.BuildStime $value.BuildEtime }})</span>
+                →
+                <span style="padding-left: 10px; {{ if gt $value.PackStatus 0 }}color: red;{{ else }}{{ if gt $value.PackStime 0 }}{{ if eq $value.PackEtime 0 }}color: blue;{{ end }}{{ end }}{{ end }}"
+                      title="{{ $value.PackRem }}">{{ Localize "i18n.pack" }} ({{ UnixDiff $value.PackStime $value.PackEtime }})</span>
+                →
+                <span style="padding-left: 10px; {{ if gt $value.UlStatus 0 }}color: red;{{ else }}{{ if gt $value.UlStime 0 }}{{ if eq $value.UlEtime 0 }}color: blue;{{ end }}{{ end }}{{ end }}"
+                      title="{{ $value.UlRem }}">{{ Localize "i18n.upload" }} ({{ UnixDiff $value.UlStime $value.UlEtime }})</span>
+                →
+                <span style="padding-left: 10px; {{ if gt $value.UnpackStatus 0 }}color: red;{{ else }}{{ if gt $value.UnpackStime 0 }}{{ if eq $value.UnpackEtime 0 }}color: blue;{{ end }}{{ end }}{{ end }}"
+                      title="{{ $value.UnpackRem }}">{{ Localize "i18n.unpack" }} ({{ UnixDiff $value.UnpackStime $value.UnpackEtime }})</span>
+                →
+                <span style="padding-left: 10px; {{ if gt $value.DeployStatus 0 }}color: red;{{ else }}{{ if gt $value.DeployStime 0 }}{{ if eq $value.DeployEtime 0 }}color: blue;{{ end }}{{ end }}{{ end }}"
+                      title="{{ $value.DeployRem }}">{{ Localize "i18n.deploy" }} ({{ UnixDiff $value.DeployStime $value.DeployEtime }})</span>
+            </td>
+            <td title="{{ $value.Rem }}"
+                style="{{ if eq $value.Status 1 }}color: blue;{{ else }}{{ if eq $value.Status 2 }}color: red;{{ else }}{{ if eq $value.Status 3 }}color: green;{{ end }}{{ end }}{{ end }}">
+                {{ DeployStatusText $value.Status }}
+            </td>
+            <!-- 公共部分 -->
+            {{ $len := Length $value.Rem }}
+            {{ if gt $len 100 }}
+            <td title="{{ $value.Rem }}"> {{ SubString $value.Rem 0 100 "..." }}</td>
+            {{ else }}
+            <td>{{ $value.Rem }}</td>
+            {{ end }}
+            {{ if eq $value.DelFlag 0 }}
+            <td style="color: green">{{ Localize "i18n.no" }}</td>
+            {{ else }}
+            <td style="color: red">{{ Localize "i18n.yes" }}</td>
+            {{ end }}
+            <td>{{ UnixToTime $value.AddTime }}</td>
+            <td>{{ UnixToTime $value.UpdTime }}</td>
+            <td>
+                {{ if eq $value.DelFlag 0 }}
+                <a href="/t/{{ $value.Id }}/del" method="DELETE"
+                   confirm='{{ Localize "i18n.del" }} {{ $value.ItemName }}, {{ $value.AddTime }}?'>
+                    <button>{{ Localize "i18n.del" }}</button>
+                </a>
+                {{ else }}
+                <a href="/t/{{ $value.Id }}/restore" method="PUT"
+                   confirm='{{ Localize "i18n.restore" }} {{ $value.ItemName }}, {{ $value.AddTime }}?'>
+                    <button>{{ Localize "i18n.restore" }}</button>
+                </a>
+                {{ end }}
+            </td>
+            <td>
+                <a href="/t/{{ $value.Id }}/permanentlyDel" method="DELETE"
+                   confirm='{{ Localize "i18n.permanentlyDel" }} {{ $value.ItemName }}, {{ $value.AddTime }}?'>
+                    <button>{{ Localize "i18n.permanentlyDel" }}</button>
+                </a>
+            </td>
+        </tr>
+        {{ end }}
+        {{ else }}
+        <tr>
+            <td colspan="6">{{ Localize "i18n.noData" }}</td>
+        </tr>
+        {{ end }}
+        </tbody>
+        {{ template "com/table_tfoot.html" . }}
+    </table>
+    {{ else }}
     <table border="1" cellspacing="0" cellpadding="10" align="center">
         <thead>
         <tr>
@@ -35,9 +128,19 @@
             <td>{{ Localize "i18n.no." }}</td>
 
             <!-- 差异部分 -->
+            <!-- record -->
+            {{ if eq .table.Name "record" }}
+            {{ Put . "colspan" 1 }}
+            <td>{{ Localize "i18n.name" }}</td>
+            <td>{{ Localize "i18n.step" }}</td>
+            <td>{{ Localize "i18n.lastDeployTime" }}</td>
+            <td>{{ Localize "i18n.status" }}</td>
+            <!-- other -->
+            {{ else }}
             {{ if .data.Title }}
             {{ range $index,$value := .data.Title }}
             <td>{{ Localize $value }}</td>
+            {{ end }}
             {{ end }}
             {{ end }}
 
@@ -112,6 +215,7 @@
         </tbody>
         {{ template "com/table_tfoot.html" . }}
     </table>
+    {{ end }}
 </content>
 
 {{ template "com/footer.html" . }}

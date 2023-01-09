@@ -97,6 +97,43 @@ type BuildEnv struct {
 	DisableFlag byte   // 禁用标识，0-正常，1-禁用
 }
 
+// Record 项目部署记录信息表
+type Record struct {
+	Abs
+	BuildEnvId    int64  // 构建环境id
+	BuildEnvValue string // 构建环境值
+	ItemId        int64  // 所属项目id
+	ItemName      string // 所属项目名称
+	ItemRem       string
+	PullStime     int64 // pull
+	PullEtime     int64
+	PullStatus    byte
+	PullRem       string
+	CommitId      string // commitId
+	RevMsg        string // revMsg
+	BuildStime    int64  // build
+	BuildEtime    int64
+	BuildStatus   byte
+	BuildRem      string
+	PackStime     int64 // pack
+	PackEtime     int64
+	PackStatus    byte
+	PackRem       string
+	UlStime       int64 // ul
+	UlEtime       int64
+	UlStatus      byte
+	UlRem         string
+	UnpackStime   int64 // unpack
+	UnpackEtime   int64
+	UnpackStatus  byte
+	UnpackRem     string
+	DeployStime   int64 // deploy
+	DeployEtime   int64
+	DeployStatus  byte
+	DeployRem     string
+	Status        byte // status
+}
+
 type ItemLastRecord struct {
 	Id           int64
 	ItemId       int64

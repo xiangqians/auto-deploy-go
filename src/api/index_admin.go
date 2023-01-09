@@ -263,41 +263,8 @@ func Page(pageReq typ.PageReq, tableName string) (any, Data, error) {
 		return page, data, err
 
 	case RecordTableName:
-		page, err := db.Page[typ.Item](pageReq, "SELECT i.id, IFNULL(u.`name`, '') AS 'user_name', IFNULL(u.nickname, '') AS 'user_nickname', i.`name`, i.git_id, IFNULL(g.`name`, '') AS 'git_name', i.repo_url, i.branch, i.server_id, IFNULL(s.`name`, '') AS 'server_name', i.script, i.rem, i.del_flag, i.add_time, i.upd_time FROM item i LEFT JOIN user u ON u.id = i.user_id LEFT JOIN git g ON g.id = i.git_id LEFT JOIN server s ON s.id = i.server_id GROUP BY i.id")
-		data := Data{}
-		// title
-		data.Title = []string{
-			"i18n.name",
-			"i18n.owner",
-			"i18n.git",
-			"i18n.repoUrl",
-			"i18n.branch",
-			"i18n.server",
-			"i18n.script",
-		}
-		// <td></td> colspan
-		data.Colspan = 7 + len(data.Title)
-		// data
-		if page.Data != nil && len(page.Data) > 0 {
-			data2 := make([]Data2, len(page.Data))
-			for i, item := range page.Data {
-				data2[i] = Data2{
-					Abs:  item.Abs,
-					Name: item.Name,
-					Data: []any{
-						item.Name,
-						fmt.Sprintf("%s, %s", item.UserName, item.UserNickname),
-						item.GitName,
-						item.RepoUrl,
-						item.Branch,
-						item.ServerName,
-						item.Script,
-					},
-				}
-			}
-			data.Data = data2
-		}
-		return page, data, err
+		page, err := db.Page[typ.Record](pageReq, "SELECT r.id, IFNULL(i.`name`, '') AS 'item_name', r.build_env_id, IFNULL(be.value, '') AS 'build_env_value', r.pull_stime, r.pull_etime, r.pull_status, IFNULL(r.pull_rem, '') AS 'pull_rem', r.commit_id, IFNULL(r.rev_msg, '') AS 'rev_msg', r.build_stime, r.build_etime, r.build_status, IFNULL(r.build_rem, '') AS 'build_rem', r.pack_stime, r.pack_etime, r.pack_status, IFNULL(r.pack_rem, '') AS 'pack_rem', r.ul_stime, r.ul_etime, r.ul_status, IFNULL(r.ul_rem, '') AS 'ul_rem', r.unpack_stime, r.unpack_etime, r.unpack_status, IFNULL(r.unpack_rem, '') AS 'unpack_rem', r.deploy_stime, r.deploy_etime, r.deploy_status, IFNULL(r.deploy_rem, '') AS 'deploy_rem', r.`status`, IFNULL(r.rem, '') AS 'rem', r.del_flag, r.add_time, r.upd_time FROM record r LEFT JOIN build_env be ON be.id = r.build_env_id LEFT JOIN item i ON r.id = r.item_id GROUP BY r.id")
+		return page, Data{}, err
 	}
 
 	return typ.Page[any]{}, Data{}, nil
