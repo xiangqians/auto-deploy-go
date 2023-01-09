@@ -92,9 +92,9 @@ func IndexAdminPage(pContext *gin.Context) {
 }
 
 type Data struct {
-	Title     []string // 标题
-	TdColspan int      // <td></td> colspan
-	Data      []Data2  // 数据
+	Title   []string // 标题
+	Colspan int      // <td></td> colspan
+	Data    []Data2  // 数据
 }
 
 type Data2 struct {
@@ -109,9 +109,9 @@ func Page(pageReq typ.PageReq, tableName string) (any, Data, error) {
 		page, err := db.Page[typ.User](pageReq, "SELECT u.id, u.`name`, u.nickname, u.rem, u.del_flag, u.add_time, u.upd_time FROM `user` u")
 		data := Data{}
 		// title
-		data.Title = []string{"i18n.user", "i18n.nickname"}
+		data.Title = []string{"i18n.user", "i18n.nickname", "i18n.passwd"}
 		// <td></td> colspan
-		data.TdColspan = 7 + len(data.Title)
+		data.Colspan = 7 + len(data.Title)
 		// data
 		if page.Data != nil && len(page.Data) > 0 {
 			data2 := make([]Data2, len(page.Data))
@@ -119,7 +119,7 @@ func Page(pageReq typ.PageReq, tableName string) (any, Data, error) {
 				data2[i] = Data2{
 					Abs:  user.Abs,
 					Name: user.Name,
-					Data: []any{user.Name, user.Nickname},
+					Data: []any{user.Name, user.Nickname, "******"},
 				}
 			}
 			data.Data = data2
@@ -132,12 +132,13 @@ func Page(pageReq typ.PageReq, tableName string) (any, Data, error) {
 		// title
 		data.Title = []string{
 			"i18n.name",
-			"i18n.owner", "i18n.sharer",
+			"i18n.owner",
+			"i18n.sharer",
 			"i18n.shareItemCount",
 			"i18n.shareItemNames",
 		}
 		// <td></td> colspan
-		data.TdColspan = 7 + len(data.Title)
+		data.Colspan = 7 + len(data.Title)
 		// data
 		if page.Data != nil && len(page.Data) > 0 {
 			data2 := make([]Data2, len(page.Data))
@@ -145,7 +146,8 @@ func Page(pageReq typ.PageReq, tableName string) (any, Data, error) {
 				data2[i] = Data2{
 					Abs:  rx.Abs,
 					Name: rx.Name,
-					Data: []any{rx.Name,
+					Data: []any{
+						rx.Name,
 						fmt.Sprintf("%s, %s", rx.OwnerName, rx.OwnerNickname),
 						fmt.Sprintf("%s, %s", rx.SharerName, rx.SharerNickname),
 						rx.ShareItemCount,
@@ -158,6 +160,36 @@ func Page(pageReq typ.PageReq, tableName string) (any, Data, error) {
 		return page, data, err
 
 	case GitTableName:
+		page, err := db.Page[typ.Git](pageReq, "SELECT g.id, IFNULL(u.`name`, '') AS 'user_name', IFNULL(u.nickname, '') AS 'user_nickname', g.`name`, g.`user`, g.rem, g.del_flag, g.add_time, g.upd_time FROM git g LEFT JOIN user u ON u.id = g.user_id GROUP BY g.id")
+		data := Data{}
+		// title
+		data.Title = []string{
+			"i18n.name",
+			"i18n.owner",
+			"i18n.user",
+			"i18n.passwd",
+		}
+		// <td></td> colspan
+		data.Colspan = 7 + len(data.Title)
+		// data
+		if page.Data != nil && len(page.Data) > 0 {
+			data2 := make([]Data2, len(page.Data))
+			for i, git := range page.Data {
+				data2[i] = Data2{
+					Abs:  git.Abs,
+					Name: git.Name,
+					Data: []any{
+						git.Name,
+						fmt.Sprintf("%s, %s", git.UserName, git.UserNickname),
+						git.User,
+						"******",
+					},
+				}
+			}
+			data.Data = data2
+		}
+		return page, data, err
+
 	case ServerTableName:
 	case ItemTableName:
 	case RecordTableName:

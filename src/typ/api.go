@@ -21,6 +21,10 @@ type Git struct {
 	Name   string `form:"name" binding:"required,min=1,max=60"`    // 名称
 	User   string `form:"user" binding:"required,min=1,max=60"`    // 用户
 	Passwd string `form:"passwd" binding:"required,min=1,max=100"` // 密码
+
+	//
+	UserName     string // 用户名
+	UserNickname string // 用户昵称
 }
 
 // Item 项目

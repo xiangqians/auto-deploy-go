@@ -30,6 +30,9 @@ func Page[T any](pageReq typ.PageReq, sql string, args ...any) (typ.Page[T], err
 	// total
 	var total int64
 	_sql := fmt.Sprintf("SELECT COUNT(1) %s", sql[strings.Index(sql, "FROM"):])
+	if strings.Contains(_sql, "GROUP BY") {
+		_sql = fmt.Sprintf("SELECT COUNT(1) FROM (%s) r", _sql)
+	}
 	_, err := Qry(&total, _sql, args...)
 	if err != nil {
 		return page, err

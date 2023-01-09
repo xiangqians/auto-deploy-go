@@ -26,7 +26,7 @@
         {{ end }}
     </select>
     <p style="color: red;">{{ .message }}</p>
-    {{ Put . "tdColspan" .data.TdColspan }}
+    {{ Put . "colspan" .data.Colspan }}
     {{ Put . "pageUrl" "/" }}
     <table border="1" cellspacing="0" cellpadding="10" align="center">
         <thead>
@@ -96,7 +96,7 @@
         {{ end }}
         {{ else }}
         <tr>
-            <td colspan="{{ .tdColspan }}">{{ Localize "i18n.noData" }}</td>
+            <td colspan="{{ .colspan }}">{{ Localize "i18n.noData" }}</td>
         </tr>
         {{ end }}
         </tbody>
