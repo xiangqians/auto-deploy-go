@@ -60,12 +60,22 @@
             <!-- 差异部分 -->
             {{ if $value.Data }}
             {{ range $index,$value := $value.Data }}
+            {{ $len := Length $value }}
+            {{ if gt $len 100 }}
+            <td title="{{ $value }}"> {{ SubString $value 0 100 "..." }}</td>
+            {{ else }}
             <td>{{ $value }}</td>
+            {{ end }}
             {{ end }}
             {{ end }}
 
             <!-- 公共部分 -->
+            {{ $len := Length $value.Rem }}
+            {{ if gt $len 100 }}
+            <td title="{{ $value.Rem }}"> {{ SubString $value.Rem 0 100 "..." }}</td>
+            {{ else }}
             <td>{{ $value.Rem }}</td>
+            {{ end }}
             {{ if eq $value.DelFlag 0 }}
             <td style="color: green">{{ Localize "i18n.no" }}</td>
             {{ else }}

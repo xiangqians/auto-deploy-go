@@ -139,6 +139,20 @@ func intHtmlTemplate(pEngine *gin.Engine) {
 			return api.IsAdminUser(nil, user)
 		},
 
+		"Length": func(i any) int {
+			if v, r := i.(string); r {
+				return len(v)
+			}
+			return 0
+		},
+
+		"SubString": func(str string, start, end int, fill string) string {
+			if start >= 0 && start <= end && end <= len(str) {
+				return str[start:end] + fill
+			}
+			return ""
+		},
+
 		//"Template": func(name string) string {
 		//	var data any = nil
 		//	re := pEngine.HTMLRender.Instance(name, data)
