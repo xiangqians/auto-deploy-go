@@ -73,6 +73,11 @@ func intHtmlTemplate(pEngine *gin.Engine) {
 		},
 
 		// +1
+		"No": func(current int64, size uint8, i any) int64 {
+			return Add(i, (current-1)*int64(size)) + 1
+		},
+
+		// +1
 		"Add1": func(i any) int64 {
 			return Add(i, 1)
 		},
