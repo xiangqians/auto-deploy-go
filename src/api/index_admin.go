@@ -191,6 +191,40 @@ func Page(pageReq typ.PageReq, tableName string) (any, Data, error) {
 		return page, data, err
 
 	case ServerTableName:
+		page, err := db.Page[typ.Server](pageReq, "SELECT s.id, IFNULL(u.`name`, '') AS 'user_name', IFNULL(u.nickname, '') AS 'user_nickname', s.`name`, s.`host`, s.`port`, s.`user`, s.rem, s.del_flag, s.add_time, s.upd_time FROM server s LEFT JOIN user u ON u.id = s.user_id GROUP BY s.id")
+		data := Data{}
+		// title
+		data.Title = []string{
+			"i18n.name",
+			"i18n.owner",
+			"i18n.host",
+			"i18n.port",
+			"i18n.user",
+			"i18n.passwd",
+		}
+		// <td></td> colspan
+		data.Colspan = 7 + len(data.Title)
+		// data
+		if page.Data != nil && len(page.Data) > 0 {
+			data2 := make([]Data2, len(page.Data))
+			for i, server := range page.Data {
+				data2[i] = Data2{
+					Abs:  server.Abs,
+					Name: server.Name,
+					Data: []any{
+						server.Name,
+						fmt.Sprintf("%s, %s", server.UserName, server.UserNickname),
+						server.Host,
+						server.Port,
+						server.User,
+						"******",
+					},
+				}
+			}
+			data.Data = data2
+		}
+		return page, data, err
+
 	case ItemTableName:
 	case RecordTableName:
 	}
