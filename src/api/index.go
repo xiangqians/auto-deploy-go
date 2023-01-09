@@ -13,12 +13,12 @@ import (
 	"github.com/gin-contrib/i18n"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
-	"log"
 	"net/http"
 	"strconv"
 	"time"
 )
 
+// itemIdMap chanel
 var _itemIdMap map[int64]int8
 var itemIdMapChan chan map[int64]int8
 
@@ -35,34 +35,38 @@ func IndexPage(pContext *gin.Context) {
 		return
 	}
 
-	html := func(page typ.Page[typ.Record], status any, message any) {
+	html := func(page typ.Page[typ.Record], message any) {
+		if v, r := message.(error); r {
+			message = v.Error()
+		}
 		pContext.HTML(http.StatusOK, "index.html", gin.H{
 			"user":    GetUser(pContext),
 			"page":    page,
-			"status":  status, // 非0表示异常
-			"message": message,
+			"message": message, // 没有消息就是最好的消息
 		})
 	}
 
 	pageReq := typ.PageReq{Current: 1, Size: 2}
 	err := ShouldBind(pContext, &pageReq)
 	if err != nil {
-		html(typ.Page[typ.Record]{}, 1, err.Error())
+		html(typ.Page[typ.Record]{}, err)
 		return
 	}
 
 	session := sessions.Default(pContext)
-	status := session.Get("status")
 	message := session.Get("message")
-	session.Delete("status")
 	session.Delete("message")
 	session.Save()
 
-	page, err := ItemLastRecordPage(pContext, pageReq, 0)
+	page, err := LastRecordPage(pContext, pageReq, 0)
 	if err != nil {
-		log.Println(err)
+		if message != nil {
+			message = fmt.Sprintf("%v, %s", message, err)
+		} else {
+			message = err
+		}
 	}
-	html(page, status, message)
+	html(page, message)
 	return
 }
 
@@ -89,7 +93,7 @@ func Deploy(pContext *gin.Context) {
 	}
 
 	// itemLastRecords
-	page, err := ItemLastRecordPage(pContext, typ.PageReq{Current: 1, Size: 10}, itemId)
+	page, err := LastRecordPage(pContext, typ.PageReq{Current: 1, Size: 10}, itemId)
 	if err != nil {
 		redirect(1, err.Error())
 		return
@@ -226,7 +230,7 @@ func asynDeploy(item typ.Item, recordId int64) {
 	updRecord(nil)
 }
 
-func ItemLastRecordPage(pContext *gin.Context, pageReq typ.PageReq, itemId int64) (typ.Page[typ.Record], error) {
+func LastRecordPage(pContext *gin.Context, pageReq typ.PageReq, itemId int64) (typ.Page[typ.Record], error) {
 	user := GetUser(pContext)
 	sql := "SELECT IFNULL(r.id, 0) AS 'id', i.id AS 'item_id', i.`name` AS 'item_name', i.rem AS 'item_rem', " +
 		"IFNULL(r.pull_stime, 0) AS 'pull_stime', IFNULL(r.pull_etime, 0) AS 'pull_etime', IFNULL(r.pull_status, 0) AS 'pull_status', IFNULL(r.pull_rem, '') AS 'pull_rem', " +

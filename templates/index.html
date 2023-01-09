@@ -19,9 +19,11 @@
 {{ template "com/header.html" . }}
 
 <content>
-    <p style="{{ if ne .status 0 }}color: red;{{ end }}">{{ .message }}</p>
     {{ Put . "pageUrl" "/" }}
     {{ Put . "colspan" 6 }}
+
+    <!-- 没有消息就是最好的消息 -->
+    <p style="color: red;">{{ .message }}</p>
     <table border="1" cellspacing="0" cellpadding="10" align="center">
         <thead>
         <tr>
