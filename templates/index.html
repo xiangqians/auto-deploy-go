@@ -20,6 +20,8 @@
 
 <content>
     <p style="{{ if ne .status 0 }}color: red;{{ end }}">{{ .message }}</p>
+    {{ Put . "pageUrl" "/" }}
+    {{ Put . "colspan" 6 }}
     <table border="1" cellspacing="0" cellpadding="10" align="center">
         <thead>
         <tr>
@@ -32,8 +34,8 @@
         </tr>
         </thead>
         <tbody>
-        {{ if .itemLastRecords }}
-        {{ range $index,$value := .itemLastRecords }}
+        {{ if .page }}
+        {{ range $index,$value := .page.Data }}
         <tr>
             <td>{{ Add1 $index }}</td>
             <td title="{{ $value.ItemRem }}"><a href="javascript:void(0);">{{ $value.ItemName }}</a></td>
@@ -71,10 +73,11 @@
         {{ end }}
         {{ else }}
         <tr>
-            <td colspan="6">{{ Localize "i18n.noData" }}</td>
+            <td colspan="{{ .colspan }}">{{ Localize "i18n.noData" }}</td>
         </tr>
         {{ end }}
         </tbody>
+        {{ template "com/table_tfoot.html" . }}
     </table>
 </content>
 

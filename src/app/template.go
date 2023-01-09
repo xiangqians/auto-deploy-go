@@ -101,7 +101,7 @@ func intHtmlTemplate(pEngine *gin.Engine) {
 			}
 		},
 
-		"ItemTime": func(itemLastRecord typ.ItemLastRecord) string {
+		"ItemTime": func(record typ.Record) string {
 			unixDiff := func(stime, etime int64, status byte) int64 {
 				if stime == 0 {
 					return 0
@@ -116,17 +116,17 @@ func intHtmlTemplate(pEngine *gin.Engine) {
 			var r int64 = 0
 
 			// pull
-			r += unixDiff(itemLastRecord.PullStime, itemLastRecord.PullEtime, itemLastRecord.PullStatus)
+			r += unixDiff(record.PullStime, record.PullEtime, record.PullStatus)
 			// build
-			r += unixDiff(itemLastRecord.BuildStime, itemLastRecord.BuildEtime, itemLastRecord.BuildStatus)
+			r += unixDiff(record.BuildStime, record.BuildEtime, record.BuildStatus)
 			// pack
-			r += unixDiff(itemLastRecord.PackStime, itemLastRecord.PackEtime, itemLastRecord.PackStatus)
+			r += unixDiff(record.PackStime, record.PackEtime, record.PackStatus)
 			// ul
-			r += unixDiff(itemLastRecord.UlStime, itemLastRecord.UlEtime, itemLastRecord.UlStatus)
+			r += unixDiff(record.UlStime, record.UlEtime, record.UlStatus)
 			// unpack
-			r += unixDiff(itemLastRecord.UnpackStime, itemLastRecord.UnpackEtime, itemLastRecord.UnpackStatus)
+			r += unixDiff(record.UnpackStime, record.UnpackEtime, record.UnpackStatus)
 			// deploy
-			r += unixDiff(itemLastRecord.DeployStime, itemLastRecord.DeployEtime, itemLastRecord.DeployStatus)
+			r += unixDiff(record.DeployStime, record.DeployEtime, record.DeployStatus)
 			return fmt.Sprintf("%ss", strconv.FormatInt(r, 10))
 		},
 

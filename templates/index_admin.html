@@ -54,7 +54,7 @@
             <td>{{ Add1 $index }}</td>
             <td title="{{ $value.RevMsg }}">{{ $value.ItemName }}</td>
             <td>{{ $value.BuildEnvValue }}</td>
-            <td title="{{ $value }}">
+            <td title="{{ ItemTime $value }}">
             <span style="padding-left: 10px; {{ if gt $value.PullStatus 0 }}color: red;{{ else }}{{ if gt $value.PullStime 0 }}{{ if eq $value.PullEtime 0 }}color: blue;{{ end }}{{ end }}{{ end }}"
                   title="{{ $value.PullRem }}">{{ Localize "i18n.pull" }} ({{ UnixDiff $value.PullStime $value.PullEtime }})</span>
                 →

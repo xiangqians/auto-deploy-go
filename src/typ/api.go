@@ -134,42 +134,6 @@ type Record struct {
 	Status        byte // status
 }
 
-type ItemLastRecord struct {
-	Id           int64
-	ItemId       int64
-	ItemName     string // item
-	ItemRem      string
-	PullStime    int64 // pull
-	PullEtime    int64
-	PullStatus   byte
-	PullRem      string
-	CommitId     string // commitId
-	RevMsg       string // revMsg
-	BuildStime   int64  // build
-	BuildEtime   int64
-	BuildStatus  byte
-	BuildRem     string
-	PackStime    int64 // pack
-	PackEtime    int64
-	PackStatus   byte
-	PackRem      string
-	UlStime      int64 // ul
-	UlEtime      int64
-	UlStatus     byte
-	UlRem        string
-	UnpackStime  int64 // unpack
-	UnpackEtime  int64
-	UnpackStatus byte
-	UnpackRem    string
-	DeployStime  int64 // deploy
-	DeployEtime  int64
-	DeployStatus byte
-	DeployRem    string
-	Status       byte   // status
-	Rem          string // Rem
-	AddTime      int64  // AddTime
-}
-
 const (
 	StatusInDeploy      byte = iota + 1 // 部署中
 	StatusDeployExc                     // 部署异常
@@ -207,7 +171,7 @@ func init() {
 	gob.Register(Rx{})
 	gob.Register(Server{})
 	gob.Register(User{})
-	gob.Register(ItemLastRecord{})
+	gob.Register(Record{})
 	gob.Register(BuildEnv{})
 	gob.Register(PageReq{})
 }

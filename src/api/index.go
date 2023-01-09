@@ -35,18 +35,35 @@ func IndexPage(pContext *gin.Context) {
 		return
 	}
 
+	html := func(page typ.Page[typ.Record], status any, message any) {
+		pContext.HTML(http.StatusOK, "index.html", gin.H{
+			"user":    GetUser(pContext),
+			"page":    page,
+			"status":  status, // 非0表示异常
+			"message": message,
+		})
+	}
+
+	pageReq := typ.PageReq{Current: 1, Size: 10}
+	err := ShouldBind(pContext, &pageReq)
+	if err != nil {
+		html(typ.Page[typ.Record]{}, 1, err.Error())
+		return
+	}
+
 	session := sessions.Default(pContext)
 	status := session.Get("status")
 	message := session.Get("message")
 	session.Delete("status")
 	session.Delete("message")
 	session.Save()
-	pContext.HTML(http.StatusOK, "index.html", gin.H{
-		"user":            GetUser(pContext),
-		"itemLastRecords": getItemLastRecords(pContext, 0),
-		"status":          status, // 非0表示异常
-		"message":         message,
-	})
+
+	page, err := ItemLastRecordPage(pContext, pageReq, 0)
+	if err != nil {
+		log.Println(err)
+	}
+	html(page, status, message)
+	return
 }
 
 func Deploy(pContext *gin.Context) {
@@ -72,8 +89,12 @@ func Deploy(pContext *gin.Context) {
 	}
 
 	// itemLastRecords
-	itemLastRecords := getItemLastRecords(pContext, itemId)
-	if itemLastRecords == nil {
+	page, err := ItemLastRecordPage(pContext, typ.PageReq{Current: 1, Size: 10}, itemId)
+	if err != nil {
+		redirect(1, err.Error())
+		return
+	}
+	if page.Data == nil {
 		redirect(1, i18n.MustGetMessage("i18n.itemNotExist"))
 		return
 	}
@@ -205,8 +226,7 @@ func asynDeploy(item typ.Item, recordId int64) {
 	updRecord(nil)
 }
 
-func getItemLastRecords(pContext *gin.Context, itemId int64) []typ.ItemLastRecord {
-	itemLastRecords := make([]typ.ItemLastRecord, 1)
+func ItemLastRecordPage(pContext *gin.Context, pageReq typ.PageReq, itemId int64) (typ.Page[typ.Record], error) {
 	user := GetUser(pContext)
 	sql := "SELECT IFNULL(r.id, 0) AS 'id', i.id AS 'item_id', i.`name` AS 'item_name', i.rem AS 'item_rem', " +
 		"IFNULL(r.pull_stime, 0) AS 'pull_stime', IFNULL(r.pull_etime, 0) AS 'pull_etime', IFNULL(r.pull_status, 0) AS 'pull_status', IFNULL(r.pull_rem, '') AS 'pull_rem', " +
@@ -230,15 +250,5 @@ func getItemLastRecords(pContext *gin.Context, itemId int64) []typ.ItemLastRecor
 		sql += fmt.Sprintf("AND i.id = %v ", strconv.FormatInt(itemId, 10))
 	}
 	sql += "GROUP BY i.id, r.id HAVING COUNT(rt.id) < 1"
-	_, err := db.Qry(&itemLastRecords, sql)
-	if err != nil {
-		log.Println(err)
-		return nil
-	}
-
-	if itemLastRecords[0].ItemId == 0 {
-		itemLastRecords = nil
-	}
-
-	return itemLastRecords
+	return db.Page[typ.Record](pageReq, sql)
 }
