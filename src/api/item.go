@@ -51,7 +51,7 @@ func ItemAddPage(pContext *gin.Context) {
 
 	pContext.HTML(http.StatusOK, "item/add.html", gin.H{
 		"gits":    nil, //  Gits(pContext),
-		"servers": Servers(pContext),
+		"servers": nil, //Servers(pContext),
 		"item":    item,
 		"message": message,
 	})
