@@ -1,47 +1,43 @@
 <!--
  | @author xiangqian
- | @date 18:46 2022/12/18
+ | @date 23:32 2023/01/10
  |-->
 <!DOCTYPE html>
-<!-- 声明url变量 -->
-{{ $url := "/" }}
-<!-- url -->
-{{ Put . "url" "/" }}
-<html lang="en" url="{{ .url }}">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <link rel="shortcut icon" rel="external nofollow" href="/static/favicon.ico">
     <link rel="stylesheet" href="/static/custom/min.css" type="text/css"/>
-    <title>{{ Localize "i18n.index" }}</title>
+    <title>{{ Localize "i18n.record" }}</title>
 </head>
 <body>
 
-{{ template "com/header.html" . }}
-
 <content>
-    {{ Put . "pageUrl" "/" }}
+    {{ Put . "pageUrl" "/record/index" }}
     {{ Put . "colspan" 6 }}
-
-    <!-- 没有消息就是最好的消息 -->
     <p style="color: red;">{{ .message }}</p>
     <table border="1" cellspacing="0" cellpadding="10" align="center">
         <thead>
         <tr>
             <td>{{ Localize "i18n.no." }}</td>
             <td>{{ Localize "i18n.name" }}</td>
+            <td>{{ Localize "i18n.buildEnv" }}</td>
             <td>{{ Localize "i18n.step" }}</td>
-            <td>{{ Localize "i18n.lastDeployTime" }}</td>
             <td>{{ Localize "i18n.status" }}</td>
-            <td colspan="1">{{ Localize "i18n.op" }}</td>
+            <td>{{ Localize "i18n.rem" }}</td>
+            <td>{{ Localize "i18n.del" }}</td>
+            <td>{{ Localize "i18n.addTime" }}</td>
+            <td>{{ Localize "i18n.updTime" }}</td>
+            <td colspan="2">{{ Localize "i18n.op" }}</td>
         </tr>
         </thead>
         <tbody>
-        {{ $dataLen := len .page.Data }}
-        {{ if gt $dataLen 0 }}
+        {{ if .page.Data }}
         {{ range $index,$value := .page.Data }}
         <tr>
             <td>{{ No $.page.Current $.page.Size $index }}</td>
-            <td title="{{ $value.ItemRem }}"><a href="/record/index?itemId={{ $value.ItemId }}">{{ $value.ItemName }}</a></td>
+            <td title="{{ $value.RevMsg }}">{{ $value.ItemName }}</td>
+            <td>{{ $value.BuildEnvValue }}</td>
             <td title="{{ ItemTime $value }}">
             <span style="padding-left: 10px; {{ if gt $value.PullStatus 0 }}color: red;{{ else }}{{ if gt $value.PullStime 0 }}{{ if eq $value.PullEtime 0 }}color: blue;{{ end }}{{ end }}{{ end }}"
                   title="{{ $value.PullRem }}">{{ Localize "i18n.pull" }} ({{ UnixDiff $value.PullStime $value.PullEtime }})</span>
@@ -61,22 +57,48 @@
                 <span style="padding-left: 10px; {{ if gt $value.DeployStatus 0 }}color: red;{{ else }}{{ if gt $value.DeployStime 0 }}{{ if eq $value.DeployEtime 0 }}color: blue;{{ end }}{{ end }}{{ end }}"
                       title="{{ $value.DeployRem }}">{{ Localize "i18n.deploy" }} ({{ UnixDiff $value.DeployStime $value.DeployEtime }})</span>
             </td>
-            <td title="{{ $value.RevMsg }}">{{ UnixToTime $value.AddTime }}</td>
             <td title="{{ $value.Rem }}"
                 style="{{ if eq $value.Status 1 }}color: blue;{{ else }}{{ if eq $value.Status 2 }}color: red;{{ else }}{{ if eq $value.Status 3 }}color: green;{{ end }}{{ end }}{{ end }}">
                 {{ DeployStatusText $value.Status }}
             </td>
+            <!-- 公共部分 -->
+            {{ $len := Length $value.Rem }}
+            {{ if gt $len 100 }}
+            <td title="{{ $value.Rem }}"> {{ SubString $value.Rem 0 100 "..." }}</td>
+            {{ else }}
+            <td>{{ $value.Rem }}</td>
+            {{ end }}
+            {{ if eq $value.DelFlag 0 }}
+            <td style="color: green">{{ Localize "i18n.no" }}</td>
+            {{ else }}
+            <td style="color: red">{{ Localize "i18n.yes" }}</td>
+            {{ end }}
+            <td>{{ UnixToTime $value.AddTime }}</td>
+            <td>{{ UnixToTime $value.UpdTime }}</td>
             <td>
-                <a href="/deploy/{{ $value.ItemId }}" method="POST"
-                   confirm='{{ Localize "i18n.deploy" }} {{ $value.ItemName }}?'>
-                    <button>{{ Localize "i18n.deploy" }}</button>
+                {{ if eq $value.DelFlag 0 }}
+                <a href="/t/{{ $value.Id }}/del" method="DELETE"
+                   confirm='{{ Localize "i18n.del" }} {{ $value.ItemName }}, {{ $value.AddTime }}?'>
+                    <button>{{ Localize "i18n.del" }}</button>
+                </a>
+                {{ else }}
+                <a href="/t/{{ $value.Id }}/restore" method="PUT"
+                   confirm='{{ Localize "i18n.restore" }} {{ $value.ItemName }}, {{ $value.AddTime }}?'>
+                    <button>{{ Localize "i18n.restore" }}</button>
+                </a>
+                {{ end }}
+            </td>
+            <td>
+                <a href="/t/{{ $value.Id }}/permanentlyDel" method="DELETE"
+                   confirm='{{ Localize "i18n.permanentlyDel" }} {{ $value.ItemName }}, {{ $value.AddTime }}?'>
+                    <button>{{ Localize "i18n.permanentlyDel" }}</button>
                 </a>
             </td>
         </tr>
         {{ end }}
         {{ else }}
         <tr>
-            <td colspan="{{ .colspan }}">{{ Localize "i18n.noData" }}</td>
+            <td colspan="6">{{ Localize "i18n.noData" }}</td>
         </tr>
         {{ end }}
         </tbody>

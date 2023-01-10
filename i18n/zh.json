@@ -103,5 +103,6 @@
   "i18n.gitTable": "Git信息表",
   "i18n.serverTable": "服务器信息表",
   "i18n.itemTable": "项目信息表",
-  "i18n.recordTable": "部署记录信息表"
+  "i18n.recordTable": "部署记录信息表",
+  "i18n.record": "部署记录"
 }

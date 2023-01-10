@@ -86,6 +86,12 @@ func initRoute(pEngine *gin.Engine) {
 	pEngine.PUT("/rx", api.RxUpd)
 	pEngine.DELETE("/rx/:id", api.RxDel)
 
+	// record
+	recordRouterGroup := pEngine.Group("/record")
+	{
+		recordRouterGroup.Any("/index", api.RecordIndex)
+	}
+
 	// setting
 	settingRouterGroup := pEngine.Group("/setting")
 	{

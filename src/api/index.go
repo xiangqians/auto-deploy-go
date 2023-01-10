@@ -136,7 +136,7 @@ func Deploy(pContext *gin.Context) {
 	}
 
 	// add record
-	recordId, err := db.Add("INSERT INTO record(build_env_id, item_id, `status`, `add_time`) VALUES(?, ?, ?)", 0, itemId, typ.StatusInDeploy, time.Now().Unix())
+	recordId, err := db.Add("INSERT INTO record(build_env_id, item_id, `status`, `add_time`) VALUES(?, ?, ?, ?)", 0, itemId, typ.StatusInDeploy, time.Now().Unix())
 	if err != nil {
 		redirect(1, err.Error())
 		return

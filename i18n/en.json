@@ -103,5 +103,6 @@
   "i18n.gitTable": "Git Table",
   "i18n.serverTable": "Server Table",
   "i18n.itemTable": "Item Table",
-  "i18n.recordTable": "Record Table"
+  "i18n.recordTable": "Record Table",
+  "i18n.record": "Record"
 }
