@@ -16,14 +16,9 @@ import (
 )
 
 func ItemIndex(pContext *gin.Context) {
-	session := sessions.Default(pContext)
-	message := session.Get("message")
-	session.Delete("message")
-	session.Save()
-	pContext.HTML(http.StatusOK, "item/index.html", gin.H{
-		"user":    GetUser(pContext),
-		"items":   Items(pContext, ""),
-		"message": message,
+	HtmlPage(pContext, "item/index.html", func(pContext *gin.Context, pageReq typ.PageReq) (any, gin.H, error) {
+		page, err := PageItem(pContext, pageReq, "")
+		return page, nil, err
 	})
 }
 
@@ -49,60 +44,65 @@ func ItemAddPage(pContext *gin.Context) {
 		item = _item
 	}
 
+	gitPage, _ := PageGit(pContext, typ.PageReq{Current: 1, Size: 100})
+	serverPage, _ := PageServer(pContext, typ.PageReq{Current: 1, Size: 100})
 	pContext.HTML(http.StatusOK, "item/add.html", gin.H{
-		"gits":    nil, //  Gits(pContext),
-		"servers": nil, //Servers(pContext),
+		"gits":    gitPage.Data,
+		"servers": serverPage.Data,
 		"item":    item,
 		"message": message,
 	})
 }
 
 func ItemAdd(pContext *gin.Context) {
-	item, err := itemPreAddOrUpd(pContext)
-	if err != nil {
-		return
-	}
-
-	user := GetUser(pContext)
-	db.Add("INSERT INTO `item` (`user_id`, `name`, `git_id`, `repo_url`, `branch`, `server_id`, `script`, `rem`, `add_time`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-		user.Id, item.Name, item.GitId, item.RepoUrl, item.Branch, item.ServerId, item.Script, item.Rem, time.Now().Unix())
-	pContext.Redirect(http.StatusMovedPermanently, "/item/index")
+	ItemAddOrUpd(pContext)
 }
 
 func ItemUpd(pContext *gin.Context) {
-	item, err := itemPreAddOrUpd(pContext)
+	ItemAddOrUpd(pContext)
+}
+
+func ItemAddOrUpd(pContext *gin.Context) {
+	redirect := func(item typ.Item, message any) {
+		Redirect(pContext, "/item/addpage", message, map[string]any{"item": item})
+	}
+
+	item := typ.Item{}
+	err := ShouldBind(pContext, &item)
 	if err != nil {
+		redirect(item, err)
 		return
 	}
 
 	user := GetUser(pContext)
-	db.Upd("UPDATE `item` SET `name` = ?, `git_id` = ?, `repo_url` = ?, `branch` = ?, `server_id` = ?, `script` = ?, `rem` = ?, upd_time = ? WHERE del_flag = 0 AND user_id = ? AND id = ?",
-		item.Name, item.GitId, item.RepoUrl, item.Branch, item.ServerId, item.Script, item.Rem, time.Now().Unix(), user.Id, item.Id)
-	pContext.Redirect(http.StatusMovedPermanently, "/item/index")
+	if pContext.Request.Method == http.MethodPost {
+		_, err = db.Add("INSERT INTO `item` (`user_id`, `name`, `git_id`, `repo_url`, `branch`, `server_id`, `script`, `rem`, `add_time`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+			user.Id, item.Name, item.GitId, item.RepoUrl, item.Branch, item.ServerId, item.Script, item.Rem, time.Now().Unix())
+	} else if pContext.Request.Method == http.MethodPut {
+		_, err = db.Upd("UPDATE `item` SET `name` = ?, `git_id` = ?, `repo_url` = ?, `branch` = ?, `server_id` = ?, `script` = ?, `rem` = ?, upd_time = ? WHERE del_flag = 0 AND user_id = ? AND id = ?",
+			item.Name, item.GitId, item.RepoUrl, item.Branch, item.ServerId, item.Script, item.Rem, time.Now().Unix(), user.Id, item.Id)
+	}
+
+	Redirect(pContext, "/item/index", err, nil)
+	return
 }
 
 func ItemDel(pContext *gin.Context) {
+	redirect := func(message any) {
+		Redirect(pContext, "/item/index", message, nil)
+	}
+
 	idStr := pContext.Param("id")
 	id, err := strconv.ParseInt(idStr, 10, 64)
-	if err == nil {
-		user := GetUser(pContext)
-		db.Del("UPDATE item SET del_flag = 1, upd_time = ? WHERE user_id = ? AND id = ?", time.Now().Unix(), user.Id, id)
-	}
-	pContext.Redirect(http.StatusMovedPermanently, "/item/index")
-}
-
-func itemPreAddOrUpd(pContext *gin.Context) (typ.Item, error) {
-	item := typ.Item{}
-	err := ShouldBind(pContext, &item)
-	if err != nil {
-		session := sessions.Default(pContext)
-		session.Set("item", item)
-		session.Set("message", err.Error())
-		session.Save()
-		pContext.Redirect(http.StatusMovedPermanently, "/item/addpage")
+	if err != nil || id <= 0 {
+		redirect(err)
+		return
 	}
 
-	return item, err
+	user := GetUser(pContext)
+	db.Del("UPDATE item SET del_flag = 1, upd_time = ? WHERE user_id = ? AND id = ?", time.Now().Unix(), user.Id, id)
+	redirect(nil)
+	return
 }
 
 func Item(pContext *gin.Context, id int64) (typ.Item, error) {
@@ -112,25 +112,12 @@ func Item(pContext *gin.Context, id int64) (typ.Item, error) {
 	return item, err
 }
 
-func Items(pContext *gin.Context, notLikeIds string) []typ.Item {
+func PageItem(pContext *gin.Context, pageReq typ.PageReq, notLikeIds string) (typ.Page[typ.Item], error) {
 	user := GetUser(pContext)
-	items := make([]typ.Item, 1)
-
 	sql := "SELECT i.id, i.`name`, i.git_id, IFNULL(g.`name`, '') AS 'git_name', i.repo_url, i.branch, i.server_id, IFNULL(s.`name`, '') AS 'server_name', i.rem, i.add_time, i.upd_time FROM item i LEFT JOIN git g ON g.del_flag = 0 AND g.id = i.git_id LEFT JOIN server s ON s.del_flag = 0 AND s.id = i.server_id WHERE i.del_flag = 0 AND i.user_id = ? "
 	if notLikeIds != "" {
 		sql += fmt.Sprintf("AND ',%s,' NOT LIKE ('%%,' || i.id || ',%%') ", notLikeIds)
 	}
 	sql += "GROUP BY i.id"
-
-	_, err := db.Qry(&items, sql, user.Id)
-	if err != nil {
-		log.Println(err)
-		return nil
-	}
-
-	if items[0].Id == 0 {
-		items = nil
-	}
-
-	return items
+	return db.Page[typ.Item](pageReq, sql, user.Id)
 }

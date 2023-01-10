@@ -51,14 +51,14 @@ func ServerAddPage(pContext *gin.Context) {
 }
 
 func ServerAdd(pContext *gin.Context) {
-	ServerPreAddOrUpd(pContext)
+	ServerAddOrUpd(pContext)
 }
 
 func ServerUpd(pContext *gin.Context) {
-	ServerPreAddOrUpd(pContext)
+	ServerAddOrUpd(pContext)
 }
 
-func ServerPreAddOrUpd(pContext *gin.Context) {
+func ServerAddOrUpd(pContext *gin.Context) {
 	redirect := func(server typ.Server, message any) {
 		Redirect(pContext, "/server/addpage", message, map[string]any{"server": server})
 	}

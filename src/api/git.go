@@ -51,14 +51,14 @@ func GitAddPage(pContext *gin.Context) {
 }
 
 func GitAdd(pContext *gin.Context) {
-	GitPreAddOrUpd(pContext)
+	GitAddOrUpd(pContext)
 }
 
 func GitUpd(pContext *gin.Context) {
-	GitPreAddOrUpd(pContext)
+	GitAddOrUpd(pContext)
 }
 
-func GitPreAddOrUpd(pContext *gin.Context) {
+func GitAddOrUpd(pContext *gin.Context) {
 	redirect := func(git typ.Git, message any) {
 		Redirect(pContext, "/git/addpage", message, map[string]any{"git": git})
 	}

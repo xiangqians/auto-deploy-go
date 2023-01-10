@@ -55,14 +55,14 @@ func RxAddPage(pContext *gin.Context) {
 }
 
 func RxAdd(pContext *gin.Context) {
-	RxPreAddOrUpd(pContext)
+	RxAddOrUpd(pContext)
 }
 
 func RxUpd(pContext *gin.Context) {
-	RxPreAddOrUpd(pContext)
+	RxAddOrUpd(pContext)
 }
 
-func RxPreAddOrUpd(pContext *gin.Context) {
+func RxAddOrUpd(pContext *gin.Context) {
 	redirect := func(rx typ.Rx, message any) {
 		Redirect(pContext, "/rx/addpage", message, map[string]any{"rx": rx})
 	}
@@ -184,7 +184,8 @@ func RxNotShareItems(pContext *gin.Context) {
 	}
 
 	// 只返回需要的字段
-	notShareItems := Items(pContext, rx.ItemIds)
+	page, err := PageItem(pContext, typ.PageReq{Current: 1, Size: 100}, rx.ItemIds)
+	notShareItems := page.Data
 	if notShareItems != nil {
 		_notShareItems := make([]typ.Item, len(notShareItems))
 		for i, notShareItem := range notShareItems {
