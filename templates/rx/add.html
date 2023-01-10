@@ -20,8 +20,8 @@
 <body>
 
 <content>
+    <p style="color: red;">{{ .message }}</p>
     <form action="/rx" method="{{ if gt .rx.Id 0 }}PUT{{else}}POST{{end}}">
-        <p style="color: red;">{{ .message }}</p>
         <input type="hidden" name="id" value="{{ .rx.Id }}">
         <div>
             *<label>{{ Localize "i18n.name" }}:</label>

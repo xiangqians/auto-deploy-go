@@ -140,3 +140,25 @@ func Html(pContext *gin.Context, templateName string, hkvFunc func(pContext *gin
 
 	pContext.HTML(http.StatusOK, templateName, h)
 }
+
+func Redirect(pContext *gin.Context, location string, message any, m map[string]any) {
+	if message != nil {
+		if v, r := message.(error); r {
+			message = v.Error()
+		}
+		if m == nil {
+			m = map[string]any{}
+		}
+		m["message"] = message
+	}
+
+	if m != nil {
+		session := sessions.Default(pContext)
+		for k, v := range m {
+			session.Set(k, v)
+		}
+		session.Save()
+	}
+
+	pContext.Redirect(http.StatusMovedPermanently, location)
+}

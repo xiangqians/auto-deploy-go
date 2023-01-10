@@ -232,6 +232,19 @@ func GetUser(pContext *gin.Context) typ.User {
 	return user
 }
 
+func SessionUser(pContext *gin.Context) typ.User {
+	session := sessions.Default(pContext)
+	var user typ.User
+	if v, r := session.Get(SessionKeyUser).(typ.User); r {
+		user = v
+	}
+
+	// 如果返回指针值，有可能会发生逃逸
+	//return &user
+
+	return user
+}
+
 func PasswdEncrypt(passwd string) string {
 	d := md5.New()
 	salt := "test"
