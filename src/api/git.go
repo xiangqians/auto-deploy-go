@@ -16,9 +16,9 @@ import (
 )
 
 func GitIndex(pContext *gin.Context) {
-	pContext.HTML(http.StatusOK, "git/index.html", gin.H{
-		"user": GetUser(pContext),
-		"gits": Gits(pContext),
+	HtmlPage(pContext, "git/index.html", func(pContext *gin.Context, pageReq typ.PageReq) (any, gin.H, error) {
+		page, err := PageGit(pContext, pageReq)
+		return page, nil, err
 	})
 }
 
@@ -51,71 +51,61 @@ func GitAddPage(pContext *gin.Context) {
 }
 
 func GitAdd(pContext *gin.Context) {
-	git, err := gitPreAddOrUpd(pContext)
-	if err != nil {
-		return
-	}
-
-	user := GetUser(pContext)
-	db.Add("INSERT INTO `git` (`user_id`, `name`, `user`, `passwd`, `rem`, `add_time`) VALUES (?, ?, ?, ?, ?, ?)",
-		user.Id, git.Name, git.User, git.Passwd, git.Rem, time.Now().Unix())
-	pContext.Redirect(http.StatusMovedPermanently, "/git/index")
+	GitPreAddOrUpd(pContext)
 }
 
 func GitUpd(pContext *gin.Context) {
-	git, err := gitPreAddOrUpd(pContext)
-	if err != nil {
-		return
-	}
-
-	user := GetUser(pContext)
-	db.Upd("UPDATE git SET `name` = ?, `user` = ?, `passwd` = ?, `rem` = ?, upd_time = ? WHERE del_flag = 0 AND user_id = ? AND id = ?",
-		git.Name, git.User, git.Passwd, git.Rem, time.Now().Unix(), user.Id, git.Id)
-	pContext.Redirect(http.StatusMovedPermanently, "/git/index")
+	GitPreAddOrUpd(pContext)
 }
 
-func GitDel(pContext *gin.Context) {
-	idStr := pContext.Param("id")
-	id, err := strconv.ParseInt(idStr, 10, 64)
-	if err == nil {
-		user := GetUser(pContext)
-		db.Del("UPDATE git SET del_flag = 1, upd_time = ? WHERE user_id = ? AND id = ?", time.Now().Unix(), user.Id, id)
+func GitPreAddOrUpd(pContext *gin.Context) {
+	redirect := func(git typ.Git, message any) {
+		Redirect(pContext, "/git/addpage", message, map[string]any{"git": git})
 	}
-	pContext.Redirect(http.StatusMovedPermanently, "/git/index")
-}
 
-func gitPreAddOrUpd(pContext *gin.Context) (typ.Git, error) {
 	git := typ.Git{}
 	err := ShouldBind(pContext, &git)
-
 	git.Name = strings.TrimSpace(git.Name)
 	git.User = strings.TrimSpace(git.User)
 	git.Passwd = strings.TrimSpace(git.Passwd)
 	git.Rem = strings.TrimSpace(git.Rem)
-
 	if err != nil {
-		session := sessions.Default(pContext)
-		session.Set("git", git)
-		session.Set("message", err.Error())
-		session.Save()
-		pContext.Redirect(http.StatusMovedPermanently, "/git/addpage")
+		redirect(git, err)
+		return
 	}
 
-	return git, err
+	user := GetUser(pContext)
+	if pContext.Request.Method == http.MethodPost {
+		_, err = db.Add("INSERT INTO `git` (`user_id`, `name`, `user`, `passwd`, `rem`, `add_time`) VALUES (?, ?, ?, ?, ?, ?)",
+			user.Id, git.Name, git.User, git.Passwd, git.Rem, time.Now().Unix())
+	} else if pContext.Request.Method == http.MethodPut {
+		_, err = db.Upd("UPDATE git SET `name` = ?, `user` = ?, `passwd` = ?, `rem` = ?, upd_time = ? WHERE del_flag = 0 AND user_id = ? AND id = ?",
+			git.Name, git.User, git.Passwd, git.Rem, time.Now().Unix(), user.Id, git.Id)
+	}
+
+	Redirect(pContext, "/git/index", err, nil)
+	return
 }
 
-func Gits(pContext *gin.Context) []typ.Git {
+func GitDel(pContext *gin.Context) {
+	redirect := func(message any) {
+		Redirect(pContext, "/git/index", message, nil)
+	}
+
+	idStr := pContext.Param("id")
+	id, err := strconv.ParseInt(idStr, 10, 64)
+	if err != nil || id <= 0 {
+		redirect(err)
+		return
+	}
+
 	user := GetUser(pContext)
-	gits := make([]typ.Git, 1)
-	_, err := db.Qry(&gits, "SELECT g.id, g.`name`, g.`user`, g.rem, g.add_time, g.upd_time FROM git g WHERE g.del_flag = 0 AND g.user_id = ?", user.Id)
-	if err != nil {
-		log.Println(err)
-		return nil
-	}
+	db.Del("UPDATE git SET del_flag = 1, upd_time = ? WHERE user_id = ? AND id = ?", time.Now().Unix(), user.Id, id)
+	redirect(nil)
+	return
+}
 
-	if gits[0].Id == 0 {
-		gits = nil
-	}
-
-	return gits
+func PageGit(pContext *gin.Context, pageReq typ.PageReq) (typ.Page[typ.Git], error) {
+	user := GetUser(pContext)
+	return db.Page[typ.Git](pageReq, "SELECT g.id, g.`name`, g.`user`, g.rem, g.add_time, g.upd_time FROM git g WHERE g.del_flag = 0 AND g.user_id = ?", user.Id)
 }

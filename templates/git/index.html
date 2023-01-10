@@ -17,6 +17,9 @@
 {{ template "com/header.html" . }}
 
 <content>
+    {{ Put . "pageUrl" "/git/index" }}
+    {{ Put . "colspan" 8 }}
+    <p style="color: red;">{{ .message }}</p>
     <table border="1" cellspacing="0" cellpadding="10" align="center">
         <thead>
         <tr>
@@ -31,8 +34,9 @@
         </tr>
         </thead>
         <tbody>
-        {{ if .gits }}
-        {{ range $index,$value := .gits }}
+        {{ $dataLen := len .page.Data }}
+        {{ if gt $dataLen 0 }}
+        {{ range $index,$value := .page.Data }}
         <tr>
             <td>{{ No $.page.Current $.page.Size $index }}</td>
             <td>{{ $value.Name }}</td>
@@ -55,10 +59,11 @@
         {{ end }}
         {{ else }}
         <tr>
-            <td colspan="8">{{ Localize "i18n.noData" }}</td>
+            <td colspan="{{ .colspan }}">{{ Localize "i18n.noData" }}</td>
         </tr>
         {{ end }}
         </tbody>
+        {{ template "com/table_tfoot.html" . }}
     </table>
     <br>
     <br>

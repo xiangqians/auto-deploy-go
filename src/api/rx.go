@@ -80,7 +80,7 @@ func RxPreAddOrUpd(pContext *gin.Context) {
 	if pContext.Request.Method == http.MethodPost {
 		_, err = db.Add("INSERT INTO `rx` (`name`, `owner_id`, `rem`, `add_time`) VALUES (?, ?, ?, ?)", rx.Name, user.Id, rx.Rem, time.Now().Unix())
 	} else if pContext.Request.Method == http.MethodPut {
-		db.Upd("UPDATE `rx` SET `name` = ?, `rem` = ?, upd_time = ? WHERE `owner_id` = ? AND id = ?", rx.Name, rx.Rem, time.Now().Unix(), user.Id, rx.Id)
+		_, err = db.Upd("UPDATE `rx` SET `name` = ?, `rem` = ?, upd_time = ? WHERE `owner_id` = ? AND id = ?", rx.Name, rx.Rem, time.Now().Unix(), user.Id, rx.Id)
 	}
 
 	Redirect(pContext, "/rx/index", err, nil)
