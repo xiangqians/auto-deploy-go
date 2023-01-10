@@ -17,6 +17,7 @@ import (
 	"github.com/go-playground/validator/v10"
 	en_trans "github.com/go-playground/validator/v10/translations/en"
 	zh_trans "github.com/go-playground/validator/v10/translations/zh"
+	"net/http"
 	"strings"
 )
 
@@ -91,4 +92,51 @@ func ShouldBind(pContext *gin.Context, i any) error {
 		err = TransErr(pContext, err)
 	}
 	return err
+}
+
+func HtmlPage(pContext *gin.Context, templateName string, pageFunc func(pContext *gin.Context, pageReq typ.PageReq) (any, gin.H, error)) {
+	pageReq := typ.PageReq{Current: 1, Size: 10}
+	err := ShouldBind(pContext, &pageReq)
+	if err != nil {
+		Html(pContext, templateName, func(pContext *gin.Context) (gin.H, error) {
+			return gin.H{}, err
+		})
+		return
+	}
+
+	Html(pContext, templateName, func(pContext *gin.Context) (gin.H, error) {
+		page, h, err := pageFunc(pContext, pageReq)
+		if h == nil {
+			h = gin.H{}
+		}
+		h["page"] = page
+		return h, err
+	})
+}
+
+func Html(pContext *gin.Context, templateName string, hkvFunc func(pContext *gin.Context) (gin.H, error)) {
+	message := ""
+	session := sessions.Default(pContext)
+	smessage := session.Get("message")
+	session.Delete("message")
+	session.Save()
+	if smessage != nil {
+		message = fmt.Sprintf("%v", smessage)
+	}
+
+	h, err := hkvFunc(pContext)
+	if err != nil {
+		if message != "" {
+			message += ", "
+		}
+		message += err.Error()
+	}
+
+	// user
+	h["user"] = GetUser(pContext)
+
+	// 没有消息就是最好的消息
+	h["message"] = message
+
+	pContext.HTML(http.StatusOK, templateName, h)
 }

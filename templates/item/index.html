@@ -36,7 +36,7 @@
         {{ if .items }}
         {{ range $index,$value := .items }}
         <tr>
-            <td>{{ Add1 $index }}</td>
+            <td>{{ No $.page.Current $.page.Size $index }}</td>
             <td>{{ $value.Name }}</td>
             <td>{{ $value.GitName }}</td>
             <td>{{ $value.RepoUrl }}</td>

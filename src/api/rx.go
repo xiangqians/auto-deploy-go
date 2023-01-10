@@ -19,14 +19,9 @@ import (
 )
 
 func RxIndex(pContext *gin.Context) {
-	session := sessions.Default(pContext)
-	message := session.Get("message")
-	session.Delete("message")
-	session.Save()
-	pContext.HTML(http.StatusOK, "rx/index.html", gin.H{
-		"user":    GetUser(pContext),
-		"rxs":     Rxs(pContext),
-		"message": message,
+	HtmlPage(pContext, "rx/index.html", func(pContext *gin.Context, pageReq typ.PageReq) (any, gin.H, error) {
+		page, err := PageRx(pContext, pageReq)
+		return page, nil, err
 	})
 }
 
@@ -125,28 +120,24 @@ func RxDel(pContext *gin.Context) {
 }
 
 func RxShareItemPage(pContext *gin.Context) {
-	session := sessions.Default(pContext)
-	message := session.Get("message")
-	session.Delete("message")
-	session.Save()
+	HtmlPage(pContext, "rx/shareitem.html", func(pContext *gin.Context, pageReq typ.PageReq) (any, gin.H, error) {
+		// rx id
+		idStr := pContext.Query("id")
+		id, err := strconv.ParseInt(idStr, 10, 64)
+		if err != nil || id <= 0 {
+			return typ.Page[typ.Item]{}, nil, err
+		}
 
-	var shareItems []typ.Item
+		// rx
+		rx, err := Rx(pContext, id)
+		if err != nil {
+			return typ.Page[typ.Item]{}, nil, err
+		}
 
-	// rx id
-	idStr := pContext.Query("id")
-	id, err := strconv.ParseInt(idStr, 10, 64)
-	if err == nil && id > 0 {
-		shareItems = RxShareItems(pContext, id)
-	}
-
-	rx, err := Rx(pContext, id)
-
-	pContext.HTML(http.StatusOK, "rx/shareitem.html", gin.H{
-		"user":       GetUser(pContext),
-		"rx":         rx,
-		"shareItems": shareItems,
-		"message":    message,
+		page, err := PageRxShareItem(pContext, pageReq, id)
+		return page, gin.H{"rx": rx}, err
 	})
+
 }
 
 // RxNotShareItems 获取尚未共享的项目集
@@ -316,26 +307,15 @@ func rxPreAddOrUpd(pContext *gin.Context) (typ.Rx, error) {
 	return rx, err
 }
 
-// RxShareItems
+// PageRxShareItem
 // id: rx id
-func RxShareItems(pContext *gin.Context, id int64) []typ.Item {
+func PageRxShareItem(pContext *gin.Context, pageReq typ.PageReq, id int64) (typ.Page[typ.Item], error) {
 	if id <= 0 {
-		return nil
+		return typ.Page[typ.Item]{}, nil
 	}
 
 	user := GetUser(pContext)
-	shareItems := make([]typ.Item, 1) //OwnerId
-	_, err := db.Qry(&shareItems, "SELECT i.id, i.`name`, r.id AS 'rx_id', r.owner_id, i.rem, i.add_time, i.upd_time FROM item i JOIN rx r ON r.del_flag = 0 AND r.item_ids LIKE ('%,' || i.id || ',%') WHERE i.del_flag = 0 AND( r.owner_id = ? OR r.sharer_id = ?) AND r.id = ? GROUP BY i.id", user.Id, user.Id, id)
-	if err != nil {
-		log.Println(err)
-		return nil
-	}
-
-	if shareItems[0].Id == 0 {
-		shareItems = nil
-	}
-
-	return shareItems
+	return db.Page[typ.Item](pageReq, "SELECT i.id, i.`name`, r.id AS 'rx_id', r.owner_id, i.rem, i.add_time, i.upd_time FROM item i JOIN rx r ON r.del_flag = 0 AND r.item_ids LIKE ('%,' || i.id || ',%') WHERE i.del_flag = 0 AND( r.owner_id = ? OR r.sharer_id = ?) AND r.id = ? GROUP BY i.id", user.Id, user.Id, id)
 }
 
 func Rx(pContext *gin.Context, id int64) (typ.Rx, error) {
@@ -353,18 +333,7 @@ func Rx(pContext *gin.Context, id int64) (typ.Rx, error) {
 	return rx, nil
 }
 
-func Rxs(pContext *gin.Context) []typ.Rx {
+func PageRx(pContext *gin.Context, pageReq typ.PageReq) (typ.Page[typ.Rx], error) {
 	user := GetUser(pContext)
-	rxs := make([]typ.Rx, 1)
-	_, err := db.Qry(&rxs, "SELECT r.id, r.`name`, r.owner_id, IFNULL(ou.`name`, '') AS 'owner_name', IFNULL(ou.nickname, '') AS 'owner_nickname', r.sharer_id, IFNULL(su.`name`, '') AS 'sharer_name', IFNULL(su.nickname, '') AS 'sharer_nickname', r.item_ids, COUNT(DISTINCT i.id) AS 'share_item_count', r.rem, r.add_time, r.upd_time FROM rx r LEFT JOIN user ou ON ou.del_flag = 0 AND ou.id = r.owner_id LEFT JOIN user su ON su.del_flag = 0 AND su.id = r.sharer_id LEFT JOIN item i ON i.del_flag = 0 AND r.item_ids LIKE ('%,' || i.id || ',%') WHERE r.del_flag = 0 AND( r.owner_id = ? OR r.sharer_id = ?) GROUP BY r.id", user.Id, user.Id)
-	if err != nil {
-		log.Println(err)
-		return nil
-	}
-
-	if rxs[0].Id == 0 {
-		rxs = nil
-	}
-
-	return rxs
+	return db.Page[typ.Rx](pageReq, "SELECT r.id, r.`name`, r.owner_id, IFNULL(ou.`name`, '') AS 'owner_name', IFNULL(ou.nickname, '') AS 'owner_nickname', r.sharer_id, IFNULL(su.`name`, '') AS 'sharer_name', IFNULL(su.nickname, '') AS 'sharer_nickname', r.item_ids, COUNT(DISTINCT i.id) AS 'share_item_count', r.rem, r.add_time, r.upd_time FROM rx r LEFT JOIN user ou ON ou.del_flag = 0 AND ou.id = r.owner_id LEFT JOIN user su ON su.del_flag = 0 AND su.id = r.sharer_id LEFT JOIN item i ON i.del_flag = 0 AND r.item_ids LIKE ('%,' || i.id || ',%') WHERE r.del_flag = 0 AND( r.owner_id = ? OR r.sharer_id = ?) GROUP BY r.id", user.Id, user.Id)
 }

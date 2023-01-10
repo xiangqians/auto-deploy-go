@@ -17,6 +17,8 @@
 {{ template "com/header.html" . }}
 
 <content>
+    {{ Put . "pageUrl" "/rx/index" }}
+    {{ Put . "colspan" 13 }}
     <p style="color: red;">{{ .message }}</p>
     <table border="1" cellspacing="0" cellpadding="10" align="center">
         <thead>
@@ -34,10 +36,11 @@
         </tr>
         </thead>
         <tbody>
-        {{ if .rxs }}
-        {{ range $index,$value := .rxs }}
+        {{ $dataLen := len .page.Data }}
+        {{ if gt $dataLen 0 }}
+        {{ range $index,$value := .page.Data }}
         <tr>
-            <td>{{ Add1 $index }}</td>
+            <td>{{ No $.page.Current $.page.Size $index }}</td>
             <td>{{ $value.Name }}</td>
             <td>{{ if ne $value.OwnerName "" }}{{ $value.OwnerName }}, {{ $value.OwnerNickname }}{{ end }}</td>
             <td>{{ if ne $value.SharerName "" }}{{ $value.SharerName }}, {{ $value.SharerNickname }}{{ end }}</td>
@@ -75,6 +78,7 @@
         </tr>
         {{ end }}
         </tbody>
+        {{ template "com/table_tfoot.html" . }}
     </table>
     <br>
     <br>

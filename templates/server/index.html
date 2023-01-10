@@ -36,7 +36,7 @@
         {{ if .servers }}
         {{ range $index,$value := .servers }}
         <tr>
-            <td>{{ Add1 $index }}</td>
+            <td>{{ No $.page.Current $.page.Size $index }}</td>
             <td>{{ $value.Name }}</td>
             <td>{{ $value.Host }}</td>
             <td>{{ $value.Port }}</td>

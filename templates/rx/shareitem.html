@@ -13,6 +13,8 @@
 <body>
 
 <content>
+    {{ Put . "pageUrl" "/rx/shareitempage" }}
+    {{ Put . "colspan" 10 }}
     <table border="1" cellspacing="0" cellpadding="10" align="center">
         <thead>
         <tr>
@@ -25,10 +27,11 @@
         </tr>
         </thead>
         <tbody>
-        {{ if .shareItems }}
-        {{ range $index,$value := .shareItems }}
+        {{ $dataLen := len .page.Data }}
+        {{ if gt $dataLen 0 }}
+        {{ range $index,$value := .page.Data }}
         <tr>
-            <td>{{ Add1 $index }}</td>
+            <td>{{ No $.page.Current $.page.Size $index }}</td>
             <td>{{ $value.Name }}</td>
             <td>{{ $value.Rem }}</td>
             <td>{{ UnixToTime $value.AddTime }}</td>
@@ -49,6 +52,7 @@
         </tr>
         {{ end }}
         </tbody>
+        {{ template "com/table_tfoot.html" . }}
     </table>
     <br>
     {{ if eq .rx.OwnerId .user.Id }}

@@ -33,7 +33,7 @@
         {{ if .buildEnvs }}
         {{ range $index,$value := .buildEnvs }}
         <tr>
-            <td>{{ Add1 $index }}</td>
+            <td>{{ No $.page.Current $.page.Size $index }}</td>
             <td>{{ $value.Value }}</td>
             <td>{{ $value.Rem }}</td>
             {{ if eq $value.DisableFlag 0 }}

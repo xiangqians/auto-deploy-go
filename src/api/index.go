@@ -46,7 +46,7 @@ func IndexPage(pContext *gin.Context) {
 		})
 	}
 
-	pageReq := typ.PageReq{Current: 1, Size: 2}
+	pageReq := typ.PageReq{Current: 1, Size: 10}
 	err := ShouldBind(pContext, &pageReq)
 	if err != nil {
 		html(typ.Page[typ.Record]{}, err)

@@ -34,7 +34,7 @@
         {{ if .gits }}
         {{ range $index,$value := .gits }}
         <tr>
-            <td>{{ Add1 $index }}</td>
+            <td>{{ No $.page.Current $.page.Size $index }}</td>
             <td>{{ $value.Name }}</td>
             <td>{{ $value.User }}</td>
             <td>******</td>
