@@ -6,7 +6,6 @@ package api
 import (
 	"auto-deploy-go/src/db"
 	"auto-deploy-go/src/typ"
-	"errors"
 	"fmt"
 	"github.com/gin-contrib/i18n"
 	"github.com/gin-contrib/sessions"
@@ -129,8 +128,8 @@ func RxShareItemPage(pContext *gin.Context) {
 		}
 
 		// rx
-		rx, err := Rx(pContext, id)
-		if err != nil {
+		rx, err := Rx(pContext, id, true)
+		if err != nil || rx.Id == 0 {
 			return typ.Page[typ.Item]{}, nil, err
 		}
 
@@ -157,7 +156,7 @@ func RxNotShareItems(pContext *gin.Context) {
 	}
 
 	// rx
-	rx, err := Rx(pContext, id)
+	rx, err := Rx(pContext, id, false)
 	if err != nil {
 		log.Println(err)
 		redirect(nil)
@@ -179,19 +178,22 @@ func RxNotShareItems(pContext *gin.Context) {
 }
 
 func RxShareItemAdd(pContext *gin.Context) {
-	redirect := func(id int64, err error) {
-		session := sessions.Default(pContext)
-		if err != nil {
-			session.Set("message", err.Error())
+	redirect := func(id int64, message any) {
+		if message != nil {
+			session := sessions.Default(pContext)
+			if v, r := message.(error); r {
+				message = v.Error()
+			}
+			session.Set("message", message)
+			session.Save()
 		}
-		session.Save()
 		pContext.Redirect(http.StatusMovedPermanently, fmt.Sprintf("/rx/shareitempage?id=%v", id))
 	}
 
 	// rx id
 	idStr := pContext.Param("id")
 	id, err := strconv.ParseInt(idStr, 10, 64)
-	if err != nil {
+	if err != nil || id <= 0 {
 		redirect(id, err)
 		return
 	}
@@ -199,42 +201,38 @@ func RxShareItemAdd(pContext *gin.Context) {
 	// item id
 	itemIdStr := pContext.Param("itemId")
 	itemId, err := strconv.ParseInt(itemIdStr, 10, 64)
-	if err != nil {
+	if err != nil || itemId <= 0 {
 		redirect(id, err)
-		return
-	}
-	if itemId <= 0 {
-		redirect(id, nil)
 		return
 	}
 
 	// item
-	_, err = Item(pContext, itemId)
-	if err != nil {
-		redirect(id, errors.New(i18n.MustGetMessage("i18n.itemNotExist")))
+	item, err := Item(pContext, itemId)
+	if err != nil || item.Id == 0 {
+		redirect(id, i18n.MustGetMessage("i18n.itemNotExist"))
 		return
 	}
 
 	// rx
-	rx, err := Rx(pContext, id)
-	if err != nil {
+	rx, err := Rx(pContext, id, false)
+	if err != nil || rx.Id == 0 {
 		log.Println(err)
-		redirect(id, errors.New(i18n.MustGetMessage("i18n.rxNotExist")))
+		redirect(id, i18n.MustGetMessage("i18n.rxNotExist"))
 		return
 	}
 
+	// 判断是否已经包含itemId
 	itemIds := rx.ItemIds
-	if strings.Contains(itemIds, fmt.Sprintf(",%v,", itemId)) {
+	contains := strings.Contains(fmt.Sprintf(",%s,", itemIds), fmt.Sprintf(",%v,", itemId))
+	if contains {
 		redirect(id, nil)
 		return
 	}
 
-	// rx 改为-> strings.Contains(fmt.Sprintf(",%s,", buildEnvs), fmt.Sprintf(",%s,", value)) -- 有时间再处理
-
-	if !strings.HasSuffix(itemIds, ",") {
+	if itemIds != "" {
 		itemIds += ","
 	}
-	itemIds += strconv.FormatInt(itemId, 10) + ","
+	itemIds += fmt.Sprintf("%v", itemId)
 	user := GetUser(pContext)
 	db.Upd("UPDATE rx SET item_ids = ?, upd_time = ? WHERE owner_id = ? AND id = ?", itemIds, time.Now().Unix(), user.Id, id)
 
@@ -243,19 +241,22 @@ func RxShareItemAdd(pContext *gin.Context) {
 }
 
 func RxShareItemDel(pContext *gin.Context) {
-	redirect := func(id int64, err error) {
-		session := sessions.Default(pContext)
-		if err != nil {
-			session.Set("message", err.Error())
+	redirect := func(id int64, message any) {
+		if message != nil {
+			session := sessions.Default(pContext)
+			if v, r := message.(error); r {
+				message = v.Error()
+			}
+			session.Set("message", message)
+			session.Save()
 		}
-		session.Save()
 		pContext.Redirect(http.StatusMovedPermanently, fmt.Sprintf("/rx/shareitempage?id=%v", id))
 	}
 
 	// rx id
 	idStr := pContext.Param("id")
 	id, err := strconv.ParseInt(idStr, 10, 64)
-	if err != nil {
+	if err != nil || id <= 0 {
 		redirect(id, err)
 		return
 	}
@@ -263,26 +264,30 @@ func RxShareItemDel(pContext *gin.Context) {
 	// item id
 	itemIdStr := pContext.Param("itemId")
 	itemId, err := strconv.ParseInt(itemIdStr, 10, 64)
-	if err != nil {
+	if err != nil || itemId <= 0 {
 		redirect(id, err)
-		return
-	}
-	if itemId <= 0 {
-		redirect(id, nil)
 		return
 	}
 
 	// rx
-	rx, err := Rx(pContext, id)
-	if err != nil {
+	rx, err := Rx(pContext, id, false)
+	if err != nil || rx.Id == 0 {
 		log.Println(err)
-		redirect(id, errors.New(i18n.MustGetMessage("i18n.rxNotExist")))
+		redirect(id, i18n.MustGetMessage("i18n.rxNotExist"))
 		return
 	}
 
 	// update
-	itemIds := strings.ReplaceAll(rx.ItemIds, fmt.Sprintf(",%v,", itemId), ",")
-	if itemIds != rx.ItemIds {
+	itemIds := fmt.Sprintf(",%s,", rx.ItemIds)
+	contains := strings.Contains(itemIds, fmt.Sprintf(",%v,", itemId))
+	if contains {
+		itemIds = strings.ReplaceAll(itemIds, fmt.Sprintf(",%v,", itemId), ",")
+		if itemIds == "," {
+			itemIds = ""
+		}
+		if itemIds != "" {
+			itemIds = itemIds[1 : len(itemIds)-1]
+		}
 		user := GetUser(pContext)
 		db.Del("UPDATE rx SET item_ids = ?, upd_time = ? WHERE owner_id = ? AND id = ?", itemIds, time.Now().Unix(), user.Id, id)
 	}
@@ -315,25 +320,25 @@ func PageRxShareItem(pContext *gin.Context, pageReq typ.PageReq, id int64) (typ.
 	}
 
 	user := GetUser(pContext)
-	return db.Page[typ.Item](pageReq, "SELECT i.id, i.`name`, r.id AS 'rx_id', r.owner_id, i.rem, i.add_time, i.upd_time FROM item i JOIN rx r ON r.del_flag = 0 AND r.item_ids LIKE ('%,' || i.id || ',%') WHERE i.del_flag = 0 AND( r.owner_id = ? OR r.sharer_id = ?) AND r.id = ? GROUP BY i.id", user.Id, user.Id, id)
+	return db.Page[typ.Item](pageReq, "SELECT i.id, i.`name`, r.id AS 'rx_id', r.owner_id, i.rem, i.add_time, i.upd_time FROM item i JOIN rx r ON r.del_flag = 0 AND (',' || r.item_ids || ',') LIKE ('%,' || i.id || ',%') WHERE i.del_flag = 0 AND( r.owner_id = ? OR r.sharer_id = ?) AND r.id = ? GROUP BY i.id", user.Id, user.Id, id)
 }
 
-func Rx(pContext *gin.Context, id int64) (typ.Rx, error) {
+func Rx(pContext *gin.Context, id int64, sharer bool) (typ.Rx, error) {
 	user := GetUser(pContext)
 	rx := typ.Rx{}
-	_, err := db.Qry(&rx, "SELECT r.id, r.`name`, r.owner_id, r.sharer_id, r.item_ids, r.rem FROM rx r WHERE r.del_flag = 0 AND r.owner_id = ? AND r.id = ?", user.Id, id)
-	if err != nil {
-		return rx, err
+	sql := "SELECT r.id, r.`name`, r.owner_id, r.sharer_id, r.item_ids, r.rem FROM rx r "
+	sql += "WHERE r.del_flag = 0 "
+	if sharer {
+		sql += fmt.Sprintf("AND (r.owner_id = %v OR r.sharer_id = %v) ", user.Id, user.Id)
+	} else {
+		sql += fmt.Sprintf("AND r.owner_id = %v ", user.Id)
 	}
-
-	if rx.Id == 0 {
-		return rx, errors.New("no record")
-	}
-
-	return rx, nil
+	sql += "AND r.id = ? "
+	_, err := db.Qry(&rx, sql, id)
+	return rx, err
 }
 
 func PageRx(pContext *gin.Context, pageReq typ.PageReq) (typ.Page[typ.Rx], error) {
 	user := GetUser(pContext)
-	return db.Page[typ.Rx](pageReq, "SELECT r.id, r.`name`, r.owner_id, IFNULL(ou.`name`, '') AS 'owner_name', IFNULL(ou.nickname, '') AS 'owner_nickname', r.sharer_id, IFNULL(su.`name`, '') AS 'sharer_name', IFNULL(su.nickname, '') AS 'sharer_nickname', r.item_ids, COUNT(DISTINCT i.id) AS 'share_item_count', r.rem, r.add_time, r.upd_time FROM rx r LEFT JOIN user ou ON ou.del_flag = 0 AND ou.id = r.owner_id LEFT JOIN user su ON su.del_flag = 0 AND su.id = r.sharer_id LEFT JOIN item i ON i.del_flag = 0 AND r.item_ids LIKE ('%,' || i.id || ',%') WHERE r.del_flag = 0 AND( r.owner_id = ? OR r.sharer_id = ?) GROUP BY r.id", user.Id, user.Id)
+	return db.Page[typ.Rx](pageReq, "SELECT r.id, r.`name`, r.owner_id, IFNULL(ou.`name`, '') AS 'owner_name', IFNULL(ou.nickname, '') AS 'owner_nickname', r.sharer_id, IFNULL(su.`name`, '') AS 'sharer_name', IFNULL(su.nickname, '') AS 'sharer_nickname', r.item_ids, COUNT(DISTINCT i.id) AS 'share_item_count', r.rem, r.add_time, r.upd_time FROM rx r LEFT JOIN user ou ON ou.del_flag = 0 AND ou.id = r.owner_id LEFT JOIN user su ON su.del_flag = 0 AND su.id = r.sharer_id LEFT JOIN item i ON i.del_flag = 0 AND (',' || r.item_ids || ',') LIKE ('%,' || i.id || ',%') WHERE r.del_flag = 0 AND( r.owner_id = ? OR r.sharer_id = ?) GROUP BY r.id", user.Id, user.Id)
 }

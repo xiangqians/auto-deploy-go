@@ -6,7 +6,6 @@ package api
 import (
 	"auto-deploy-go/src/db"
 	"auto-deploy-go/src/typ"
-	"errors"
 	"fmt"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
@@ -110,15 +109,7 @@ func Item(pContext *gin.Context, id int64) (typ.Item, error) {
 	user := GetUser(pContext)
 	item := typ.Item{}
 	_, err := db.Qry(&item, "SELECT i.id, i.`name`, i.git_id, i.repo_url, i.branch, i.server_id, i.script, i.rem FROM item i  WHERE i.del_flag = 0 AND i.user_id = ? AND i.id = ?", user.Id, id)
-	if err != nil {
-		return item, err
-	}
-
-	if item.Id == 0 {
-		return item, errors.New("no record")
-	}
-
-	return item, nil
+	return item, err
 }
 
 func Items(pContext *gin.Context, notLikeIds string) []typ.Item {
@@ -127,7 +118,7 @@ func Items(pContext *gin.Context, notLikeIds string) []typ.Item {
 
 	sql := "SELECT i.id, i.`name`, i.git_id, IFNULL(g.`name`, '') AS 'git_name', i.repo_url, i.branch, i.server_id, IFNULL(s.`name`, '') AS 'server_name', i.rem, i.add_time, i.upd_time FROM item i LEFT JOIN git g ON g.del_flag = 0 AND g.id = i.git_id LEFT JOIN server s ON s.del_flag = 0 AND s.id = i.server_id WHERE i.del_flag = 0 AND i.user_id = ? "
 	if notLikeIds != "" {
-		sql += fmt.Sprintf("AND '%s' NOT LIKE ('%%,' || i.id || ',%%') ", notLikeIds)
+		sql += fmt.Sprintf("AND ',%s,' NOT LIKE ('%%,' || i.id || ',%%') ", notLikeIds)
 	}
 	sql += "GROUP BY i.id"
 

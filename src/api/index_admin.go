@@ -127,7 +127,7 @@ func Page(pageReq typ.PageReq, tableName string) (any, Data, error) {
 		return page, data, err
 
 	case RxTableName:
-		page, err := db.Page[typ.Rx](pageReq, "SELECT r.id, r.`name`, r.owner_id, IFNULL(ou.`name`, '') AS 'owner_name',IFNULL(ou.nickname, '') AS 'owner_nickname', r.sharer_id, IFNULL(su.`name`, '') AS 'sharer_name', IFNULL(su.nickname, '') AS 'sharer_nickname', r.item_ids, COUNT(DISTINCT i.id) AS 'share_item_count', GROUP_CONCAT(i.`name`, '、') AS 'share_item_names', r.rem, r.del_flag, r.add_time, r.upd_time FROM rx r LEFT JOIN user ou ON ou.id = r.owner_id LEFT JOIN user su ON su.id = r.sharer_id LEFT JOIN item i ON r.item_ids LIKE ('%,' || i.id || ',%') GROUP BY r.id")
+		page, err := db.Page[typ.Rx](pageReq, "SELECT r.id, r.`name`, r.owner_id, IFNULL(ou.`name`, '') AS 'owner_name',IFNULL(ou.nickname, '') AS 'owner_nickname', r.sharer_id, IFNULL(su.`name`, '') AS 'sharer_name', IFNULL(su.nickname, '') AS 'sharer_nickname', r.item_ids, COUNT(DISTINCT i.id) AS 'share_item_count', GROUP_CONCAT(i.`name`, '、') AS 'share_item_names', r.rem, r.del_flag, r.add_time, r.upd_time FROM rx r LEFT JOIN user ou ON ou.id = r.owner_id LEFT JOIN user su ON su.id = r.sharer_id LEFT JOIN item i ON (',' || r.item_ids || ',') LIKE ('%,' || i.id || ',%') GROUP BY r.id")
 		data := Data{}
 		// title
 		data.Title = []string{

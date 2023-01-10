@@ -249,7 +249,7 @@ func LastRecordPage(pContext *gin.Context, pageReq typ.PageReq, itemId int64) (t
 
 	sql += "WHERE i.del_flag = 0 "
 	//sql += "AND i.user_id IN(SELECT DISTINCT(owner_id) FROM rx WHERE del_flag = 0 AND sharer_id = ? UNION ALL SELECT %v) "
-	sql += fmt.Sprintf("AND (i.user_id = %v OR EXISTS(SELECT 1 FROM rx rx WHERE rx.del_flag = 0 AND rx.sharer_id = %v AND rx.item_ids LIKE ('%%,' || i.id || ',%%') )) ", user.Id, user.Id)
+	sql += fmt.Sprintf("AND (i.user_id = %v OR EXISTS(SELECT 1 FROM rx rx WHERE rx.del_flag = 0 AND rx.sharer_id = %v AND (',' || rx.item_ids || ',') LIKE ('%%,' || i.id || ',%%') )) ", user.Id, user.Id)
 	if itemId > 0 {
 		sql += fmt.Sprintf("AND i.id = %v ", strconv.FormatInt(itemId, 10))
 	}
