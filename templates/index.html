@@ -41,7 +41,7 @@
         {{ range $index,$value := .page.Data }}
         <tr>
             <td>{{ No $.page.Current $.page.Size $index }}</td>
-            <td title="{{ $value.ItemRem }}"><a href="/record/index?itemId={{ $value.ItemId }}">{{ $value.ItemName }}</a></td>
+            <td title="{{ $value.ItemRem }}"><a href="/record/index/{{ $value.ItemId }}">{{ $value.ItemName }}</a></td>
             <td title="{{ ItemTime $value }}">
             <span style="padding-left: 10px; {{ if gt $value.PullStatus 0 }}color: red;{{ else }}{{ if gt $value.PullStime 0 }}{{ if eq $value.PullEtime 0 }}color: blue;{{ end }}{{ end }}{{ end }}"
                   title="{{ $value.PullRem }}">{{ Localize "i18n.pull" }} ({{ UnixDiff $value.PullStime $value.PullEtime }})</span>

@@ -220,7 +220,7 @@ func RxShareItemAdd(pContext *gin.Context) {
 	}
 
 	// item
-	item, err := Item(pContext, itemId)
+	item, err := Item(pContext, itemId, false)
 	if err != nil || item.Id == 0 {
 		redirect(id, i18n.MustGetMessage("i18n.itemNotExist"))
 		return

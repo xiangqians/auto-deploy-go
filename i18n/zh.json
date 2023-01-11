@@ -37,6 +37,7 @@
   "i18n.item": "项目",
   "i18n.step": "步骤",
   "i18n.lastDeployTime": "最近部署时间",
+  "i18n.deployTime": "部署时间",
   "i18n.repoUrl": "仓库地址",
   "i18n.branch": "分支名",
   "i18n.script": "脚本",

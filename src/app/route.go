@@ -89,8 +89,9 @@ func initRoute(pEngine *gin.Engine) {
 	// record
 	recordRouterGroup := pEngine.Group("/record")
 	{
-		recordRouterGroup.Any("/index", api.RecordIndex)
+		recordRouterGroup.Any("/index/:itemId", api.RecordIndex)
 	}
+	pEngine.DELETE("/record/:itemId/:id", api.RecordDel)
 
 	// setting
 	settingRouterGroup := pEngine.Group("/setting")

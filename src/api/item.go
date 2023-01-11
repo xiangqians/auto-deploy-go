@@ -105,10 +105,22 @@ func ItemDel(pContext *gin.Context) {
 	return
 }
 
-func Item(pContext *gin.Context, id int64) (typ.Item, error) {
+// Item 获取item信息
+// id: item id
+// sharer: 是否包含共享者
+func Item(pContext *gin.Context, id int64, sharer bool) (typ.Item, error) {
 	user := GetUser(pContext)
+	sql := "SELECT i.id, i.user_id, i.`name`, i.git_id, i.repo_url, i.branch, i.server_id, i.script, i.rem "
+	sql += "FROM item i "
+	sql += "WHERE i.del_flag = 0 "
+	sql += fmt.Sprintf("AND i.id = %v ", id)
+	if sharer {
+		sql += fmt.Sprintf("AND (i.user_id = %v OR EXISTS(SELECT 1 FROM rx rx WHERE rx.del_flag = 0 AND rx.sharer_id = %v AND (',' || rx.item_ids || ',') LIKE ('%%,' || i.id || ',%%') ))", user.Id, user.Id)
+	} else {
+		sql += fmt.Sprintf(" AND i.user_id = %v ", user.Id)
+	}
 	item := typ.Item{}
-	_, err := db.Qry(&item, "SELECT i.id, i.`name`, i.git_id, i.repo_url, i.branch, i.server_id, i.script, i.rem FROM item i  WHERE i.del_flag = 0 AND i.user_id = ? AND i.id = ?", user.Id, id)
+	_, err := db.Qry(&item, sql)
 	return item, err
 }
 
