@@ -158,6 +158,14 @@ func intHtmlTemplate(pEngine *gin.Engine) {
 			return ""
 		},
 
+		"JoinStr": func(arr ...any) string {
+			str := ""
+			for _, i := range arr {
+				str += fmt.Sprintf("%v", i)
+			}
+			return str
+		},
+
 		//"Template": func(name string) string {
 		//	var data any = nil
 		//	re := pEngine.HTMLRender.Instance(name, data)

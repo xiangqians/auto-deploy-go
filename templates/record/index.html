@@ -13,7 +13,8 @@
 <body>
 
 <content>
-    {{ Put . "pageUrl" "/record/index" }}
+    {{ $pageUrl := JoinStr "/record/index/" .item.Id }}
+    {{ Put . "pageUrl" $pageUrl }}
     {{ Put . "colspan" 5 }}
     <p style="color: red;">{{ .message }}</p>
     <table border="1" cellspacing="0" cellpadding="10" align="center">
@@ -32,32 +33,32 @@
         <tr>
             <td>{{ No $.page.Current $.page.Size $index }}</td>
             <td title="{{ ItemTime $value }}">
-            <span style="padding-left: 10px; {{ if gt $value.PullStatus 0 }}color: red;{{ else }}{{ if gt $value.PullStime 0 }}{{ if eq $value.PullEtime 0 }}color: blue;{{ end }}{{ end }}{{ end }}"
+            <span style="padding-left: 10px; {{ if gt $value.PullStatus 0 }}color: red;{{ else }}{{ if gt $value.PullStime 0 }}{{ if eq $value.PullEtime 0 }}color: #9900FF;{{ end }}{{ end }}{{ end }}"
                   title="{{ $value.PullRem }}">{{ Localize "i18n.pull" }} ({{ UnixDiff $value.PullStime $value.PullEtime }})</span>
                 →
-                <span style="padding-left: 10px; {{ if gt $value.BuildStatus 0 }}color: red;{{ else }}{{ if gt $value.BuildStime 0 }}{{ if eq $value.BuildEtime 0 }}color: blue;{{ end }}{{ end }}{{ end }}"
+                <span style="padding-left: 10px; {{ if gt $value.BuildStatus 0 }}color: red;{{ else }}{{ if gt $value.BuildStime 0 }}{{ if eq $value.BuildEtime 0 }}color: #9900FF;{{ end }}{{ end }}{{ end }}"
                       title="{{ $value.BuildRem }}">{{ Localize "i18n.build" }} ({{ UnixDiff $value.BuildStime $value.BuildEtime }})</span>
                 →
-                <span style="padding-left: 10px; {{ if gt $value.PackStatus 0 }}color: red;{{ else }}{{ if gt $value.PackStime 0 }}{{ if eq $value.PackEtime 0 }}color: blue;{{ end }}{{ end }}{{ end }}"
+                <span style="padding-left: 10px; {{ if gt $value.PackStatus 0 }}color: red;{{ else }}{{ if gt $value.PackStime 0 }}{{ if eq $value.PackEtime 0 }}color: #9900FF;{{ end }}{{ end }}{{ end }}"
                       title="{{ $value.PackRem }}">{{ Localize "i18n.pack" }} ({{ UnixDiff $value.PackStime $value.PackEtime }})</span>
                 →
-                <span style="padding-left: 10px; {{ if gt $value.UlStatus 0 }}color: red;{{ else }}{{ if gt $value.UlStime 0 }}{{ if eq $value.UlEtime 0 }}color: blue;{{ end }}{{ end }}{{ end }}"
+                <span style="padding-left: 10px; {{ if gt $value.UlStatus 0 }}color: red;{{ else }}{{ if gt $value.UlStime 0 }}{{ if eq $value.UlEtime 0 }}color: #9900FF;{{ end }}{{ end }}{{ end }}"
                       title="{{ $value.UlRem }}">{{ Localize "i18n.upload" }} ({{ UnixDiff $value.UlStime $value.UlEtime }})</span>
                 →
-                <span style="padding-left: 10px; {{ if gt $value.UnpackStatus 0 }}color: red;{{ else }}{{ if gt $value.UnpackStime 0 }}{{ if eq $value.UnpackEtime 0 }}color: blue;{{ end }}{{ end }}{{ end }}"
+                <span style="padding-left: 10px; {{ if gt $value.UnpackStatus 0 }}color: red;{{ else }}{{ if gt $value.UnpackStime 0 }}{{ if eq $value.UnpackEtime 0 }}color: #9900FF;{{ end }}{{ end }}{{ end }}"
                       title="{{ $value.UnpackRem }}">{{ Localize "i18n.unpack" }} ({{ UnixDiff $value.UnpackStime $value.UnpackEtime }})</span>
                 →
-                <span style="padding-left: 10px; {{ if gt $value.DeployStatus 0 }}color: red;{{ else }}{{ if gt $value.DeployStime 0 }}{{ if eq $value.DeployEtime 0 }}color: blue;{{ end }}{{ end }}{{ end }}"
+                <span style="padding-left: 10px; {{ if gt $value.DeployStatus 0 }}color: red;{{ else }}{{ if gt $value.DeployStime 0 }}{{ if eq $value.DeployEtime 0 }}color: #9900FF;{{ end }}{{ end }}{{ end }}"
                       title="{{ $value.DeployRem }}">{{ Localize "i18n.deploy" }} ({{ UnixDiff $value.DeployStime $value.DeployEtime }})</span>
             </td>
             <td title="{{ $value.Rem }}"
-                style="{{ if eq $value.Status 1 }}color: blue;{{ else }}{{ if eq $value.Status 2 }}color: red;{{ else }}{{ if eq $value.Status 3 }}color: green;{{ end }}{{ end }}{{ end }}">
+                style="{{ if eq $value.Status 1 }}color: #9900FF;{{ else }}{{ if eq $value.Status 2 }}color: red;{{ else }}{{ if eq $value.Status 3 }}color: green;{{ end }}{{ end }}{{ end }}">
                 {{ DeployStatusText $value.Status }}
             </td>
             <td title="{{ $value.RevMsg }}">{{ UnixToTime $value.AddTime }}</td>
             <td>
                 <a href="/record/{{ $.item.Id }}/{{ $value.Id }}" method="DELETE"
-                   confirm='{{ Localize "i18n.del" }} No {{ No $.page.Current $.page.Size $index }} ?'>
+                   confirm='{{ Localize "i18n.del" }} No. {{ No $.page.Current $.page.Size $index }} ?'>
                     <button {{ if ne $.user.Id $.item.UserId }} disabled="disabled" {{ end }}>
                         {{ Localize "i18n.del" }}
                     </button>
