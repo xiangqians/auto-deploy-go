@@ -9,7 +9,6 @@ import (
 	"fmt"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
-	"log"
 	"net/http"
 	"strconv"
 	"time"
@@ -31,17 +30,17 @@ func ItemAddPage(pContext *gin.Context) {
 	session.Save()
 
 	if item == nil {
-		_item := typ.Item{}
-		idStr := pContext.Query("id")
-		id, err := strconv.ParseInt(idStr, 10, 64)
-		if err == nil && id > 0 {
-			user := SessionUser(pContext)
-			_, err = db.Qry(&_item, "SELECT i.id, i.`name`, i.git_id, i.repo_url, i.branch, i.server_id, i.script, i.rem FROM item i  WHERE i.del_flag = 0 AND i.user_id = ? AND i.id = ?", user.Id, id)
-			if err != nil {
-				log.Println(err)
-			}
-		}
-		item = _item
+		//_item := {}
+		//idStr := pContext.Query("id")
+		//id, err := strconv.ParseInt(idStr, 10, 64)
+		//if err == nil && id > 0 {
+		//	user := SessionUser(pContext)
+		//	_, err = db.Qry(&_item, "SELECT i.id, i.`name`, i.git_id, i.repo_url, i.branch, i.server_id, i.script, i.rem FROM item i  WHERE i.del_flag = 0 AND i.user_id = ? AND i.id = ?", user.Id, id)
+		//	if err != nil {
+		//		log.Println(err)
+		//	}
+		//}
+		//item = _item
 	}
 
 	gitPage, _ := GitPage(pContext, typ.PageReq{Current: 1, Size: 100})
@@ -119,8 +118,8 @@ func Item(pContext *gin.Context, id int64, sharer bool) (typ.Item, error) {
 	} else {
 		sql += fmt.Sprintf(" AND i.user_id = %v ", user.Id)
 	}
-	item := typ.Item{}
-	_, err := db.Qry(&item, sql)
+
+	item, _, err := db.Qry[typ.Item](sql)
 	return item, err
 }
 

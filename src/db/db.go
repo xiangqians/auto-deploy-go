@@ -27,13 +27,12 @@ func Page[T any](pageReq typ.PageReq, sql string, args ...any) (typ.Page[T], err
 		Size:    size,
 	}
 
-	// total
-	var total int64
+	// 总记录数
 	_sql := fmt.Sprintf("SELECT COUNT(1) %s", sql[strings.Index(sql, "FROM"):])
 	if strings.Contains(_sql, "GROUP BY") {
 		_sql = fmt.Sprintf("SELECT COUNT(1) FROM (%s) r", _sql)
 	}
-	_, err := Qry(&total, _sql, args...)
+	total, _, err := Qry[int64](_sql, args...)
 	if err != nil {
 		return page, err
 	}
@@ -55,8 +54,7 @@ func Page[T any](pageReq typ.PageReq, sql string, args ...any) (typ.Page[T], err
 	sql = fmt.Sprintf("%s LIMIT %v, %v", sql, offset, rows)
 
 	// query
-	data := make([]T, 1)
-	count, err := Qry(&data, sql, args...)
+	data, count, err := Qry[[]T](sql, args...)
 	if err != nil {
 		return page, err
 	}
@@ -69,25 +67,38 @@ func Page[T any](pageReq typ.PageReq, sql string, args ...any) (typ.Page[T], err
 	return page, nil
 }
 
-func Qry(i any, sql string, args ...any) (int64, error) {
+func Qry[T any](sql string, args ...any) (T, int64, error) {
+	var t T
+
+	// db
 	pDb, err := db()
 	if err != nil {
-		return 0, err
+		return t, 0, err
 	}
 	defer pDb.Close()
 
+	// query
 	pRows, err := pDb.Query(sql, args...)
 	if err != nil {
-		return 0, err
+		return t, 0, err
 	}
 	defer pRows.Close()
 
-	count, err := rowsMapper(pRows, i)
-	if err != nil {
-		return count, err
+	// 通过反射初始化实例
+	rflVal := reflect.ValueOf(t)
+	switch rflVal.Type().Kind() {
+	case reflect.Slice:
+		i := reflect.MakeSlice(rflVal.Type(), 1, 1).Interface()
+		t, _ = i.(T)
 	}
 
-	return count, nil
+	// 行映射
+	count, err := rowsMapper(pRows, &t)
+	if err != nil {
+		return t, count, err
+	}
+
+	return t, count, nil
 }
 
 // Add return insertId

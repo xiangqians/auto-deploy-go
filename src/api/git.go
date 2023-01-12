@@ -26,7 +26,7 @@ func GitAddPage(pContext *gin.Context) {
 	if err != nil {
 		id, _ := Query[int64](pContext, "id")
 		if id > 0 {
-			_, git, err = Git(pContext, id)
+			git, _, err = Git(pContext, id)
 			if err != nil {
 				log.Println(err)
 			}
@@ -96,10 +96,8 @@ func GitPage(pContext *gin.Context, pageReq typ.PageReq) (typ.Page[typ.Git], err
 	return db.Page[typ.Git](pageReq, GitSql(pContext, 0))
 }
 
-func Git(pContext *gin.Context, id int64) (int64, typ.Git, error) {
-	git := typ.Git{}
-	count, err := db.Qry(&git, GitSql(pContext, id))
-	return count, git, err
+func Git(pContext *gin.Context, id int64) (typ.Git, int64, error) {
+	return db.Qry[typ.Git](GitSql(pContext, id))
 }
 
 func GitSql(pContext *gin.Context, id int64) string {

@@ -124,9 +124,8 @@ func Deploy(pContext *gin.Context) {
 	}
 
 	// item
-	item := typ.Item{}
-	_, err = db.Qry(&item, "SELECT i.id, i.`name`, i.git_id, i.repo_url, i.branch, i.server_id, i.script, i.rem FROM item i  WHERE i.del_flag = 0 AND i.id = ?", itemId)
-	if err != nil {
+	item, count, err := db.Qry[typ.Item]("SELECT i.id, i.`name`, i.git_id, i.repo_url, i.branch, i.server_id, i.script, i.rem FROM item i  WHERE i.del_flag = 0 AND i.id = ?", itemId)
+	if err != nil || count == 0 {
 		redirect(1, err.Error())
 		return
 	}

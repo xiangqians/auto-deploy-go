@@ -36,18 +36,18 @@ func RxAddPage(pContext *gin.Context) {
 	session.Delete("rx")
 	session.Save()
 	if rx == nil {
-		_rx := typ.Rx{}
-		idStr := pContext.Query("id")
-		id, err := strconv.ParseInt(idStr, 10, 64)
-		if err == nil && id > 0 {
-			user := SessionUser(pContext)
-			_, err = db.Qry(&_rx, "SELECT r.id, r.`name`, r.owner_id, IFNULL(ou.`name`, '') AS 'owner_name', r.sharer_id, IFNULL(su.`name`, '') AS 'sharer_name', r.rem, r.add_time, r.upd_time FROM rx r LEFT JOIN user ou ON ou.del_flag = 0 AND ou.id = r.owner_id LEFT JOIN user su ON su.del_flag = 0 AND su.id = r.sharer_id WHERE r.del_flag = 0 AND r.owner_id = ? AND r.id = ? GROUP BY r.id", user.Id, id)
-			if err != nil {
-				html(rx, err)
-				return
-			}
-		}
-		rx = _rx
+		//_rx := typ.Rx{}
+		//idStr := pContext.Query("id")
+		//id, err := strconv.ParseInt(idStr, 10, 64)
+		//if err == nil && id > 0 {
+		//	user := SessionUser(pContext)
+		//	_, err = db.Qry(&_rx, "SELECT r.id, r.`name`, r.owner_id, IFNULL(ou.`name`, '') AS 'owner_name', r.sharer_id, IFNULL(su.`name`, '') AS 'sharer_name', r.rem, r.add_time, r.upd_time FROM rx r LEFT JOIN user ou ON ou.del_flag = 0 AND ou.id = r.owner_id LEFT JOIN user su ON su.del_flag = 0 AND su.id = r.sharer_id WHERE r.del_flag = 0 AND r.owner_id = ? AND r.id = ? GROUP BY r.id", user.Id, id)
+		//	if err != nil {
+		//		html(rx, err)
+		//		return
+		//	}
+		//}
+		//rx = _rx
 	}
 
 	html(rx, nil)
@@ -94,8 +94,7 @@ func RxJoin(pContext *gin.Context) {
 	if err != nil {
 		message = err.Error()
 	} else {
-		rx := typ.Rx{}
-		_, err = db.Qry(&rx, "SELECT r.id, r.`name`, r.owner_id, IFNULL(ou.`name`, '') AS 'owner_name', r.sharer_id, IFNULL(su.`name`, '') AS 'sharer_name', r.rem, r.add_time, r.upd_time FROM rx r LEFT JOIN user ou ON ou.del_flag = 0 AND ou.id = r.owner_id LEFT JOIN user su ON su.del_flag = 0 AND su.id = r.sharer_id WHERE r.del_flag = 0 AND r.id = ? GROUP BY r.id", code)
+		rx, _, _ := db.Qry[typ.Rx]("SELECT r.id, r.`name`, r.owner_id, IFNULL(ou.`name`, '') AS 'owner_name', r.sharer_id, IFNULL(su.`name`, '') AS 'sharer_name', r.rem, r.add_time, r.upd_time FROM rx r LEFT JOIN user ou ON ou.del_flag = 0 AND ou.id = r.owner_id LEFT JOIN user su ON su.del_flag = 0 AND su.id = r.sharer_id WHERE r.del_flag = 0 AND r.id = ? GROUP BY r.id", code)
 		if rx.Id == 0 {
 			message = i18n.MustGetMessage("i18n.invalidCode")
 		} else {
@@ -312,7 +311,6 @@ func PageRxShareItem(pContext *gin.Context, pageReq typ.PageReq, id int64) (typ.
 
 func Rx(pContext *gin.Context, id int64, sharer bool) (typ.Rx, error) {
 	user := SessionUser(pContext)
-	rx := typ.Rx{}
 	sql := "SELECT r.id, r.`name`, r.owner_id, r.sharer_id, r.item_ids, r.rem FROM rx r "
 	sql += "WHERE r.del_flag = 0 "
 	if sharer {
@@ -321,7 +319,7 @@ func Rx(pContext *gin.Context, id int64, sharer bool) (typ.Rx, error) {
 		sql += fmt.Sprintf("AND r.owner_id = %v ", user.Id)
 	}
 	sql += "AND r.id = ? "
-	_, err := db.Qry(&rx, sql, id)
+	rx, _, err := db.Qry[typ.Rx](sql, id)
 	return rx, err
 }
 

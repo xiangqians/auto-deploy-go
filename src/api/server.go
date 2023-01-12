@@ -8,7 +8,6 @@ import (
 	"auto-deploy-go/src/typ"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
-	"log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -31,17 +30,16 @@ func ServerAddPage(pContext *gin.Context) {
 	session.Save()
 
 	if server == nil {
-		_server := typ.Server{}
-		idStr := pContext.Query("id")
-		id, err := strconv.ParseInt(idStr, 10, 64)
-		if err == nil && id > 0 {
-			user := SessionUser(pContext)
-			_, err = db.Qry(&_server, "SELECT s.id, s.`name`, s.`host`, s.`port`, s.`user`, s.rem, s.add_time, s.upd_time FROM server s WHERE s.del_flag = 0 AND s.user_id = ? AND s.id = ?", user.Id, id)
-			if err != nil {
-				log.Println(err)
-			}
-		}
-		server = _server
+		//idStr := pContext.Query("id")
+		//id, err := strconv.ParseInt(idStr, 10, 64)
+		//if err == nil && id > 0 {
+		//	user := SessionUser(pContext)
+		//	_server, count, err := db.Qry[typ.Server]( "SELECT s.id, s.`name`, s.`host`, s.`port`, s.`user`, s.rem, s.add_time, s.upd_time FROM server s WHERE s.del_flag = 0 AND s.user_id = ? AND s.id = ?", user.Id, id)
+		//	if err != nil {
+		//		log.Println(err)
+		//	}
+		//}
+		//server = _server
 	}
 
 	pContext.HTML(http.StatusOK, "server/add.html", gin.H{

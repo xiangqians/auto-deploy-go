@@ -71,9 +71,8 @@ func settingByteColumnUpd(pContext *gin.Context, name string) {
 }
 
 func Setting() (typ.Setting, error) {
-	setting := typ.Setting{}
-	_, err := db.Qry(&setting, "SELECT `sudo_flag`, `allow_reg_flag`, `build_level` FROM `setting` LIMIT 1")
-	if err != nil {
+	setting, count, err := db.Qry[typ.Setting]("SELECT `sudo_flag`, `allow_reg_flag`, `build_level` FROM `setting` LIMIT 1")
+	if err != nil || count == 0 {
 		return setting, err
 	}
 	return setting, nil
