@@ -15,14 +15,24 @@
             {{ if le .page.Current 1 }}
             {{ Localize "i18n.prevPage" }}
             {{ else }}
-            <a href="{{ .pageUrl }}?current={{ Minus1 .page.Current }}">{{ Localize "i18n.prevPage" }}</a>
+            {{ $contains := ContainsStr .pageUrl "?" }}
+            {{ if $contains }}
+            <a href='{{ .pageUrl }}&current={{ Minus1 .page.Current }}'>{{ Localize "i18n.prevPage" }}</a>
+            {{ else }}
+            <a href='{{ .pageUrl }}?current={{ Minus1 .page.Current }}'>{{ Localize "i18n.prevPage" }}</a>
+            {{ end }}
             {{  end }}
         </span>
         <span>
         {{ if ge .page.Current .page.Pages }}
         {{ Localize "i18n.nextPage" }}
         {{ else }}
-        <a href="{{ .pageUrl }}?current={{ Add1 .page.Current }}">{{ Localize "i18n.nextPage" }}</a>
+        {{ $contains := ContainsStr .pageUrl "?" }}
+        {{ if $contains }}
+        <a href='{{ .pageUrl }}&current={{ Add1 .page.Current }}'>{{ Localize "i18n.nextPage" }}</a>
+        {{ else }}
+        <a href='{{ .pageUrl }}?current={{ Add1 .page.Current }}'>{{ Localize "i18n.nextPage" }}</a>
+        {{ end }}
         {{  end }}
         </span>
     </td>

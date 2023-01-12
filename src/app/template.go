@@ -15,6 +15,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -164,6 +165,10 @@ func intHtmlTemplate(pEngine *gin.Engine) {
 				str += fmt.Sprintf("%v", i)
 			}
 			return str
+		},
+
+		"ContainsStr": func(s, substr any) bool {
+			return strings.Contains(fmt.Sprintf("%v", s), fmt.Sprintf("%v", substr))
 		},
 
 		//"Template": func(name string) string {
