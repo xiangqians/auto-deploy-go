@@ -35,7 +35,7 @@ func ServerAddPage(pContext *gin.Context) {
 		idStr := pContext.Query("id")
 		id, err := strconv.ParseInt(idStr, 10, 64)
 		if err == nil && id > 0 {
-			user := GetUser(pContext)
+			user := SessionUser(pContext)
 			_, err = db.Qry(&_server, "SELECT s.id, s.`name`, s.`host`, s.`port`, s.`user`, s.rem, s.add_time, s.upd_time FROM server s WHERE s.del_flag = 0 AND s.user_id = ? AND s.id = ?", user.Id, id)
 			if err != nil {
 				log.Println(err)
@@ -75,7 +75,7 @@ func ServerAddOrUpd(pContext *gin.Context) {
 		return
 	}
 
-	user := GetUser(pContext)
+	user := SessionUser(pContext)
 	if pContext.Request.Method == http.MethodPost {
 		_, err = db.Add("INSERT INTO `server` (`user_id`, `name`, `host`, `port`, `user`, `passwd`, `rem`, `add_time`) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
 			user.Id, server.Name, server.Host, server.Port, server.User, server.Passwd, server.Rem, time.Now().Unix())
@@ -100,13 +100,13 @@ func ServerDel(pContext *gin.Context) {
 		return
 	}
 
-	user := GetUser(pContext)
+	user := SessionUser(pContext)
 	db.Del("UPDATE server SET del_flag = 1, upd_time = ? WHERE user_id = ? AND id = ?", time.Now().Unix(), user.Id, id)
 	redirect(nil)
 	return
 }
 
 func PageServer(pContext *gin.Context, pageReq typ.PageReq) (typ.Page[typ.Server], error) {
-	user := GetUser(pContext)
+	user := SessionUser(pContext)
 	return db.Page[typ.Server](pageReq, "SELECT s.id, s.`name`, s.`host`, s.`port`, s.`user`, s.rem, s.add_time, s.upd_time FROM server s WHERE s.del_flag = 0 AND s.user_id = ?", user.Id)
 }

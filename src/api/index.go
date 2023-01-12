@@ -40,7 +40,7 @@ func IndexPage(pContext *gin.Context) {
 			message = v.Error()
 		}
 		pContext.HTML(http.StatusOK, "index.html", gin.H{
-			"user":    GetUser(pContext),
+			"user":    SessionUser(pContext),
 			"page":    page,
 			"message": message, // 没有消息就是最好的消息
 		})
@@ -231,7 +231,7 @@ func asynDeploy(item typ.Item, recordId int64) {
 }
 
 func LastRecordPage(pContext *gin.Context, pageReq typ.PageReq, itemId int64) (typ.Page[typ.Record], error) {
-	user := GetUser(pContext)
+	user := SessionUser(pContext)
 	sql := "SELECT IFNULL(r.id, 0) AS 'id', i.id AS 'item_id', i.`name` AS 'item_name', i.rem AS 'item_rem', " +
 		"IFNULL(r.pull_stime, 0) AS 'pull_stime', IFNULL(r.pull_etime, 0) AS 'pull_etime', IFNULL(r.pull_status, 0) AS 'pull_status', IFNULL(r.pull_rem, '') AS 'pull_rem', " +
 		"IFNULL(r.commit_id, '') AS 'commit_id', IFNULL(r.rev_msg, '') AS 'rev_msg', " +

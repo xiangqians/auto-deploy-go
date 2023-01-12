@@ -24,6 +24,8 @@ import (
 	"strings"
 )
 
+const SessionKeyUser = "_user_"
+
 var (
 	zhTrans ut.Translator
 	enTrans ut.Translator
@@ -136,7 +138,7 @@ func Html(pContext *gin.Context, templateName string, hkvFunc func(pContext *gin
 	}
 
 	// user
-	h["user"] = GetUser(pContext)
+	h["user"] = SessionUser(pContext)
 
 	// 没有消息就是最好的消息
 	h["message"] = message
@@ -207,4 +209,17 @@ func Session[T any](pContext *gin.Context, key any, del bool) (T, error) {
 	// default
 	var t T
 	return t, errors.New("unknown")
+}
+
+func SessionUser(pContext *gin.Context) typ.User {
+	session := sessions.Default(pContext)
+	var user typ.User
+	if v, r := session.Get(SessionKeyUser).(typ.User); r {
+		user = v
+	}
+
+	// 如果返回指针值，有可能会发生逃逸
+	//return &user
+
+	return user
 }

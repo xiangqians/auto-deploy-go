@@ -21,7 +21,7 @@ func SettingIndexPage(pContext *gin.Context) {
 
 	setting, _ := Setting()
 	pContext.HTML(http.StatusOK, "setting/index.html", gin.H{
-		"user":    GetUser(pContext),
+		"user":    SessionUser(pContext),
 		"setting": setting,
 		"message": message,
 	})

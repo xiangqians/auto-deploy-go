@@ -70,7 +70,7 @@ func IndexAdminPage(pContext *gin.Context) {
 			message = err.Error()
 		}
 		pContext.HTML(http.StatusOK, "index_admin.html", gin.H{
-			"user":    GetUser(pContext),
+			"user":    SessionUser(pContext),
 			"table":   Table(tableName),
 			"tables":  tables,
 			"page":    page,

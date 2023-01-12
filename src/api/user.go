@@ -21,8 +21,6 @@ import (
 	"time"
 )
 
-const SessionKeyUser = "_user_"
-
 // 用户注册html
 func UserRegPage(pContext *gin.Context) {
 	session := sessions.Default(pContext)
@@ -151,7 +149,7 @@ func UserStgPage(pContext *gin.Context) {
 	session.Save()
 
 	if user == nil {
-		user = GetUser(pContext)
+		user = SessionUser(pContext)
 	}
 	pContext.HTML(http.StatusOK, "user/stg.html", gin.H{
 		"user":    user,
@@ -167,7 +165,7 @@ func UserUpd(pContext *gin.Context) {
 		err = VerifyUserNameAndPasswd(user.Name, user.Passwd)
 	}
 
-	sessionUser := GetUser(pContext)
+	sessionUser := SessionUser(pContext)
 	if err == nil && user.Name != sessionUser.Name {
 		err = VerifyDbUserName(user.Name)
 	}
@@ -219,32 +217,6 @@ func VerifyDbUserName(name string) error {
 	return nil
 }
 
-func GetUser(pContext *gin.Context) typ.User {
-	session := sessions.Default(pContext)
-	var user typ.User
-	if v, r := session.Get(SessionKeyUser).(typ.User); r {
-		user = v
-	}
-
-	// 如果返回指针值，有可能会发生逃逸
-	//return &user
-
-	return user
-}
-
-func SessionUser(pContext *gin.Context) typ.User {
-	session := sessions.Default(pContext)
-	var user typ.User
-	if v, r := session.Get(SessionKeyUser).(typ.User); r {
-		user = v
-	}
-
-	// 如果返回指针值，有可能会发生逃逸
-	//return &user
-
-	return user
-}
-
 func PasswdEncrypt(passwd string) string {
 	d := md5.New()
 	salt := "test"
@@ -267,7 +239,7 @@ func PasswdEncrypt(passwd string) string {
 
 func IsAdminUser(pContext *gin.Context, user typ.User) bool {
 	if user.Id == 0 {
-		user = GetUser(pContext)
+		user = SessionUser(pContext)
 	}
 	return user.Id == 1 && user.Name == "admin"
 }

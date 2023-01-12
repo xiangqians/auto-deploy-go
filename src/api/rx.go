@@ -76,7 +76,7 @@ func RxAddOrUpd(pContext *gin.Context) {
 		return
 	}
 
-	user := GetUser(pContext)
+	user := SessionUser(pContext)
 	if pContext.Request.Method == http.MethodPost {
 		_, err = db.Add("INSERT INTO `rx` (`name`, `owner_id`, `rem`, `add_time`) VALUES (?, ?, ?, ?)", rx.Name, user.Id, rx.Rem, time.Now().Unix())
 	} else if pContext.Request.Method == http.MethodPut {
@@ -102,7 +102,7 @@ func RxJoin(pContext *gin.Context) {
 			if rx.SharerId != 0 {
 				message = i18n.MustGetMessage("i18n.codeHasBeenUsed")
 			} else {
-				user := GetUser(pContext)
+				user := SessionUser(pContext)
 				if rx.OwnerId == user.Id {
 					message = i18n.MustGetMessage("i18n.yourCodeCannotBeSharedByYourself")
 				} else {
@@ -131,7 +131,7 @@ func RxDel(pContext *gin.Context) {
 		return
 	}
 
-	user := GetUser(pContext)
+	user := SessionUser(pContext)
 	db.Del("UPDATE rx SET del_flag = 1, upd_time = ? WHERE (owner_id = ? OR sharer_id = ?) AND id = ?", time.Now().Unix(), user.Id, user.Id, id)
 
 	redirect(nil)
@@ -246,7 +246,7 @@ func RxShareItemAdd(pContext *gin.Context) {
 		itemIds += ","
 	}
 	itemIds += fmt.Sprintf("%v", itemId)
-	user := GetUser(pContext)
+	user := SessionUser(pContext)
 	db.Upd("UPDATE rx SET item_ids = ?, upd_time = ? WHERE owner_id = ? AND id = ?", itemIds, time.Now().Unix(), user.Id, id)
 
 	redirect(id, nil)
@@ -293,7 +293,7 @@ func RxShareItemDel(pContext *gin.Context) {
 		if itemIds != "" {
 			itemIds = itemIds[1 : len(itemIds)-1]
 		}
-		user := GetUser(pContext)
+		user := SessionUser(pContext)
 		db.Del("UPDATE rx SET item_ids = ?, upd_time = ? WHERE owner_id = ? AND id = ?", itemIds, time.Now().Unix(), user.Id, id)
 	}
 	redirect(id, nil)
@@ -306,12 +306,12 @@ func PageRxShareItem(pContext *gin.Context, pageReq typ.PageReq, id int64) (typ.
 		return typ.Page[typ.Item]{}, nil
 	}
 
-	user := GetUser(pContext)
+	user := SessionUser(pContext)
 	return db.Page[typ.Item](pageReq, "SELECT i.id, i.`name`, r.id AS 'rx_id', r.owner_id, i.rem, i.add_time, i.upd_time FROM item i JOIN rx r ON r.del_flag = 0 AND (',' || r.item_ids || ',') LIKE ('%,' || i.id || ',%') WHERE i.del_flag = 0 AND( r.owner_id = ? OR r.sharer_id = ?) AND r.id = ? GROUP BY i.id", user.Id, user.Id, id)
 }
 
 func Rx(pContext *gin.Context, id int64, sharer bool) (typ.Rx, error) {
-	user := GetUser(pContext)
+	user := SessionUser(pContext)
 	rx := typ.Rx{}
 	sql := "SELECT r.id, r.`name`, r.owner_id, r.sharer_id, r.item_ids, r.rem FROM rx r "
 	sql += "WHERE r.del_flag = 0 "
@@ -326,6 +326,6 @@ func Rx(pContext *gin.Context, id int64, sharer bool) (typ.Rx, error) {
 }
 
 func PageRx(pContext *gin.Context, pageReq typ.PageReq) (typ.Page[typ.Rx], error) {
-	user := GetUser(pContext)
+	user := SessionUser(pContext)
 	return db.Page[typ.Rx](pageReq, "SELECT r.id, r.`name`, r.owner_id, IFNULL(ou.`name`, '') AS 'owner_name', IFNULL(ou.nickname, '') AS 'owner_nickname', r.sharer_id, IFNULL(su.`name`, '') AS 'sharer_name', IFNULL(su.nickname, '') AS 'sharer_nickname', r.item_ids, COUNT(DISTINCT i.id) AS 'share_item_count', r.rem, r.add_time, r.upd_time FROM rx r LEFT JOIN user ou ON ou.del_flag = 0 AND ou.id = r.owner_id LEFT JOIN user su ON su.del_flag = 0 AND su.id = r.sharer_id LEFT JOIN item i ON i.del_flag = 0 AND (',' || r.item_ids || ',') LIKE ('%,' || i.id || ',%') WHERE r.del_flag = 0 AND( r.owner_id = ? OR r.sharer_id = ?) GROUP BY r.id", user.Id, user.Id)
 }

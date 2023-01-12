@@ -22,7 +22,7 @@ func BuildEnvIndex(pContext *gin.Context) {
 	session.Delete("message")
 	session.Save()
 	pContext.HTML(http.StatusOK, "buildenv/index.html", gin.H{
-		"user":      GetUser(pContext),
+		"user":      SessionUser(pContext),
 		"buildEnvs": BuildEnvs(),
 		"message":   message,
 	})

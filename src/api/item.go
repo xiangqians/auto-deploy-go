@@ -35,7 +35,7 @@ func ItemAddPage(pContext *gin.Context) {
 		idStr := pContext.Query("id")
 		id, err := strconv.ParseInt(idStr, 10, 64)
 		if err == nil && id > 0 {
-			user := GetUser(pContext)
+			user := SessionUser(pContext)
 			_, err = db.Qry(&_item, "SELECT i.id, i.`name`, i.git_id, i.repo_url, i.branch, i.server_id, i.script, i.rem FROM item i  WHERE i.del_flag = 0 AND i.user_id = ? AND i.id = ?", user.Id, id)
 			if err != nil {
 				log.Println(err)
@@ -74,7 +74,7 @@ func ItemAddOrUpd(pContext *gin.Context) {
 		return
 	}
 
-	user := GetUser(pContext)
+	user := SessionUser(pContext)
 	if pContext.Request.Method == http.MethodPost {
 		_, err = db.Add("INSERT INTO `item` (`user_id`, `name`, `git_id`, `repo_url`, `branch`, `server_id`, `script`, `rem`, `add_time`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
 			user.Id, item.Name, item.GitId, item.RepoUrl, item.Branch, item.ServerId, item.Script, item.Rem, time.Now().Unix())
@@ -99,7 +99,7 @@ func ItemDel(pContext *gin.Context) {
 		return
 	}
 
-	user := GetUser(pContext)
+	user := SessionUser(pContext)
 	db.Del("UPDATE item SET del_flag = 1, upd_time = ? WHERE user_id = ? AND id = ?", time.Now().Unix(), user.Id, id)
 	redirect(nil)
 	return
@@ -109,7 +109,7 @@ func ItemDel(pContext *gin.Context) {
 // id: item id
 // sharer: 是否包含共享者
 func Item(pContext *gin.Context, id int64, sharer bool) (typ.Item, error) {
-	user := GetUser(pContext)
+	user := SessionUser(pContext)
 	sql := "SELECT i.id, i.user_id, i.`name`, i.git_id, i.repo_url, i.branch, i.server_id, i.script, i.rem "
 	sql += "FROM item i "
 	sql += "WHERE i.del_flag = 0 "
@@ -125,7 +125,7 @@ func Item(pContext *gin.Context, id int64, sharer bool) (typ.Item, error) {
 }
 
 func PageItem(pContext *gin.Context, pageReq typ.PageReq, notLikeIds string) (typ.Page[typ.Item], error) {
-	user := GetUser(pContext)
+	user := SessionUser(pContext)
 	sql := "SELECT i.id, i.`name`, i.git_id, IFNULL(g.`name`, '') AS 'git_name', i.repo_url, i.branch, i.server_id, IFNULL(s.`name`, '') AS 'server_name', i.rem, i.add_time, i.upd_time FROM item i LEFT JOIN git g ON g.del_flag = 0 AND g.id = i.git_id LEFT JOIN server s ON s.del_flag = 0 AND s.id = i.server_id WHERE i.del_flag = 0 AND i.user_id = ? "
 	if notLikeIds != "" {
 		sql += fmt.Sprintf("AND ',%s,' NOT LIKE ('%%,' || i.id || ',%%') ", notLikeIds)

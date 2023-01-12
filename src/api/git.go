@@ -62,7 +62,7 @@ func GitAddOrUpd(pContext *gin.Context) {
 		return
 	}
 
-	user := GetUser(pContext)
+	user := SessionUser(pContext)
 	if pContext.Request.Method == http.MethodPost {
 		_, err = db.Add("INSERT INTO `git` (`user_id`, `name`, `user`, `passwd`, `rem`, `add_time`) VALUES (?, ?, ?, ?, ?, ?)",
 			user.Id, git.Name, git.User, git.Passwd, git.Rem, time.Now().Unix())
@@ -86,7 +86,7 @@ func GitDel(pContext *gin.Context) {
 		return
 	}
 
-	user := GetUser(pContext)
+	user := SessionUser(pContext)
 	db.Del("UPDATE git SET del_flag = 1, upd_time = ? WHERE user_id = ? AND id = ?", time.Now().Unix(), user.Id, id)
 	redirect(nil)
 	return
@@ -103,7 +103,7 @@ func Git(pContext *gin.Context, id int64) (int64, typ.Git, error) {
 }
 
 func GitSql(pContext *gin.Context, id int64) string {
-	user := GetUser(pContext)
+	user := SessionUser(pContext)
 	sql := fmt.Sprintf("SELECT g.id, g.`name`, g.`user`, g.rem, g.add_time, g.upd_time FROM git g WHERE g.del_flag = 0 AND g.user_id = %v ", user.Id)
 	if id != 0 {
 		sql += fmt.Sprintf("AND g.id = %v ", id)
