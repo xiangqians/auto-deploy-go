@@ -4,7 +4,7 @@
  |-->
 <!DOCTYPE html>
 <!-- url -->
-{{ Put . "url" "/git/index" }}
+{{ Put . "url" "/git/list" }}
 <html lang="en" url="{{ .url }}">
 <head>
     <meta charset="UTF-8">
@@ -17,7 +17,7 @@
 {{ template "com/header.html" . }}
 
 <content>
-    {{ Put . "pageUrl" "/git/index" }}
+    {{ Put . "pageUrl" "/git/list" }}
     {{ Put . "colspan" 9 }}
     <p style="color: red;">{{ .message }}</p>
     <table border="1" cellspacing="0" cellpadding="10" align="center">

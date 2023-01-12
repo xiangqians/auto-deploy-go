@@ -44,7 +44,7 @@ func initRoute(pEngine *gin.Engine) {
 	// git
 	gitRouterGroup := pEngine.Group("/git")
 	{
-		gitRouterGroup.Any("/index", api.GitIndex)
+		gitRouterGroup.Any("/list", api.GitList)
 		gitRouterGroup.Any("/addpage", api.GitAddPage)
 	}
 	pEngine.POST("/git", api.GitAdd)

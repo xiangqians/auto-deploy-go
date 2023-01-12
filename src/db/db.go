@@ -56,11 +56,11 @@ func Page[T any](pageReq typ.PageReq, sql string, args ...any) (typ.Page[T], err
 
 	// query
 	data := make([]T, 1)
-	record, err := Qry(&data, sql, args...)
+	count, err := Qry(&data, sql, args...)
 	if err != nil {
 		return page, err
 	}
-	if record > 0 {
+	if count > 0 {
 		// 不赋予指针数据，以访发生逃逸
 		//page.Data = &data
 		page.Data = data
@@ -82,12 +82,12 @@ func Qry(i any, sql string, args ...any) (int64, error) {
 	}
 	defer pRows.Close()
 
-	record, err := rowsMapper(pRows, i)
+	count, err := rowsMapper(pRows, i)
 	if err != nil {
-		return record, err
+		return count, err
 	}
 
-	return record, nil
+	return count, nil
 }
 
 // Add return insertId

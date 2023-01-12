@@ -78,15 +78,6 @@ func intHtmlTemplate(pEngine *gin.Engine) {
 			return Add(i, (current-1)*int64(size)) + 1
 		},
 
-		// +1
-		"Add1": func(i any) int64 {
-			return Add(i, 1)
-		},
-
-		"Minus1": func(i any) int64 {
-			return Add(i, -1)
-		},
-
 		// 部署状态文本信息
 		"DeployStatusText": func(status byte) string {
 			switch status {
@@ -167,8 +158,24 @@ func intHtmlTemplate(pEngine *gin.Engine) {
 			return str
 		},
 
-		"ContainsStr": func(s, substr any) bool {
-			return strings.Contains(fmt.Sprintf("%v", s), fmt.Sprintf("%v", substr))
+		"PageUrl": func(url string, current int64, t string) string {
+			// ? &
+			if strings.Contains(url, "?") {
+				url += "&"
+			} else {
+				url += "?"
+			}
+
+			// t
+			if t == "prev" {
+				current--
+			} else if t == "next" {
+				current++
+			}
+
+			// url
+			url += fmt.Sprintf("current=%v", current)
+			return url
 		},
 
 		//"Template": func(name string) string {

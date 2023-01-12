@@ -44,7 +44,7 @@ func ItemAddPage(pContext *gin.Context) {
 		item = _item
 	}
 
-	gitPage, _ := PageGit(pContext, typ.PageReq{Current: 1, Size: 100})
+	gitPage, _ := GitPage(pContext, typ.PageReq{Current: 1, Size: 100})
 	serverPage, _ := PageServer(pContext, typ.PageReq{Current: 1, Size: 100})
 	pContext.HTML(http.StatusOK, "item/add.html", gin.H{
 		"gits":    gitPage.Data,

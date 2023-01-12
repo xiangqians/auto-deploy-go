@@ -6,47 +6,35 @@ package api
 import (
 	"auto-deploy-go/src/db"
 	"auto-deploy-go/src/typ"
-	"github.com/gin-contrib/sessions"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
-	"strconv"
 	"strings"
 	"time"
 )
 
-func GitIndex(pContext *gin.Context) {
-	HtmlPage(pContext, "git/index.html", func(pContext *gin.Context, pageReq typ.PageReq) (any, gin.H, error) {
-		page, err := PageGit(pContext, pageReq)
+func GitList(pContext *gin.Context) {
+	HtmlPage(pContext, "git/list.html", func(pContext *gin.Context, pageReq typ.PageReq) (any, gin.H, error) {
+		page, err := GitPage(pContext, pageReq)
 		return page, nil, err
 	})
 }
 
 func GitAddPage(pContext *gin.Context) {
-	session := sessions.Default(pContext)
-	git := session.Get("git")
-	message := session.Get("message")
-	session.Delete("git")
-	session.Delete("message")
-	session.Save()
-
-	if git == nil {
-		_git := typ.Git{}
-		idStr := pContext.Query("id")
-		id, err := strconv.ParseInt(idStr, 10, 64)
-		if err == nil && id > 0 {
-			user := GetUser(pContext)
-			_, err = db.Qry(&_git, "SELECT g.id, g.`name`, g.`user`, g.rem, g.add_time, g.upd_time FROM git g WHERE g.del_flag = 0 AND g.user_id = ? AND g.id = ?", user.Id, id)
+	git, err := Session[typ.Git](pContext, "git", true)
+	if err != nil {
+		id, _ := Query[int64](pContext, "id")
+		if id > 0 {
+			_, git, err = Git(pContext, id)
 			if err != nil {
 				log.Println(err)
 			}
 		}
-		git = _git
 	}
 
-	pContext.HTML(http.StatusOK, "git/add.html", gin.H{
-		"git":     git,
-		"message": message,
+	Html(pContext, "git/add.html", func(pContext *gin.Context) (gin.H, error) {
+		return gin.H{"git": git}, nil
 	})
 }
 
@@ -83,17 +71,16 @@ func GitAddOrUpd(pContext *gin.Context) {
 			git.Name, git.User, git.Passwd, git.Rem, time.Now().Unix(), user.Id, git.Id)
 	}
 
-	Redirect(pContext, "/git/index", err, nil)
+	Redirect(pContext, "/git/list", err, nil)
 	return
 }
 
 func GitDel(pContext *gin.Context) {
 	redirect := func(message any) {
-		Redirect(pContext, "/git/index", message, nil)
+		Redirect(pContext, "/git/list", message, nil)
 	}
 
-	idStr := pContext.Param("id")
-	id, err := strconv.ParseInt(idStr, 10, 64)
+	id, err := Param[int64](pContext, "id")
 	if err != nil || id <= 0 {
 		redirect(err)
 		return
@@ -105,7 +92,21 @@ func GitDel(pContext *gin.Context) {
 	return
 }
 
-func PageGit(pContext *gin.Context, pageReq typ.PageReq) (typ.Page[typ.Git], error) {
+func GitPage(pContext *gin.Context, pageReq typ.PageReq) (typ.Page[typ.Git], error) {
+	return db.Page[typ.Git](pageReq, GitSql(pContext, 0))
+}
+
+func Git(pContext *gin.Context, id int64) (int64, typ.Git, error) {
+	git := typ.Git{}
+	count, err := db.Qry(&git, GitSql(pContext, id))
+	return count, git, err
+}
+
+func GitSql(pContext *gin.Context, id int64) string {
 	user := GetUser(pContext)
-	return db.Page[typ.Git](pageReq, "SELECT g.id, g.`name`, g.`user`, g.rem, g.add_time, g.upd_time FROM git g WHERE g.del_flag = 0 AND g.user_id = ?", user.Id)
+	sql := fmt.Sprintf("SELECT g.id, g.`name`, g.`user`, g.rem, g.add_time, g.upd_time FROM git g WHERE g.del_flag = 0 AND g.user_id = %v ", user.Id)
+	if id != 0 {
+		sql += fmt.Sprintf("AND g.id = %v ", id)
+	}
+	return sql
 }

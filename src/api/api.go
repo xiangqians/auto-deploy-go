@@ -17,7 +17,10 @@ import (
 	"github.com/go-playground/validator/v10"
 	en_trans "github.com/go-playground/validator/v10/translations/en"
 	zh_trans "github.com/go-playground/validator/v10/translations/zh"
+	"log"
 	"net/http"
+	"reflect"
+	"strconv"
 	"strings"
 )
 
@@ -161,4 +164,47 @@ func Redirect(pContext *gin.Context, location string, message any, m map[string]
 	}
 
 	pContext.Redirect(http.StatusMovedPermanently, location)
+}
+
+func Param[T any](pContext *gin.Context, key string) (T, error) {
+	value := pContext.Param(key)
+	return StringToT[T](value)
+}
+
+func Query[T any](pContext *gin.Context, key string) (T, error) {
+	value := pContext.Query(key)
+	return StringToT[T](value)
+}
+
+func StringToT[T any](value string) (T, error) {
+	var t T
+	rflVal := reflect.ValueOf(t)
+	log.Println(rflVal)
+	switch rflVal.Type().Kind() {
+	case reflect.Int64:
+		id, err := strconv.ParseInt(value, 10, 64)
+		t, _ = any(id).(T)
+		return t, err
+	}
+
+	return t, errors.New("unknown")
+}
+
+// Session 根据 key 获取 session value
+func Session[T any](pContext *gin.Context, key any, del bool) (T, error) {
+	session := sessions.Default(pContext)
+	value := session.Get(key)
+	if del {
+		session.Delete(key)
+		session.Save()
+	}
+
+	// t
+	if t, r := value.(T); r {
+		return t, nil
+	}
+
+	// default
+	var t T
+	return t, errors.New("unknown")
 }

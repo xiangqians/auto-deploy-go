@@ -32,8 +32,8 @@ $. 引用模板中的根级上下文
         {{ else }}
         <a name="nav" style='padding: 8px;{{ if eq .url "/" }}background-color: lightgray;{{ end }}'
            href="/">{{ Localize "i18n.index" }}</a>
-        <a name="nav" style='padding: 8px;{{ if eq .url "/git/index" }}background-color: lightgray;{{ end }}'
-           href="/git/index">{{ Localize "i18n.git" }}</a>
+        <a name="nav" style='padding: 8px;{{ if eq .url "/git/list" }}background-color: lightgray;{{ end }}'
+           href="/git/list">{{ Localize "i18n.git" }}</a>
         <a name="nav" style='padding: 8px;{{ if eq .url "/server/index" }}background-color: lightgray;{{ end }}'
            href="/server/index">{{ Localize "i18n.server" }}</a>
         <a name="nav" style='padding: 8px;{{ if eq .url "/item/index" }}background-color: lightgray;{{ end }}'
